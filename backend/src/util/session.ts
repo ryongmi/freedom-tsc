@@ -1,12 +1,28 @@
-const session = require("express-session");
+import session from "express-session";
+
+// const session = require("express-session");
+
+type User = {
+  USER_ID: string;
+  AUTH_ID: string;
+};
+
+declare module "express-session" {
+  interface SessionData {
+    user: User;
+    isLoggedIn: boolean;
+    access_token: string;
+  }
+}
+
 const MySQLStore = require("express-mysql-session")(session);
 
 const options = {
-  host: process.env.DB_HOST as string,
-  port: 3306 as number,
-  user: process.env.DB_USER as string,
-  password: process.env.DB_PASSWORD as string,
-  database: process.env.DB_SCHEMA as string,
+  host: process.env.DB_HOST,
+  port: 3306,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_SCHEMA,
 };
 
 const sessionConfig = session({
