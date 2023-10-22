@@ -1,6 +1,6 @@
 import { Request } from "express";
 import * as db from "../util/database";
-import mysql from "mysql2/promise";
+import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 
 let conn: mysql.PoolConnection;
@@ -14,9 +14,8 @@ export const getUser = tyrCatchModelHandler(
       `  WHERE U.USER_ID = '${userId}'`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getUser",
   conn!
@@ -27,7 +26,9 @@ export const getUsers = tyrCatchModelHandler(
     const userOption = req.query.userOption;
     const userOptionValue = req.query.userOptionValue;
     const userAuthId = req.query.userAuthId;
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     let sql =
       ` SELECT` +
@@ -45,9 +46,8 @@ export const getUsers = tyrCatchModelHandler(
       sql += ` AND DISPLAY_NAME LIKE '%${userOptionValue}%'`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getUsers",
   conn!
@@ -57,7 +57,9 @@ export const getWarnUsers = tyrCatchModelHandler(
   async (req: Request) => {
     const userOption = req.query.userOption;
     const userOptionValue = req.query.userOptionValue;
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     let sql =
       ` SELECT` +
@@ -73,9 +75,8 @@ export const getWarnUsers = tyrCatchModelHandler(
       sql += ` AND U.DISPLAY_NAME LIKE '%${userOptionValue}%'`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getWarnUsers",
   conn!
@@ -84,7 +85,9 @@ export const getWarnUsers = tyrCatchModelHandler(
 export const getWarnContents = tyrCatchModelHandler(
   async (req: Request) => {
     const userId = req.params.userId;
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     const sql =
       ` SELECT` +
@@ -95,9 +98,8 @@ export const getWarnContents = tyrCatchModelHandler(
       `  WHERE W.USER_ID = '${userId}'`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getWarnContents",
   conn!
@@ -107,7 +109,9 @@ export const getBanUsers = tyrCatchModelHandler(
   async (req: Request) => {
     const userOption = req.query.userOption;
     const userOptionValue = req.query.userOptionValue;
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     let sql =
       ` SELECT` +
@@ -123,9 +127,8 @@ export const getBanUsers = tyrCatchModelHandler(
       sql += ` AND U.DISPLAY_NAME LIKE '%${userOptionValue}%'`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getBanUsers",
   conn!
@@ -134,7 +137,9 @@ export const getBanUsers = tyrCatchModelHandler(
 export const getBanContents = tyrCatchModelHandler(
   async (req: Request) => {
     const userId = req.params.userId;
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     const sql =
       ` SELECT` +
@@ -145,9 +150,8 @@ export const getBanContents = tyrCatchModelHandler(
       `  WHERE B.USER_ID = '${userId}'`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getBanContents",
   conn!
@@ -156,7 +160,9 @@ export const getBanContents = tyrCatchModelHandler(
 // ************************** MENU ************************** //
 export const getTopMenu = tyrCatchModelHandler(
   async (req: Request) => {
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     const sql =
       ` SELECT` +
@@ -166,9 +172,8 @@ export const getTopMenu = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getTopMenu",
   conn!
@@ -177,7 +182,9 @@ export const getTopMenu = tyrCatchModelHandler(
 export const getDetailMenu = tyrCatchModelHandler(
   async (req: Request) => {
     const topMenuId = req.params.topMenuId;
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     const sql =
       ` SELECT` +
@@ -187,9 +194,8 @@ export const getDetailMenu = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getDetailMenu",
   conn!
@@ -198,7 +204,9 @@ export const getDetailMenu = tyrCatchModelHandler(
 // ************************** COM-CD ************************** //
 export const getMainComCd = tyrCatchModelHandler(
   async (req: Request) => {
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     const sql =
       ` SELECT` +
@@ -208,9 +216,8 @@ export const getMainComCd = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getMainComCd",
   conn!
@@ -219,7 +226,9 @@ export const getMainComCd = tyrCatchModelHandler(
 export const getDetailComCd = tyrCatchModelHandler(
   async (req: Request) => {
     const comId = req.params.comId;
-    const perPage = req.query.perPage || 15;
+    let perPage: number = 15;
+    if (req.query.perPage && typeof req.query.perPage === "number")
+      perPage = req.query.perPage;
 
     const sql =
       ` SELECT` +
@@ -230,9 +239,8 @@ export const getDetailComCd = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].totalCount;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
   },
   "COUNT - getDetailComCd",
   conn!

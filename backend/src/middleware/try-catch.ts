@@ -17,7 +17,6 @@ export const tyrCatchModelHandler = (
     try {
       // return await handler(req, param1, param2);
       const result = await handler(req, param1, param2);
-      console.log("tyrCatchModelHandler: " + result);
       return result;
     } catch (error: IError | any) {
       console.log(error);

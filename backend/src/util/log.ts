@@ -10,10 +10,10 @@ export const setErrorLog = async (
   const error = {
     code: err.code,
     errno: err.errno,
-    message: err.message,
+    message: err.message.replace(/'/g, "`"), // 메시지 안에 ' 표시가 생겨 sql 에러가 발생하여, 전부 `로 치환함
     apiName: apiName,
     sql: err.sql,
-    isLoggedIn: req.session.isLoggedIn ? 1 : 0,
+    isLoggedIn: req.session.isLoggedIn ? "Login" : "Logout",
     userId: req.session.user ? req.session.user.USER_ID : null,
     auth: req.session.user ? req.session.user.AUTH_ID : null,
   };
@@ -23,7 +23,7 @@ export const setErrorLog = async (
                   ERROR_CODE
                 , ERROR_NO
                 , ERROR_MSG
-                , SQL
+                , ERROR_SQL
                 , API_NAME
                 , IS_LOGGED_IN
                 , USER_ID
@@ -38,9 +38,9 @@ export const setErrorLog = async (
                 , '${error.apiName}'
                 , '${error.isLoggedIn}'
                 , '${error.userId}'
-                , '${error.auth}'
+                ,  ${error.auth}
               ) `;
-
+  console.log(sql);
   let conn = null;
   try {
     conn = await db.getConnection();

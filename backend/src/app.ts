@@ -1,15 +1,27 @@
 //require("dotenv").config({ path: "../config/.env" });
-import * as dotenv from "dotenv";
-dotenv.config();
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.join(__dirname, "./config", "/.env") });
+
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
-import path from "path";
 import FRONT_PATH from "./config/constance";
 import session from "./util/session";
 import { swaggerUi, specs } from "./config/swagger";
 import indexRoutes from "./routes/index";
 
 const app = express();
+
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//   const result = dotenv.config({
+//     path: path.join(__dirname, "./config", "/.env"),
+//   }); // .env 파일의 경로를 dotenv.config에 넘겨주고 성공여부를 저장함
+//   if (result.parsed == undefined) {
+//     // .env 파일 parsing 성공 여부 확인
+//     const error = new Error("Cannot loaded environment variables file."); // parsing 실패 시 Throwing
+//     next(error);
+//   }
+// });
 
 // CORS에러 설정
 app.use(cors());
@@ -29,13 +41,13 @@ app.use("/api", indexRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs)); // swagger - API DOCS
 
 // front 메인화면
-// app.get("*", function (req, res) {
-//   res.sendFile(FRONT_PATH + "/index.html");
-// });
-
-app.get("*", function (req: Request, res: Response) {
-  res.sendFile(FRONT_PATH + req.originalUrl + ".html");
+app.get("*", function (req, res) {
+  res.sendFile(FRONT_PATH + "/index.html");
 });
+
+// app.get("*", function (req: Request, res: Response) {
+//   res.sendFile(FRONT_PATH + req.originalUrl + ".html");
+// });
 
 // express에서 사용할 수 있는 특수한 미들웨어, 에러 처리 미들웨어라고 함
 // error 인수를 포함한 4개의 인수를 가짐

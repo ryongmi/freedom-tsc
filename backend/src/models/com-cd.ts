@@ -1,6 +1,6 @@
 import { Request } from "express";
 import * as db from "../util/database";
-import mysql from "mysql2/promise";
+import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 import { ComCd, DetailComCd } from "../interface/com-cd";
 
@@ -11,9 +11,8 @@ export const getComCd = tyrCatchModelHandler(
     const sql = `SELECT COM_ID FROM comcd WHERE COM_ID = '${comId}' AND VALUE = '${value}' AND DELETED_AT IS NULL`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0];
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0];
   },
   "getComCd",
   conn!
@@ -44,9 +43,8 @@ export const getMainComCd = tyrCatchModelHandler(
       `  LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0];
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0];
   },
   "getMainComCd",
   conn!
@@ -80,9 +78,8 @@ export const getDetailComCd = tyrCatchModelHandler(
       `  LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0];
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0];
   },
   "getDetailComCd",
   conn!

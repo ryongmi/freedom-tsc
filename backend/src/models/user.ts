@@ -1,6 +1,6 @@
 import { Request } from "express";
 import * as db from "../util/database";
-import mysql from "mysql2/promise";
+import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 import { User, WarnUser, BanUser } from "../interface/user";
 
@@ -15,6 +15,7 @@ export const getUser = tyrCatchModelHandler(
       `   , DISPLAY_NAME` +
       `   , AUTH_ID` +
       `   , COM.NAME AS BROADCASTER_TYPE` +
+      `   , PROFILE_IMAGE_URL` +
       `   , (SELECT IF(COUNT(B.BAN_ID) > 0, 'Y' ,'N') FROM ban B WHERE U.USER_ID = B.USER_ID AND B.UN_BAN_AT IS NULL) AS BAN_YN` +
       `   FROM user U` +
       `   INNER JOIN comcd COM` +
@@ -23,9 +24,8 @@ export const getUser = tyrCatchModelHandler(
       `   WHERE U.USER_ID = '${userId}'`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0];
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0];
   },
   "getUser",
   conn!
@@ -83,9 +83,8 @@ export const getUsers = tyrCatchModelHandler(
     sql += ` LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0];
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0];
   },
   "getUsers",
   conn!
@@ -96,9 +95,10 @@ export const createdUser = tyrCatchModelHandler(
     const userId = user.id;
     const userLoginId = user.login;
     const displayName = user.display_name;
-    const eamil = user.eamil;
+    const email = user.email;
     const twitchType = user.type;
     const broadcasterType = user.broadcaster_type;
+    const profileImageUrl = user.profile_image_url;
 
     const sql =
       `INSERT INTO user` +
@@ -108,6 +108,7 @@ export const createdUser = tyrCatchModelHandler(
       ` , DISPLAY_NAME` +
       ` , TWITCH_TYPE` +
       ` , BROADCASTER_TYPE` +
+      ` , PROFILE_IMAGE_URL` +
       ` , EMAIL` +
       `)` +
       `VALUES` +
@@ -117,19 +118,20 @@ export const createdUser = tyrCatchModelHandler(
       ` , '${displayName}'` +
       ` , '${twitchType}'` +
       ` , '${broadcasterType}'` +
-      ` ,  ${eamil}` +
+      ` , '${profileImageUrl}'` +
+      ` , '${email}'` +
       `)` +
       `ON DUPLICATE KEY UPDATE` +
-      `   DISPLAY_NAME     = '${displayName}'` +
-      ` , TWITCH_TYPE      = '${twitchType}'` +
-      ` , BROADCASTER_TYPE = '${broadcasterType}'` +
-      ` , EMAIL            = '${eamil}'` +
-      ` , LAST_LOGIN_AT    =  now()`;
+      `   DISPLAY_NAME      = '${displayName}'` +
+      ` , TWITCH_TYPE       = '${twitchType}'` +
+      ` , BROADCASTER_TYPE  = '${broadcasterType}'` +
+      ` , PROFILE_IMAGE_URL = '${profileImageUrl}'` +
+      ` , EMAIL             = '${email}'` +
+      ` , LAST_LOGIN_AT     =  now()`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0];
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0];
   },
   "createdUser",
   conn!
@@ -181,9 +183,8 @@ export const getWarn = tyrCatchModelHandler(
       `  WHERE WARN_ID = ${wranId}`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].WARN_COUNT;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].WARN_COUNT;
   },
   "getWarn",
   conn!
@@ -301,9 +302,8 @@ export const getBan = tyrCatchModelHandler(
       `  WHERE BAN_ID = ${banId}`;
 
     conn = await db.getConnection();
-    const [rows] = await conn.query(sql);
-    // return rows[0].BAN_COUNT;
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].BAN_COUNT;
   },
   "getBan",
   conn!
