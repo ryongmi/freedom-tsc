@@ -46,7 +46,7 @@ export const getMenu = tyrCatchModelHandler(
   conn!
 );
 
-export const getMenus = tyrCatchModelHandler(
+export const getUserMenus = tyrCatchModelHandler(
   async (_: Request) => {
     const sql =
       `WITH RECURSIVE CTE AS (` +
@@ -60,7 +60,8 @@ export const getMenus = tyrCatchModelHandler(
       `   , TYPE` +
       `   , CAST(SORT as CHAR(100)) lvl` +
       `   FROM menu` +
-      `  WHERE TOP_MENU_ID IS NULL` +
+      `  WHERE ADMIN_FLAG = 'N'` +
+      `    AND TOP_MENU_ID IS NULL` +
       `    AND DELETED_AT IS NULL` +
       `    AND USE_FLAG = 'Y'` +
       ` UNION ALL` +
@@ -76,6 +77,7 @@ export const getMenus = tyrCatchModelHandler(
       `   FROM menu M` +
       `  INNER JOIN CTE C` +
       `     ON M.TOP_MENU_ID = C.MENU_ID` +
+      `    AND M.ADMIN_FLAG = 'Y'` +
       `    AND M.DELETED_AT IS NULL` +
       `    AND M.USE_FLAG = 'Y'` +
       ` )` +
@@ -95,6 +97,51 @@ export const getMenus = tyrCatchModelHandler(
     return rows;
   },
   "getMenus",
+  conn!
+);
+
+export const getAdminMenus = tyrCatchModelHandler(
+  async (_: Request) => {
+    const sql =
+      `WITH RECURSIVE CTE AS (` +
+      ` SELECT` +
+      `     MENU_ID` +
+      `   , MENU_NAME` +
+      `   , TOP_MENU_ID` +
+      `   , URL` +
+      `   , CAST(SORT as CHAR(100)) lvl` +
+      `   FROM menu` +
+      `  WHERE ADMIN_FLAG = 'Y'` +
+      `    AND TOP_MENU_ID IS NULL` +
+      `    AND DELETED_AT IS NULL` +
+      `    AND USE_FLAG = 'Y'` +
+      ` UNION ALL` +
+      ` SELECT` +
+      `     M.MENU_ID` +
+      `   , M.MENU_NAME` +
+      `   , M.TOP_MENU_ID` +
+      `   , M.URL` +
+      `   , CONCAT(C.lvl, ',', M.SORT) lvl` +
+      `   FROM menu M` +
+      `  INNER JOIN CTE C` +
+      `     ON M.TOP_MENU_ID = C.MENU_ID` +
+      `    AND M.ADMIN_FLAG = 'Y'` +
+      `    AND M.DELETED_AT IS NULL` +
+      `    AND M.USE_FLAG = 'Y'` +
+      ` )` +
+      ` SELECT ` +
+      `     MENU_ID` +
+      `   , MENU_NAME` +
+      `   , TOP_MENU_ID` +
+      `   , URL` +
+      `   FROM CTE` +
+      `  ORDER BY lvl`;
+
+    conn = await db.getConnection();
+    const [rows] = await conn.query(sql);
+    return rows;
+  },
+  "getAdminMenus",
   conn!
 );
 
