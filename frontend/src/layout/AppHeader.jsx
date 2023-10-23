@@ -51,10 +51,10 @@ function AppHeader({ collapsed, toggleCollapsed }) {
         </Col>
 
         <Col>
-          <Link to="/test1">test1</Link>
+          <Link to="/">Home</Link>
         </Col>
         <Col>
-          <Link to="/test2">test2</Link>
+          <Link to="/admin">Admin</Link>
         </Col>
         <Col
         // style={{ textAlign: "right", marginLeft: 25 }}
