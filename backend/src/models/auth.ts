@@ -1,26 +1,21 @@
 import { Request } from "express";
-import * as db from "../util/database";
 import mysql from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 import { AuthLevelCondition } from "../interface/auth";
 
-let conn: mysql.PoolConnection;
-
 export const getAuth = tyrCatchModelHandler(
-  async (_: Request, authId: number) => {
+  async (_: Request, conn: mysql.PoolConnection, authId: number) => {
     const sql = `SELECT * FROM auth WHERE AUTH_ID = ${authId}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     // return rows[0];
     return rows;
   },
-  "getAuth",
-  conn!
+  "getAuth"
 );
 
 export const getAuths = tyrCatchModelHandler(
-  async () => {
+  async (_: Request, conn: mysql.PoolConnection) => {
     const sql =
       ` SELECT` +
       `     A.AUTH_ID` +
@@ -38,21 +33,18 @@ export const getAuths = tyrCatchModelHandler(
       `     ON A.AUTH_ID = L.AUTH_ID` +
       `  ORDER BY AUTH_ID`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getAuths",
-  conn!
+  "getAuths"
 );
 
 export const updatedAuth = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryAuth: Array<AuthLevelCondition> = req.body.auth;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       let sql;
@@ -103,6 +95,5 @@ export const updatedAuth = tyrCatchModelHandler(
       throw error;
     }
   },
-  "updatedAuth",
-  conn!
+  "updatedAuth"
 );

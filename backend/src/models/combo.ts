@@ -1,12 +1,9 @@
 import { Request } from "express";
-import * as db from "../util/database";
-import mysql from "mysql2/promise";
+import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 
-let conn: mysql.PoolConnection;
-
 export const getComboComCd = tyrCatchModelHandler(
-  async (_: Request, comId: number) => {
+  async (_: Request, conn: mysql.PoolConnection, comId: number) => {
     const sql =
       ` SELECT` +
       `     VALUE AS value` +
@@ -18,28 +15,45 @@ export const getComboComCd = tyrCatchModelHandler(
       `     AND DELETED_AT IS NULL` +
       `   ORDER BY SORT`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getComboComCd",
-  conn!
+  "getComboComCd"
+);
+
+export const getComboPerPage = tyrCatchModelHandler(
+  async (_: Request, conn: mysql.PoolConnection) => {
+    const sql =
+      ` SELECT` +
+      `     VALUE AS value` +
+      `   FROM comcd` +
+      `   WHERE COM_ID = 'PER_PAGE'` +
+      `     AND VALUE != '0'` +
+      `     AND USE_FLAG = 'Y'` +
+      `     AND DELETED_AT IS NULL` +
+      `   ORDER BY SORT`;
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    if (rows.length > 0) {
+      return rows.map((item) => item.value);
+    }
+    return rows;
+  },
+  "getComboComCd"
 );
 
 export const getComboAuth = tyrCatchModelHandler(
-  async () => {
+  async (_: Request, conn: mysql.PoolConnection) => {
     const sql = `SELECT AUTH_ID AS value, AUTH_NAME AS label FROM auth ORDER BY AUTH_ID`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getComboAuth",
-  conn!
+  "getComboAuth"
 );
 
 export const getComboAuthAll = tyrCatchModelHandler(
-  async () => {
+  async (_: Request, conn: mysql.PoolConnection) => {
     let sql =
       `SELECT ` +
       `     null       AS value` +
@@ -53,16 +67,14 @@ export const getComboAuthAll = tyrCatchModelHandler(
       `   ORDER BY AUTH_ID` +
       `)`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getComboAuthAll",
-  conn!
+  "getComboAuthAll"
 );
 
 export const getComboBracket = tyrCatchModelHandler(
-  async (_: Request, menuId: number) => {
+  async (_: Request, conn: mysql.PoolConnection, menuId: number) => {
     let sql =
       `SELECT ` +
       `    null      AS value` +
@@ -77,10 +89,8 @@ export const getComboBracket = tyrCatchModelHandler(
 
     sql += `ORDER BY SORT`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getComboBracket",
-  conn!
+  "getComboBracket"
 );

@@ -1,12 +1,9 @@
 import { Request } from "express";
-import * as db from "../util/database";
 import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 
-let conn: mysql.PoolConnection;
-
 export const getComments = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const postId = req.params.postId;
 
@@ -54,10 +51,8 @@ export const getComments = tyrCatchModelHandler(
       `   FROM CTE` +
       `  ORDER BY lvl`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "getComments",
-  conn!
+  "getComments"
 );

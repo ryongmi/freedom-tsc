@@ -1,13 +1,10 @@
 import { Request } from "express";
-import * as db from "../util/database";
 import mysql from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 import { Bracket } from "../interface/bracket";
 
-let conn: mysql.PoolConnection;
-
 export const getBrackets = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
 
     const sql =
@@ -19,21 +16,18 @@ export const getBrackets = tyrCatchModelHandler(
       `  WHERE MENU_ID = ${menuId}` +
       `  ORDER BY SORT`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getBrackets",
-  conn!
+  "getBrackets"
 );
 
 export const createdBracket = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryBracket: Array<Bracket> = req.body.bracket;
     const menuId = req.body.menuId;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryBracket.forEach(async (bracket) => {
@@ -73,17 +67,15 @@ export const createdBracket = tyrCatchModelHandler(
       throw error;
     }
   },
-  "createdBracket",
-  conn!
+  "createdBracket"
 );
 
 export const deletedBracket = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryDelBracket: Array<{ bracketId: number }> = req.body.bracket;
     const menuId = req.body.menuId;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryDelBracket.forEach(async (bracketId) => {
@@ -102,6 +94,5 @@ export const deletedBracket = tyrCatchModelHandler(
       throw error;
     }
   },
-  "deletedBracket",
-  conn!
+  "deletedBracket"
 );

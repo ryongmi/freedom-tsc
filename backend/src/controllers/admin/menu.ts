@@ -14,10 +14,10 @@ export const getManageMenu = tyrCatchControllerHandler(
     }
     const menu = await MENU.getTopMenu(req);
     const totalCount = await COUNT.getTopMenu(req);
-    const comboPerPage = await COMBO.getComboComCd(req, "PER_PAGE");
     const comboUseFlag = await COMBO.getComboComCd(req, "USE_FLAG");
+    const comboPerPage = await COMBO.getComboPerPage(req);
 
-    return res.send({
+    res.send({
       menu,
       totalCount,
       comboPerPage,

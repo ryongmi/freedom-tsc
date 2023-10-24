@@ -1,13 +1,10 @@
 import { Request } from "express";
-import * as db from "../util/database";
 import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 import { User, WarnUser, BanUser } from "../interface/user";
 
-let conn: mysql.PoolConnection;
-
 export const getUser = tyrCatchModelHandler(
-  async (_: Request, userId: string) => {
+  async (_: Request, conn: mysql.PoolConnection, userId: string) => {
     const sql =
       ` SELECT` +
       `     USER_ID` +
@@ -23,16 +20,14 @@ export const getUser = tyrCatchModelHandler(
       `     AND COM.VALUE = U.BROADCASTER_TYPE` +
       `   WHERE U.USER_ID = '${userId}'`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "getUser",
-  conn!
+  "getUser"
 );
 
 export const getUsers = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const userOption = req.query.userOption;
     const userOptionValue = req.query.userOptionValue;
     const userAuthId = req.query.userAuthId;
@@ -82,16 +77,14 @@ export const getUsers = tyrCatchModelHandler(
 
     sql += ` LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "getUsers",
-  conn!
+  "getUsers"
 );
 
 export const createdUser = tyrCatchModelHandler(
-  async (_: Request, user: User) => {
+  async (_: Request, conn: mysql.PoolConnection, user: User) => {
     const userId = user.id;
     const userLoginId = user.login;
     const displayName = user.display_name;
@@ -129,21 +122,18 @@ export const createdUser = tyrCatchModelHandler(
       ` , EMAIL             = '${email}'` +
       ` , LAST_LOGIN_AT     =  now()`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "createdUser",
-  conn!
+  "createdUser"
 );
 
 export const updatedUser = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryUser: Array<User> = req.body.user;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryUser.forEach(async (user) => {
@@ -170,28 +160,25 @@ export const updatedUser = tyrCatchModelHandler(
       throw error;
     }
   },
-  "updatedUser",
-  conn!
+  "updatedUser"
 );
 
 export const getWarn = tyrCatchModelHandler(
-  async (_: Request, wranId: number) => {
+  async (_: Request, conn: mysql.PoolConnection, wranId: number) => {
     const sql =
       ` SELECT` +
       `     COUNT(WARN_ID) AS WARN_COUNT` +
       `   FROM warn` +
       `  WHERE WARN_ID = ${wranId}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].WARN_COUNT;
   },
-  "getWarn",
-  conn!
+  "getWarn"
 );
 
 export const getWarnUsers = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const userOption = req.query.userOption;
     const userOptionValue = req.query.userOptionValue;
     let currentPage: number = 1;
@@ -248,16 +235,14 @@ export const getWarnUsers = tyrCatchModelHandler(
       `   ORDER BY CREATED_AT DESC` +
       `   LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getWarnUsers",
-  conn!
+  "getWarnUsers"
 );
 
 export const getWarnContents = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const userId = req.params.userId;
     let currentPage: number = 1;
     let perPage: number = 15;
@@ -285,32 +270,28 @@ export const getWarnContents = tyrCatchModelHandler(
       `   ORDER BY UN_WARN_AT, CREATED_AT DESC` +
       `   LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getWarnContents",
-  conn!
+  "getWarnContents"
 );
 
 export const getBan = tyrCatchModelHandler(
-  async (_: Request, banId: number) => {
+  async (_: Request, conn: mysql.PoolConnection, banId: number) => {
     const sql =
       ` SELECT` +
       `     COUNT(BAN_ID) AS BAN_COUNT` +
       `   FROM ban` +
       `  WHERE BAN_ID = ${banId}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].BAN_COUNT;
   },
-  "getBan",
-  conn!
+  "getBan"
 );
 
 export const getBanUsers = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const userOption = req.query.userOption;
     const userOptionValue = req.query.userOptionValue;
     let currentPage: number = 1;
@@ -367,16 +348,14 @@ export const getBanUsers = tyrCatchModelHandler(
       `   ORDER BY CREATED_AT DESC` +
       `   LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getBanUsers",
-  conn!
+  "getBanUsers"
 );
 
 export const getBanContents = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const userId = req.params.userId;
     let currentPage: number = 1;
     let perPage: number = 15;
@@ -404,21 +383,18 @@ export const getBanContents = tyrCatchModelHandler(
       `  ORDER BY UN_BAN_AT, CREATED_AT DESC` +
       `  LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getBanContents",
-  conn!
+  "getBanContents"
 );
 
 export const createdWarnUser = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryUser: Array<WarnUser> = req.body.user;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryUser.forEach(async (user) => {
@@ -455,17 +431,15 @@ export const createdWarnUser = tyrCatchModelHandler(
       throw error;
     }
   },
-  "createdWarnUser",
-  conn!
+  "createdWarnUser"
 );
 
 export const updatedUnWarnUser = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryWarn: Array<WarnUser> = req.body.warn;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryWarn.forEach(async (warn) => {
@@ -490,17 +464,15 @@ export const updatedUnWarnUser = tyrCatchModelHandler(
       throw error;
     }
   },
-  "updatedUnWarnUser",
-  conn!
+  "updatedUnWarnUser"
 );
 
 export const createdBanUser = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryUser: Array<BanUser> = req.body.user;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryUser.forEach(async (user) => {
@@ -537,17 +509,15 @@ export const createdBanUser = tyrCatchModelHandler(
       throw error;
     }
   },
-  "createdBanUser",
-  conn!
+  "createdBanUser"
 );
 
 export const updatedUnBanUser = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryBan: Array<BanUser> = req.body.ban;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryBan.forEach(async (ban) => {
@@ -572,6 +542,5 @@ export const updatedUnBanUser = tyrCatchModelHandler(
       throw error;
     }
   },
-  "updatedUnBanUser",
-  conn!
+  "updatedUnBanUser"
 );

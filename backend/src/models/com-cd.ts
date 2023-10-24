@@ -1,25 +1,25 @@
 import { Request } from "express";
-import * as db from "../util/database";
 import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 import { ComCd, DetailComCd } from "../interface/com-cd";
 
-let conn: mysql.PoolConnection;
-
 export const getComCd = tyrCatchModelHandler(
-  async (_: Request, comId: string, value: string) => {
+  async (
+    _: Request,
+    conn: mysql.PoolConnection,
+    comId: string,
+    value: string
+  ) => {
     const sql = `SELECT COM_ID FROM comcd WHERE COM_ID = '${comId}' AND VALUE = '${value}' AND DELETED_AT IS NULL`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "getComCd",
-  conn!
+  "getComCd"
 );
 
 export const getMainComCd = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     let currentPage: number = 1;
     let perPage: number = 15;
 
@@ -42,16 +42,14 @@ export const getMainComCd = tyrCatchModelHandler(
       `  ORDER BY COM_ID` +
       `  LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "getMainComCd",
-  conn!
+  "getMainComCd"
 );
 
 export const getDetailComCd = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const comId = req.params.comId;
     let currentPage: number = 1;
     let perPage: number = 15;
@@ -77,21 +75,18 @@ export const getDetailComCd = tyrCatchModelHandler(
       `  ORDER BY SORT` +
       `  LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "getDetailComCd",
-  conn!
+  "getDetailComCd"
 );
 
 export const createdComCd = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryComCd: Array<DetailComCd> = req.body.comCd;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryComCd.forEach(async (com) => {
@@ -142,17 +137,15 @@ export const createdComCd = tyrCatchModelHandler(
       throw error;
     }
   },
-  "createdComCd",
-  conn!
+  "createdComCd"
 );
 
 export const deletedComCd = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryComCd: Array<ComCd> = req.body.comCd;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryComCd.forEach(async (com) => {
@@ -177,17 +170,15 @@ export const deletedComCd = tyrCatchModelHandler(
       throw error;
     }
   },
-  "deletedComCd",
-  conn!
+  "deletedComCd"
 );
 
 export const deletedDetailComCd = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const aryComCd: Array<ComCd> = req.body.comCd;
     const adminUserId = req.session.user!.USER_ID;
 
     try {
-      conn = await db.getConnection();
       await conn.beginTransaction();
 
       aryComCd.forEach(async (com) => {
@@ -214,6 +205,5 @@ export const deletedDetailComCd = tyrCatchModelHandler(
       throw error;
     }
   },
-  "deletedDetailComCd",
-  conn!
+  "deletedDetailComCd"
 );

@@ -12,7 +12,7 @@ export const getMenus = tyrCatchControllerHandler(
     const adminFlag = req.params.adminFlag.toLowerCase() === "true";
     let menu = [];
     if (adminFlag) menu = await MENU.getAdminMenus(req);
-    else menu.push(...(await MENU.getUserMenus(req)));
+    else menu = await MENU.getUserMenus(req);
 
     res.send({
       menu,

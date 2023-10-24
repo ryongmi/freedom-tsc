@@ -1,12 +1,9 @@
 import { Request } from "express";
-import * as db from "../util/database";
 import mysql from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 
-let conn: mysql.PoolConnection;
-
 export const getPostAll = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const userOption = req.query.userOption;
     const userOptionValue = req.query.userOptionValue;
     let currentPage: number = 1;
@@ -51,16 +48,14 @@ export const getPostAll = tyrCatchModelHandler(
 
     sql += ` LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getPostAll",
-  conn!
+  "getPostAll"
 );
 
 export const getPosts = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const bracketId = req.query.bracketId;
     const userOption = req.query.userOption;
@@ -108,16 +103,14 @@ export const getPosts = tyrCatchModelHandler(
 
     sql += ` LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getPosts",
-  conn!
+  "getPosts"
 );
 
 export const getPost = tyrCatchModelHandler(
-  async (req: Request) => {
+  async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const postId = req.params.postId;
 
@@ -146,10 +139,8 @@ export const getPost = tyrCatchModelHandler(
       `    AND P.MENU_ID = ${menuId}` +
       `    AND P.DELETED_AT IS NULL`;
 
-    conn = await db.getConnection();
     const [rows] = await conn.query(sql);
     return rows;
   },
-  "getPost",
-  conn!
+  "getPost"
 );
