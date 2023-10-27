@@ -3,6 +3,7 @@ import * as menuController from "../../controllers/admin/menu";
 import * as COM_CD from "../../models/com-cd";
 import * as MENU from "../../models/menu";
 import * as AUTH from "../../models/auth";
+import * as BRACKET from "../../models/bracket";
 
 const router = Router();
 
@@ -17,6 +18,7 @@ const { body, param } = new ExpressValidator({
   },
   isAuthID: async (value: number, meta: Meta) => {
     const req = meta.req as Request;
+
     const auth = await AUTH.getAuth(req, value);
     if (!auth) {
       return Promise.reject("존재하지 않는 권한입니다.");
@@ -24,6 +26,7 @@ const { body, param } = new ExpressValidator({
   },
   isMenuType: async (value: string, meta: Meta) => {
     const req = meta.req as Request;
+
     const comcd = await COM_CD.getComCd(req, "MENU_TYPE", value);
     if (!comcd) {
       return Promise.reject("존재하지 않는 코드입니다.");
@@ -34,6 +37,20 @@ const { body, param } = new ExpressValidator({
     const comcd = await COM_CD.getComCd(req, "USE_FLAG", value);
     if (!comcd) {
       return Promise.reject("존재하지 않는 코드입니다.");
+    }
+  },
+  isAdminFlag: async (value: string, meta: Meta) => {
+    const req = meta.req as Request;
+    const comcd = await COM_CD.getComCd(req, "ADMIN_FLAG", value);
+    if (!comcd) {
+      return Promise.reject("존재하지 않는 코드입니다.");
+    }
+  },
+  isBracketID: async (value: number, meta: Meta) => {
+    const req = meta.req as Request;
+    const bracket = await BRACKET.getBracket(req, value);
+    if (!bracket) {
+      return Promise.reject("존재하지 않는 말머리입니다.");
     }
   },
 });
@@ -115,7 +132,7 @@ router.get("/manageMenu", menuController.getManageMenu);
 /**
  * @swagger
  * paths:
- *  /api/admin/menu/manageMenu/{topMenuId}:
+ *  /api/admin/menu/detailMenu/{topMenuId}:
  *    get:
  *      summary: "상세 메뉴 관리"
  *      description: "요청 경로에 값을 담아 서버에 보낸다."
@@ -213,8 +230,8 @@ router.get("/manageMenu", menuController.getManageMenu);
  *                          ]
  */
 router.get(
-  "/manageMenu/:topMenuId",
-  param("topMenuId").isMenuID(),
+  "/detailMenu/:topMenuId",
+  param("topMenuId").isNumeric().isMenuID(),
   menuController.getDetailMenu
 );
 
@@ -291,21 +308,22 @@ router.post(
   [
     body("menu").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
     body("menu.*.menuId", "코드 ID가 비정상적입니다.")
-      .custom(async (value, { req }) => {
-        if (value && typeof value !== "number") {
-          return Promise.reject("메뉴 ID가 비정상적입니다.");
-        }
-      })
-      .trim(),
+      .isNumeric()
+      .optional({ nullable: true }),
     body("menu.*.menuName", "메뉴이름이 비정상적입니다.")
       .isString()
       .notEmpty()
-      .isLength({ min: 1, max: 20 })
+      .isLength({ min: 1, max: 30 })
       .trim(),
     body("menu.*.useFlag", "사용유무가 비정상적입니다.")
       .isString()
       .notEmpty()
       .isUseFlag()
+      .trim(),
+    body("menu.*.adminFlag", "페이지유형이 비정상적입니다.")
+      .isString()
+      .notEmpty()
+      .isAdminFlag()
       .trim(),
     body("menu.*.sort", "정렬순서가 비정상적입니다.")
       .isNumeric()
@@ -397,41 +415,26 @@ router.post(
   "/detailMenu",
   [
     body("menu").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("menu.*.menuId", "코드 ID가 비정상적입니다.")
-      .custom(async (value, { req }) => {
-        if (value && typeof value !== "number") {
-          return Promise.reject("메뉴 ID가 비정상적입니다.");
-        }
-      })
-      .trim(),
+    body("menu.*.menuId", "메뉴 ID가 비정상적입니다.")
+      .isNumeric()
+      .optional({ nullable: true }),
     body("menu.*.menuName", "메뉴이름이 비정상적입니다.")
       .isString()
       .notEmpty()
-      .isLength({ min: 1, max: 20 })
+      .isLength({ min: 1, max: 30 })
       .trim(),
-    body("menu.*.topMenuId", "상위메뉴가 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
-      .isMenuID()
-      .trim(),
+    body("menu.*.topMenuId", "상위 메뉴 ID가 비정상적입니다.").isNumeric(),
     body("menu.*.postAuthId", "게시글 권한이 비정상적입니다.")
       .isNumeric()
-      .notEmpty()
-      .isAuthID()
-      .trim(),
+      .isAuthID(),
     body("menu.*.commentAuthId", "댓글 권한이 비정상적입니다.")
       .isNumeric()
-      .notEmpty()
-      .isAuthID()
-      .trim(),
+      .isAuthID(),
     body("menu.*.readAuthId", "읽기 권한이 비정상적입니다.")
       .isNumeric()
-      .notEmpty()
-      .isAuthID()
-      .trim(),
+      .isAuthID(),
     body("menu.*.type", "타입이 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
+      .isString()
       .isMenuType()
       .trim(),
     body("menu.*.useFlag", "사용유무가 비정상적입니다.")
@@ -439,10 +442,7 @@ router.post(
       .notEmpty()
       .isUseFlag()
       .trim(),
-    body("menu.*.sort", "정렬순서가 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
-      .trim(),
+    body("menu.*.sort", "정렬순서가 비정상적입니다.").isNumeric().notEmpty(),
   ],
   menuController.postDetailMenu
 );
@@ -516,10 +516,83 @@ router.patch(
     body("menu.*.menuId", "코드 ID가 비정상적입니다.")
       .isNumeric()
       .notEmpty()
-      .trim()
       .isMenuID(),
   ],
   menuController.patchManageMenu
+);
+
+/**
+ * @swagger
+ * /api/admin/menu/detailMenu:
+ *   patch:
+ *    summary: "중메뉴 삭제"
+ *    description: 중메뉴 삭제
+ *    tags: [메뉴]
+ *    requestBody:
+ *      description: 중메뉴 삭제
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              menu:
+ *                type: object
+ *                description: "삭제할 메뉴 ID"
+ *                example:
+ *                    [
+ *                       {
+ *                          "menuId": 3
+ *                       },
+ *                       {
+ *                          "menuId": 5
+ *                       }
+ *                    ]
+ *    responses:
+ *      "200":
+ *        description: 정상 수행 - 삭제한 메뉴수만큼 메시지 보냄
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example:
+ *                    "3건 정상적으로 저장되었습니다."
+ *      "400":
+ *        description: 유효성 검사 실패
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example:
+ *                    "데이터가 없습니다."
+ *      "500":
+ *        description: 서버 에러
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example:
+ *                    "서버에서 에러가 발생하였습니다. ( 추후 수정 가능성 있음 )"
+ */
+router.patch(
+  "/detailMenu",
+  [
+    body("menu").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
+    body("menu.*.menuId", "코드 ID가 비정상적입니다.")
+      .isNumeric()
+      .notEmpty()
+      .isMenuID(),
+  ],
+  menuController.patchDetailMenu
 );
 
 /**
@@ -575,7 +648,7 @@ router.patch(
  */
 router.get(
   "/manageBracket/:menuId",
-  param("menuId").isMenuID(),
+  param("menuId").isNumeric().isMenuID(),
   menuController.getManageBracket
 );
 
@@ -583,11 +656,11 @@ router.get(
  * @swagger
  * /api/admin/menu/manageBracket:
  *   post:
- *    summary: "말머리 저장 및 삭제"
- *    description: "말머리 저장 및 삭제"
+ *    summary: "말머리 저장"
+ *    description: "말머리 저장"
  *    tags: [메뉴]
  *    requestBody:
- *      description: 말머리 저장 및 삭제
+ *      description: 말머리 저장
  *      required: true
  *      content:
  *        application/json:
@@ -603,14 +676,96 @@ router.get(
  *                          "bracketId": null,
  *                          "content": "테스트22",
  *                          "sort": 5
+ *                          "menuId": 5
+ *                          "topMenuId": 5
  *                       },
  *                       {
  *                          "bracketId": 3,
  *                          "content": "테스트32",
  *                          "sort": 5
+ *                          "menuId": 5
+ *                          "topMenuId": 5
  *                       }
  *                    ]
- *              delBracket:
+ *    responses:
+ *      "200":
+ *        description: 정상 수행
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example:
+ *                    "정상적으로 저장되었습니다."
+ *      "400":
+ *        description: 유효성 검사 실패
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example:
+ *                    "데이터가 없습니다."
+ *      "500":
+ *        description: 서버 에러
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example:
+ *                    "서버에서 에러가 발생하였습니다. ( 추후 수정 가능성 있음 )"
+ */
+router.post(
+  "/manageBracket",
+  [
+    body("bracket").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
+    body("bracket.*.bracketId", "말머리 ID가 비정상적입니다.")
+      .isNumeric()
+      .optional({ nullable: true }),
+    body("bracket.*.menuId", "메뉴 ID가 비정상적입니다.")
+      .isNumeric()
+      .isMenuID(),
+    body("bracket.*.topMenuId", "상위 메뉴 ID가 비정상적입니다.")
+      .isNumeric()
+      .isMenuID(),
+    body("menu.*.content", "말머리명이 비정상적입니다.")
+      .isString()
+      .notEmpty()
+      .isLength({ min: 1, max: 30 })
+      .trim(),
+    body("menu.*.useFlag", "사용유무가 비정상적입니다.")
+      .isString()
+      .notEmpty()
+      .isUseFlag()
+      .trim(),
+    body("menu.*.sort", "정렬순서가 비정상적입니다.").isNumeric().notEmpty(),
+  ],
+  menuController.postManageBracket
+);
+
+/**
+ * @swagger
+ * /api/admin/menu/manageBracket:
+ *   delete:
+ *    summary: "말머리 삭제"
+ *    description: "말머리 삭제"
+ *    tags: [메뉴]
+ *    requestBody:
+ *      description: 말머리 삭제
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              bracket:
  *                type: object
  *                description: "삭제할 말머리 데이터"
  *                example:
@@ -619,7 +774,7 @@ router.get(
  *                          "bracketId": 5
  *                       },
  *                       {
- *                          "bracketId": 3
+ *                          "bracketId": 3,
  *                       }
  *                    ]
  *              menuId:
@@ -662,21 +817,16 @@ router.get(
  *                  example:
  *                    "서버에서 에러가 발생하였습니다. ( 추후 수정 가능성 있음 )"
  */
-router.post(
+router.patch(
   "/manageBracket",
   [
-    body("bracket").custom(async (value, { req }) => {
-      if (value.length < 1) {
-        return Promise.reject("데이터가 없습니다.");
-      }
-    }),
-    body("delBracket").custom(async (value, { req }) => {
-      if (value.length < 1) {
-        return Promise.reject("데이터가 없습니다.");
-      }
-    }),
+    body("bracket").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
+    body("bracket.*.bracketId", "말머리 ID가 비정상적입니다.")
+      .isNumeric()
+      .notEmpty()
+      .isBracketID(),
   ],
-  menuController.postManageBracket
+  menuController.patchManageBracket
 );
 
 export default router;

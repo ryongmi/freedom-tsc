@@ -1,7 +1,8 @@
 export interface Menu {
   // 대메뉴 정보
-  menuId?: string;
+  menuId: number | null;
   menuName: string;
+  adminFlag: string;
   useFlag: string;
   sort: number;
 }
@@ -12,5 +13,6 @@ export interface DetailMenu extends Menu {
   postAuthId: number;
   commentAuthId: number;
   readAuthId: number;
-  type: string;
+  url: string;
+  type: string | null;
 }

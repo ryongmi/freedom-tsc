@@ -8,7 +8,7 @@ export const getMenuAuth = tyrCatchModelHandler(
     const menuId = req.params.menuId;
     const authId = req.session.user!.AUTH_ID;
 
-    const sql =
+    const sql: string =
       ` SELECT` +
       `     IF(POST_AUTH_ID > ${authId}, 'Y' ,'N') AS POST` +
       `   , IF(COMMENT_AUTH_ID > ${authId}, 'Y' ,'N') AS COMMENT` +
@@ -26,7 +26,7 @@ export const getMenuAuth = tyrCatchModelHandler(
 
 export const getMenu = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, menuId: number) => {
-    const sql =
+    const sql: string =
       ` SELECT` +
       `     MENU_ID` +
       `   FROM menu` +
@@ -41,7 +41,7 @@ export const getMenu = tyrCatchModelHandler(
 
 export const getUserMenus = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
-    const sql =
+    const sql: string =
       `WITH RECURSIVE CTE AS (` +
       ` SELECT` +
       `     MENU_ID` +
@@ -85,7 +85,7 @@ export const getUserMenus = tyrCatchModelHandler(
       `   FROM CTE` +
       `  ORDER BY lvl`;
 
-    const [rows] = await conn.query(sql);
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
   },
   "getMenus"
@@ -93,7 +93,7 @@ export const getUserMenus = tyrCatchModelHandler(
 
 export const getAdminMenus = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
-    const sql =
+    const sql: string =
       `WITH RECURSIVE CTE AS (` +
       ` SELECT` +
       `     MENU_ID` +
@@ -128,7 +128,7 @@ export const getAdminMenus = tyrCatchModelHandler(
       `   FROM CTE` +
       `  ORDER BY lvl`;
 
-    const [rows] = await conn.query(sql);
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
   },
   "getAdminMenus"
@@ -136,29 +136,42 @@ export const getAdminMenus = tyrCatchModelHandler(
 
 export const getTopMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    let currentPage: number = Number(req.query.page);
-    let perPage: number = isNaN(Number(req.query.perPage))
-      ? 10
-      : Number(req.query.perPage);
+    const currentPage: number = Number(req.query.page);
+    const perPage: number = Number(req.query.perPage);
+    const menuName: string = req.query.menuName?.toString() ?? "";
+    const adminFalg: string = req.query.adminFalg?.toString() ?? "ALL";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
 
-    const sql =
+    let sql: string =
       ` SELECT` +
       `     MENU_ID AS 'key'` +
-      `   , MENU_NAME AS name` +
+      `   , MENU_ID AS menuId` +
+      `   , MENU_NAME AS menuName` +
       `   , GET_DATE_FORMAT(CREATED_AT) AS createdAt` +
       `   , GET_USER_NAME(CREATED_USER) AS createdUser` +
       `   , GET_DATE_FORMAT(UPDATED_AT) AS updatedAt` +
       `   , GET_USER_NAME(UPDATED_USER) AS updatedUser` +
+      `   , ADMIN_FLAG AS adminFlag` +
       `   , USE_FLAG AS useFlag` +
       `   , SORT AS sort` +
       `   , 'S' AS status` +
       `   FROM menu` +
       `  WHERE TOP_MENU_ID IS NULL` +
-      `    AND DELETED_AT IS NULL` +
-      ` ORDER BY SORT ` +
-      ` LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
+      `    AND DELETED_AT IS NULL`;
 
-    const [rows] = await conn.query(sql);
+    if (menuName !== "") {
+      sql += ` AND MENU_NAME LIKE '${menuName}'`;
+    }
+    if (adminFalg !== "ALL") {
+      sql += ` AND ADMIN_FLAG = '${adminFalg}'`;
+    }
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
+
+    sql += ` ORDER BY SORT LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
   },
   "getTopMenu"
@@ -166,36 +179,47 @@ export const getTopMenu = tyrCatchModelHandler(
 
 export const getDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const topMenuId = req.params.topMenuId;
-    let currentPage: number = 1;
-    let perPage: number = 15;
+    const topMenuId: number = Number(req.params.topMenuId);
+    const currentPage: number = Number(req.query.page);
+    const perPage: number = Number(req.query.perPage);
+    const menuName: string = req.query.menuName?.toString() ?? "";
+    const type: string = req.query.type?.toString() ?? "ALL";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
 
-    if (req.query.page && typeof req.query.page === "number")
-      currentPage = req.query.page;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
-
-    const sql =
+    let sql: string =
       ` SELECT` +
-      `     MENU_ID` +
-      `   , MENU_NAME` +
-      `   , POST_AUTH_ID` +
-      `   , COMMENT_AUTH_ID` +
-      `   , READ_AUTH_ID` +
-      `   , GET_DATE_FORMAT(CREATED_AT) AS CREATED_AT` +
-      `   , GET_USER_NAME(CREATED_USER) AS CREATED_USER` +
-      `   , GET_DATE_FORMAT(UPDATED_AT) AS UPDATED_AT` +
-      `   , GET_USER_NAME(UPDATED_USER) AS UPDATED_USER` +
-      `   , TYPE` +
-      `   , USE_FLAG` +
-      `   , SORT` +
+      `     MENU_ID AS 'key'` +
+      `   , MENU_ID AS menuId ` +
+      `   , TOP_MENU_ID AS topMenuId ` +
+      `   , MENU_NAME AS menuName` +
+      `   , POST_AUTH_ID AS postAuthId` +
+      `   , COMMENT_AUTH_ID AS commentAuthId` +
+      `   , READ_AUTH_ID AS readAuthId` +
+      `   , GET_DATE_FORMAT(CREATED_AT) AS createdAt` +
+      `   , GET_USER_NAME(CREATED_USER) AS createdUser` +
+      `   , GET_DATE_FORMAT(UPDATED_AT) AS updatedAt` +
+      `   , GET_USER_NAME(UPDATED_USER) AS updatedUser` +
+      `   , URL AS url` +
+      `   , USE_FLAG AS useFlag` +
+      `   , TYPE AS type` +
+      `   , SORT AS sort` +
       `   FROM menu` +
       `  WHERE TOP_MENU_ID = ${topMenuId}` +
-      `    AND DELETED_AT IS NULL` +
-      `  ORDER BY SORT` +
-      `  LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
+      `    AND DELETED_AT IS NULL`;
 
-    const [rows] = await conn.query(sql);
+    if (menuName !== "") {
+      sql += ` AND MENU_NAME LIKE '${menuName}'`;
+    }
+    if (type !== "ALL") {
+      sql += ` AND ADMIN_FLAG = '${type}'`;
+    }
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
+
+    sql += ` ORDER BY SORT LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
   },
   "getDetailMenu"
@@ -204,7 +228,7 @@ export const getDetailMenu = tyrCatchModelHandler(
 export const createdMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<Menu> = req.body.menu;
-    const adminUserId = req.session.user!.USER_ID;
+    const adminUserId: string = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
@@ -212,15 +236,17 @@ export const createdMenu = tyrCatchModelHandler(
       aryMenu.forEach(async (menu) => {
         const menuId = menu.menuId;
         const menuName = menu.menuName;
+        const adminFlag = menu.adminFlag;
         const useFlag = menu.useFlag;
         const sort = menu.sort;
 
-        const sql =
+        const sql: string =
           `INSERT INTO menu` +
           `(` +
           `   MENU_ID` +
           ` , MENU_NAME` +
           ` , CREATED_USER` +
+          ` , ADMIN_FLAG` +
           ` , USE_FLAG` +
           ` , SORT` +
           `)` +
@@ -229,11 +255,13 @@ export const createdMenu = tyrCatchModelHandler(
           `    ${menuId}` +
           ` , '${menuName}'` +
           ` , '${adminUserId}'` +
+          ` , '${adminFlag}'` +
           ` , '${useFlag}'` +
           ` ,  ${sort}` +
           `)` +
           `ON DUPLICATE KEY UPDATE` +
-          ` , MENU_NAME       = '${menuName}'` +
+          `   MENU_NAME       = '${menuName}'` +
+          ` , ADMIN_FLAG      = '${adminFlag}'` +
           ` , USE_FLAG        = '${useFlag}'` +
           ` , SORT            =  ${sort}` +
           ` , UPDATED_AT      =  now()` +
@@ -258,23 +286,24 @@ export const createdMenu = tyrCatchModelHandler(
 export const createdDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<DetailMenu> = req.body.menu;
-    const adminUserId = req.session.user!.USER_ID;
+    const adminUserId: string = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
 
       aryMenu.forEach(async (menu) => {
         const menuId = menu.menuId;
-        const menuName = menu.menuName;
         const topMenuId = menu.topMenuId;
+        const menuName = menu.menuName;
         const postAuthId = menu.postAuthId;
         const commentAuthId = menu.commentAuthId;
         const readAuthId = menu.readAuthId;
         const useFlag = menu.useFlag;
+        const url = menu.url;
         const sort = menu.sort;
         const type = menu.type;
 
-        const sql =
+        const sql: string =
           `INSERT INTO menu` +
           `(` +
           `   MENU_ID` +
@@ -284,6 +313,7 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` , COMMENT_AUTH_ID` +
           ` , READ_AUTH_ID` +
           ` , CREATED_USER` +
+          ` , URL` +
           ` , TYPE` +
           ` , USE_FLAG` +
           ` , SORT` +
@@ -297,6 +327,7 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` ,  ${commentAuthId}` +
           ` ,  ${readAuthId}` +
           ` , '${adminUserId}'` +
+          ` , '${url}'` +
           ` , '${type}'` +
           ` , '${useFlag}'` +
           ` ,  ${sort}` +
@@ -306,6 +337,7 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` , COMMENT_AUTH_ID =  ${commentAuthId}` +
           ` , READ_AUTH_ID    =  ${readAuthId}` +
           ` , MENU_NAME       = '${menuName}'` +
+          ` , URL             = '${url}'` +
           ` , TYPE            = '${type}'` +
           ` , USE_FLAG        = '${useFlag}'` +
           ` , SORT            =  ${sort}` +
@@ -331,13 +363,18 @@ export const createdDetailMenu = tyrCatchModelHandler(
 export const deletedMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<{ menuId: number }> = req.body.menu;
-    const adminUserId = req.session.user!.USER_ID;
+    const adminUserId: string = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
 
+      let sql: string = "";
       aryMenu.forEach(async (menuId) => {
-        const sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE MENU_ID = '${menuId}'`;
+        sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE MENU_ID = ${menuId} OR TOP_MENU_ID = ${menuId}`;
+
+        await conn.query(sql);
+
+        sql = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE TOP_MENU_ID = ${menuId}`;
 
         await conn.query(sql);
       });
@@ -353,4 +390,36 @@ export const deletedMenu = tyrCatchModelHandler(
     }
   },
   "deletedMenu"
+);
+
+export const deletedDetailMenu = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const aryMenu: Array<{ menuId: number }> = req.body.menu;
+    const adminUserId: string = req.session.user!.USER_ID;
+
+    try {
+      await conn.beginTransaction();
+
+      let sql: string = "";
+      aryMenu.forEach(async (menuId) => {
+        sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE MENU_ID = ${menuId}`;
+
+        await conn.query(sql);
+
+        sql = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE MENU_ID = ${menuId}`;
+
+        await conn.query(sql);
+      });
+
+      await conn.commit();
+      return aryMenu.length;
+    } catch (error) {
+      if (conn) {
+        conn.rollback();
+      }
+      console.log(error);
+      throw error;
+    }
+  },
+  "deletedDetailMenu"
 );

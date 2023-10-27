@@ -1,11 +1,10 @@
-import { Avatar, Col, Row } from "antd";
+import { Avatar, Button, Col, Row } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import UserMenu from "./UserMenu";
 import Login from "../components/Login";
 import Logout from "../components/Logout";
-import AppButton from "./AppButton";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
 
 function AppHeader({ collapsed, toggleCollapsed }) {
@@ -14,6 +13,12 @@ function AppHeader({ collapsed, toggleCollapsed }) {
   return (
     <Header
       style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 1,
+        width: "100%",
+        // display: "flex",
+        // alignItems: "center",
         color: "white",
       }}
     >
@@ -39,22 +44,22 @@ function AppHeader({ collapsed, toggleCollapsed }) {
           <span>freedom</span>
         </Col>
         <Col flex={2}>
-          <AppButton
+          <Button
             onClick={toggleCollapsed}
-            ghost={true}
+            ghost
             // style={{
             //   marginBottom: 16,
             // }}
           >
             {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          </AppButton>
+          </Button>
         </Col>
 
         <Col>
           <Link to="/">Home</Link>
         </Col>
         <Col>
-          <Link to="/admin">Admin</Link>
+          <Link to="/admin/manageMenu">Admin</Link>
         </Col>
         <Col
         // style={{ textAlign: "right", marginLeft: 25 }}

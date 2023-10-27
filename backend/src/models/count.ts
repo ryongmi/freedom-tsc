@@ -145,14 +145,28 @@ export const getBanContents = tyrCatchModelHandler(
 
 // ************************** MENU ************************** //
 export const getTopMenu = tyrCatchModelHandler(
-  async (_: Request, conn: mysql.PoolConnection) => {
-    const sql =
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const menuName: string = req.query.menuName?.toString() ?? "";
+    const adminFalg: string = req.query.adminFalg?.toString() ?? "ALL";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
+
+    let sql: string =
       ` SELECT` +
       `   COUNT(MENU_ID) AS totalCount` +
       // `   (COUNT(MENU_ID) DIV ${perPage}) + 1 AS totalCount` +
       `   FROM menu` +
       `  WHERE TOP_MENU_ID IS NULL` +
       `    AND DELETED_AT IS NULL`;
+
+    if (menuName !== "") {
+      sql += ` AND MENU_NAME LIKE '${menuName}'`;
+    }
+    if (adminFalg !== "ALL") {
+      sql += ` AND ADMIN_FLAG = '${adminFalg}'`;
+    }
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
@@ -162,22 +176,59 @@ export const getTopMenu = tyrCatchModelHandler(
 
 export const getDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const topMenuId = req.params.topMenuId;
-    let perPage: number = 15;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
+    const topMenuId: number = Number(req.params.topMenuId);
+    const menuName: string = req.query.menuName?.toString() ?? "";
+    const type: string = req.query.type?.toString() ?? "ALL";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
 
-    const sql =
+    let sql: string =
       ` SELECT` +
-      `   (COUNT(MENU_ID) DIV ${perPage}) + 1 AS totalCount` +
+      `   COUNT(MENU_ID) AS totalCount` +
+      // `   (COUNT(MENU_ID) DIV ${perPage}) + 1 AS totalCount` +
       `   FROM menu` +
       `  WHERE TOP_MENU_ID = ${topMenuId}` +
       `    AND DELETED_AT IS NULL`;
+
+    if (menuName !== "") {
+      sql += ` AND MENU_NAME LIKE '${menuName}'`;
+    }
+    if (type !== "ALL") {
+      sql += ` AND ADMIN_FLAG = '${type}'`;
+    }
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
   },
   "COUNT - getDetailMenu"
+);
+
+export const getBrackets = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const menuId: number = Number(req.params.menuId);
+    const bracketName: string = req.query.bracketName?.toString() ?? "";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
+
+    let sql: string =
+      ` SELECT` +
+      `   COUNT(BRACKET_ID) AS totalCount` +
+      `   FROM bracket` +
+      `  WHERE MENU_ID = ${menuId}` +
+      `    AND DELETED_AT IS NULL`;
+
+    if (bracketName !== "") {
+      sql += ` AND CONTENT LIKE '${bracketName}'`;
+    }
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
+  },
+  "COUNT - getBrackets"
 );
 
 // ************************** COM-CD ************************** //

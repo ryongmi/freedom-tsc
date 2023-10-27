@@ -1,10 +1,10 @@
 // import Logo from "./Logo";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
-import { useState } from "react";
+import { Footer } from "antd/es/layout/layout";
 
 import AppHeader from "./AppHeader";
-import { Footer } from "antd/es/layout/layout";
 
 function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -13,10 +13,14 @@ function AppLayout() {
   };
 
   return (
-    <Layout>
+    <Layout
+      style={{
+        height: "100vh",
+      }}
+    >
       <AppHeader collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
       <Outlet context={collapsed} />
-      <Footer>footer</Footer>
+      {/* <Footer>footer</Footer> */}
     </Layout>
   );
 }

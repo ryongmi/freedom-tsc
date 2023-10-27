@@ -1,0 +1,24 @@
+export const setColumn = ({
+  title,
+  key,
+  align = "center",
+  editable = false,
+  max,
+  min,
+  type,
+  render,
+  children,
+}) => {
+  return {
+    title,
+    dataIndex: key,
+    key,
+    align,
+    editable,
+    max,
+    min,
+    type,
+    render,
+    children,
+  };
+};

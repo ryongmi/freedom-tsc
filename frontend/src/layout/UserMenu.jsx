@@ -1,6 +1,6 @@
-import { Dropdown, Avatar } from "antd";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { Dropdown, Avatar } from "antd";
 
 function UserMenu() {
   const { profileImgUrl, isLoggedIn } = useSelector((store) => store.user);
@@ -39,7 +39,6 @@ function UserMenu() {
       }}
       trigger={["click"]}
       placement="bottomLeft"
-      style={{ cursor: "pointer" }}
       // open={true}
     >
       <button

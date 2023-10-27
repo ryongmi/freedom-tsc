@@ -1,4 +1,4 @@
-import AppButton from "../layout/AppButton";
+import { Button } from "antd";
 import { logout } from "../services/apiUser";
 
 function Logout() {
@@ -12,9 +12,9 @@ function Logout() {
   }
 
   return (
-    <AppButton onClick={handleClick} ghost={true}>
+    <Button onClick={handleClick} ghost>
       로그아웃
-    </AppButton>
+    </Button>
   );
 }
 

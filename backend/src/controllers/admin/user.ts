@@ -10,14 +10,14 @@ export const getManageUser = tyrCatchControllerHandler(
     const users = await USER.getUsers(req);
     const totalCount = await COUNT.getUsers(req);
     const comboAuth = await COMBO.getComboAuth(req);
-    const comboAuthAll = await COMBO.getComboAuthAll(req);
+    // const comboAuthAll = await COMBO.getComboAuthAll(req);
     const comboPerPage = await COMBO.getComboComCd(req, "PER_PAGE");
 
     return res.send({
       users,
       totalCount,
       comboAuth,
-      comboAuthAll,
+      // comboAuthAll,
       comboPerPage,
     });
   }

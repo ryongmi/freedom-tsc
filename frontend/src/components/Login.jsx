@@ -3,15 +3,14 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getUserInfo } from "../services/apiUser";
 import { updateUser } from "../store/slice/userSlice";
-import AppButton from "../layout/AppButton";
+import { TWITCH_LOGIN_API } from "../config/apiUrl";
+import { Button } from "antd";
 
 function Login() {
   const dispatch = useDispatch();
   const user = useLoaderData();
-  const state = "c3ab8aa609ea11e793ae92361f002671";
-  const api = `http://id.twitch.tv/oauth2/authorize?response_type=code&client_id=tymp4f3nwou50k5wgrameksysbthdk&redirect_uri=http://localhost:8000/api/userState/login&scope=user:read:email&state=${state}`;
 
-  useEffect(function () {
+  useEffect(() => {
     const updateUserInfo = {
       userName: user?.DISPLAY_NAME ?? "",
       loginId: user?.USER_LOGIN_ID ?? "",
@@ -23,13 +22,13 @@ function Login() {
   }, []);
 
   function handleClick(e) {
-    window.location.href = api;
+    window.location.href = TWITCH_LOGIN_API;
   }
 
   return (
-    <AppButton onClick={handleClick} ghost={true}>
+    <Button onClick={handleClick} ghost>
       로그인
-    </AppButton>
+    </Button>
     // <button onClick={handleClick}>로그인</button>
     // <Link onClick={handleClick}>로그인</Link>
     // <a href="https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=tymp4f3nwou50k5wgrameksysbthdk&redirect_uri=http://localhost:3000&scope=user:read:email&state=c3ab8aa609ea11e793ae92361f002671">

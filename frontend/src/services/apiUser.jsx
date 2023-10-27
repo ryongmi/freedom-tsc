@@ -1,7 +1,7 @@
-const API_URL = "http://localhost:8000/api";
+import { USER_INFO, LOGOUT } from "../config/apiUrl";
 
 export async function getUserInfo() {
-  const res = await fetch(`${API_URL}/userState/userInfo`);
+  const res = await fetch(USER_INFO);
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) throw Error("Failed getting menu");
@@ -12,7 +12,7 @@ export async function getUserInfo() {
 }
 
 export async function logout() {
-  const res = await fetch(`${API_URL}/userState/logout`, {
+  const res = await fetch(LOGOUT, {
     method: "DELETE",
   });
 

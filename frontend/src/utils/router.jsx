@@ -9,6 +9,8 @@ import { loader as loginLoder } from "../components/Login";
 import { userLoader, adminLoader } from "../layout/AppSider";
 import AppContentLayout from "../layout/AppContentLayout";
 import ManageMenu from "../pages/admin/menu/ManageMenu";
+import DetailMenu from "../pages/admin/menu/DetailMenu";
+import ManageBracket from "../pages/admin/bracket/ManageBracket";
 
 const router = createBrowserRouter([
   {
@@ -21,17 +23,26 @@ const router = createBrowserRouter([
         loader: adminLoader,
         children: [
           {
-            path: "",
+            path: "manageMenu",
             element: <ManageMenu />,
+          },
+          {
+            path: "manageMenu/:topMenuId",
+            element: <DetailMenu />,
+          },
+          {
+            path: "manageBracket/:menuId",
+            element: <ManageBracket />,
           },
         ],
       },
       {
+        path: "/",
         element: <AppContentLayout />,
         loader: userLoader,
         children: [
           {
-            path: "/",
+            index: true,
             element: <Home />,
           },
           { path: "/test1", element: <Test1 /> },
@@ -52,7 +63,6 @@ const router = createBrowserRouter([
       //   },
       //   { path: "/order/:orderId", element: <Order />, loader: orderLoader },
     ],
-
     errorElement: <Error404 />,
   },
 ]);

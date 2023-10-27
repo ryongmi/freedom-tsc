@@ -11,16 +11,13 @@ export const tyrCatchModelHandler = (handler: Function, apiName: string) => {
   ) => {
     const conn = await db.getConnection();
     try {
-      // return await handler(req, param1, param2);
       const result = await handler(req, conn, param1, param2);
       return result;
     } catch (error: IError | any) {
       console.log(error);
       throw log.setErrorLog(req, error, apiName);
     } finally {
-      if (conn) {
-        await db.releaseConnection(conn);
-      }
+      if (conn) await db.releaseConnection(conn);
     }
   };
 };

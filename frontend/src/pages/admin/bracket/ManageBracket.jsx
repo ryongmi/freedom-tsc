@@ -1,60 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
-import { Button, Input, Select } from "antd";
-import { CaretRightOutlined } from "@ant-design/icons";
+import { useLocation, useOutletContext, useParams } from "react-router-dom";
+import { Input, Select } from "antd";
 
 import AppTable from "../../../components/table/AppTable";
 import { setColumn } from "../../../components/table/SetColumn";
 
 import {
-  getManageMenu,
-  patchManageMenu,
-  postManageMenu,
-} from "../../../services/apiMenu";
+  getManageBracket,
+  patchManageBracket,
+  postManageBracket,
+} from "../../../services/apiBracket";
 
 import "../../../styles/table.css";
 
-function ManageMenu() {
+function ManageBracket() {
+  const { menuId } = useParams();
+  const { state: topMenuId } = useLocation();
   const { showMessage, showModal } = useOutletContext();
   const [dataSource, setDataSource] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [comboPerPage, setComboPerPage] = useState([]);
-  const [comboAdminFlag, setComboAdminFlag] = useState([]);
   const [comboUseFlag, setComboUseFlag] = useState([]);
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [newItemCount, setNewItemCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [searchMenuName, setSearchMenuName] = useState("");
-  const [searchAdminFlag, setSearchAdminFlag] = useState("ALL");
+
+  const [searchBracketName, setSearchBracketName] = useState("");
   const [searchUseFlag, setSearchUseFlag] = useState("ALL");
-  const navigate = useNavigate();
 
   const defaultColumns = [
-    setColumn({ title: "메뉴명", key: "menuName", editable: true, max: 30 }),
+    setColumn({ title: "말머리명", key: "content", editable: true, max: 50 }),
     setColumn({ title: "생성일", key: "createdAt" }),
     setColumn({ title: "생성자", key: "createdUser" }),
     setColumn({ title: "수정일", key: "updatedAt" }),
     setColumn({ title: "수정자", key: "updatedUser" }),
-    setColumn({
-      title: "페이지유형",
-      key: "adminFlag",
-      render: (text, record, _) => (
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        <Select
-          style={{
-            width: 130,
-          }}
-          defaultValue={text}
-          onChange={(value) => {
-            record = { ...record, adminFlag: value };
-            handleCellSave(record, "adminFlag");
-          }}
-          options={comboAdminFlag}
-        />
-      ),
-    }),
     setColumn({
       title: "사용여부",
       key: "useFlag",
@@ -63,7 +44,7 @@ function ManageMenu() {
         // text : data값, record: 선택한 row값 배열, index: 선택한 row index
         <Select
           style={{
-            width: 80,
+            width: 100,
           }}
           defaultValue={text}
           onChange={(value) => {
@@ -82,22 +63,6 @@ function ManageMenu() {
       max: 999,
       type: "number",
     }),
-    setColumn({
-      title: "중메뉴",
-      key: "middleMenu",
-      render: (text, record, _) =>
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        record.menuId ? (
-          <Button
-            icon={<CaretRightOutlined className="table-btn-icon" />}
-            onClick={() => navigate(`/admin/manageMenu/${record.menuId}`)}
-            // shape="circle"
-          />
-        ) : (
-          ""
-        ),
-    }),
   ];
 
   useEffect(() => {
@@ -110,19 +75,18 @@ function ManageMenu() {
   // Table Button Event
   async function handleSearch() {
     try {
-      const { menu, totalCount, comboPerPage, comboAdminFlag, comboUseFlag } =
-        await getManageMenu(
+      const { bracket, comboPerPage, totalCount, comboUseFlag } =
+        await getManageBracket(
           currentPage,
           perPage,
-          searchMenuName,
-          searchAdminFlag,
+          menuId,
+          searchBracketName,
           searchUseFlag
         );
 
-      setDataSource(menu);
+      setDataSource(bracket);
       setTotalCount(totalCount);
       setComboPerPage(comboPerPage);
-      setComboAdminFlag(comboAdminFlag);
       setComboUseFlag(comboUseFlag);
       setNewItemCount(0);
       setSelectedRowKeys([]);
@@ -147,10 +111,10 @@ function ManageMenu() {
           if (row.key !== key) continue;
 
           if (row.status !== "S") {
-            if (row.menuName === "-") {
+            if (row.content === "-") {
               isShowModal = true;
               throw Error(
-                `${index + 1}번째줄의 메뉴이름을 입력해주세요. ('-', 공백 불가)`
+                `${index + 1}번째줄의 말머리명을 입력해주세요. ('-', 공백 불가)`
               );
             }
 
@@ -161,7 +125,7 @@ function ManageMenu() {
       });
 
       if (fetchData.length === 0) return;
-      const { message } = await postManageMenu(fetchData);
+      const { message } = await postManageBracket(fetchData);
       await handleSearch();
       showMessage(message);
     } catch (error) {
@@ -183,14 +147,14 @@ function ManageMenu() {
           const row = dataSource[index];
           if (row.key !== key) continue;
 
-          if (row.status !== "I") fetchData.push(row.menuId);
+          if (row.status !== "I") fetchData.push(row.bracketId);
 
           break;
         }
       });
 
       if (fetchData.length > 0) {
-        const { message } = await patchManageMenu(fetchData);
+        const { message } = await patchManageBracket(fetchData);
         showMessage(message);
       }
 
@@ -203,16 +167,17 @@ function ManageMenu() {
   function handleItemAdd() {
     const newData = {
       key: `new${newItemCount}`,
-      menuName: "-",
+      content: "-",
       createdAt: null,
       createdUser: null,
       updatedAt: null,
       updatedUser: null,
-      adminFlag: comboAdminFlag[0].value,
       useFlag: comboUseFlag[0].value,
       sort: 1,
       status: "I",
-      menuId: null,
+      bracketId: null,
+      menuId,
+      topMenuId,
     };
 
     setDataSource([...dataSource, newData]);
@@ -287,22 +252,11 @@ function ManageMenu() {
       totalCount={totalCount}
       handlePagingChange={handlePagingChange}
     >
-      <span>메뉴명</span>
+      <span>말머리명</span>
       <Input
         showCount
-        maxLength={30}
-        onChange={(e) => setSearchMenuName(e.target.value)}
-      />
-      <span>페이지타입</span>
-      <Select
-        style={{
-          width: 130,
-        }}
-        value={searchAdminFlag}
-        onChange={(value) => {
-          setSearchAdminFlag(value);
-        }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboAdminFlag]}
+        maxLength={50}
+        onChange={(e) => setSearchBracketName(e.target.value)}
       />
       <span>사용유무</span>
       <Select
@@ -319,4 +273,4 @@ function ManageMenu() {
   );
 }
 
-export default ManageMenu;
+export default ManageBracket;

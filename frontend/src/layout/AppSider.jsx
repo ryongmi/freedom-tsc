@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useLoaderData, useNavigate, useOutletContext } from "react-router-dom";
 import { Layout, Menu } from "antd";
 import {
   LaptopOutlined,
@@ -8,8 +8,9 @@ import {
   PieChartOutlined,
   DesktopOutlined,
 } from "@ant-design/icons";
-import { useLoaderData, useNavigate, useOutletContext } from "react-router-dom";
+
 import { getMenuInfo } from "../services/apiMenu";
+
 const { Sider } = Layout;
 
 function getItem(label, key, icon, children, type) {
@@ -50,7 +51,7 @@ const items3 = [
 ];
 const items2 = [
   getItem("Option 1", "1", <PieChartOutlined />),
-  getItem("admin", "/admin", <DesktopOutlined />),
+  // getItem("admin", "/admin", <DesktopOutlined />),
   getItem("tttt", "3", <NotificationOutlined />, [
     getItem("Home", "/"),
     getItem("test1", "/test1"),
@@ -59,6 +60,95 @@ const items2 = [
     getItem("Home", "/"),
     getItem("test1dddddddddddddddddddddd", "/test1"),
   ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("tttt", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1", "/test1"),
+  ]),
+  getItem("ttttddddddddddddddddddddd", "3", <NotificationOutlined />, [
+    getItem("Home", "/"),
+    getItem("test1dddddddddddddddddddddd", "/test1"),
+  ]),
+  getItem("admin", "/admin", <DesktopOutlined />),
 ];
 
 function AppSider({ colorBgContainer }) {
@@ -111,8 +201,9 @@ function AppSider({ colorBgContainer }) {
             );
         }
 
-        if (items.length > 0) setMenuId([...items3]);
-        else setMenuId([...items2]);
+        setMenuId([...items]);
+        // if (items.length > 0) setMenuId([...items]);
+        // else setMenuId([...items2]);
       } catch (error) {
         console.log("error: " + error);
       }
@@ -131,12 +222,11 @@ function AppSider({ colorBgContainer }) {
   return (
     <Sider
       // width={300}
+      className="sideBar scroll"
       style={{
-        overflow: "auto",
-        // height: "90vh",
         background: colorBgContainer,
       }}
-      collapsible
+      collapsible={true}
       collapsed={collapsed}
       collapsedWidth={0}
       trigger={null}

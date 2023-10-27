@@ -1,34 +1,153 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
-import { Button, Input, Select } from "antd";
-import { CaretRightOutlined } from "@ant-design/icons";
-
-import AppTable from "../../../components/table/AppTable";
-import { setColumn } from "../../../components/table/SetColumn";
-
+import {
+  Button,
+  Pagination,
+  Table,
+  Input,
+  Form,
+  InputNumber,
+  Select,
+} from "antd";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import "../../../styles/table.css";
 import {
   getManageMenu,
   patchManageMenu,
   postManageMenu,
 } from "../../../services/apiMenu";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import { Content } from "antd/es/layout/layout";
+import AppBreadcrumb from "../../../layout/AppBreadcrumb";
+import { useOutletContext } from "react-router-dom";
 
-import "../../../styles/table.css";
+const EditableContext = React.createContext(null);
+const EditableRow = ({ index, ...props }) => {
+  const [form] = Form.useForm();
+  return (
+    <Form form={form} component={false}>
+      <EditableContext.Provider value={form}>
+        <tr {...props} />
+      </EditableContext.Provider>
+    </Form>
+  );
+};
+const EditableCell = ({
+  title,
+  editable,
+  children,
+  dataIndex,
+  record,
+  handleCellSave,
+  type,
+  min,
+  max,
+  ...restProps
+}) => {
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef(null);
+  const form = useContext(EditableContext);
+  useEffect(() => {
+    if (editing) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+  const toggleEdit = () => {
+    setEditing(!editing);
+    form.setFieldsValue({
+      [dataIndex]: record[dataIndex],
+    });
+  };
+  const save = async () => {
+    try {
+      const values = await form.validateFields();
+      toggleEdit();
+      handleCellSave(
+        {
+          ...record,
+          ...values,
+        },
+        dataIndex
+      );
+    } catch (errInfo) {
+      console.log("Save failed:", errInfo);
+    }
+  };
+  let childNode = children;
+  if (editable) {
+    childNode = editing ? (
+      <Form.Item
+        style={{
+          margin: 0,
+        }}
+        name={dataIndex}
+        rules={[
+          {
+            required: true,
+            message: `${title}은 공백일수 없습니다.`,
+          },
+        ]}
+      >
+        {type === "number" ? (
+          <InputNumber
+            ref={inputRef}
+            onPressEnter={save}
+            onBlur={save}
+            min={min}
+            max={max}
+          />
+        ) : (
+          <Input
+            ref={inputRef}
+            onPressEnter={save}
+            onBlur={save}
+            showCount
+            maxLength={max}
+          />
+        )}
+      </Form.Item>
+    ) : (
+      <div className="editable-cell-value-wrap" onClick={toggleEdit}>
+        {children}
+      </div>
+    );
+  }
+  return <td {...restProps}>{childNode}</td>;
+};
+
+function setColumn({
+  title,
+  key,
+  align = "center",
+  editable = false,
+  max,
+  min,
+  type,
+  render,
+  children,
+}) {
+  return {
+    title,
+    dataIndex: key,
+    key,
+    align,
+    editable,
+    max,
+    min,
+    type,
+    render,
+    children,
+  };
+}
 
 function ManageMenu() {
-  const { showMessage, showModal } = useOutletContext();
+  const { showMessage, showModal, colorBgContainer } = useOutletContext();
   const [dataSource, setDataSource] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [comboPerPage, setComboPerPage] = useState([]);
-  const [comboAdminFlag, setComboAdminFlag] = useState([]);
   const [comboUseFlag, setComboUseFlag] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [newItemCount, setNewItemCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [searchMenuName, setSearchMenuName] = useState("");
-  const [searchAdminFlag, setSearchAdminFlag] = useState("ALL");
-  const [searchUseFlag, setSearchUseFlag] = useState("ALL");
-  const navigate = useNavigate();
+  const [perPage, setPerPage] = useState(null);
 
   const defaultColumns = [
     setColumn({ title: "메뉴명", key: "menuName", editable: true, max: 30 }),
@@ -37,35 +156,16 @@ function ManageMenu() {
     setColumn({ title: "수정일", key: "updatedAt" }),
     setColumn({ title: "수정자", key: "updatedUser" }),
     setColumn({
-      title: "페이지유형",
-      key: "adminFlag",
-      render: (text, record, _) => (
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        <Select
-          style={{
-            width: 130,
-          }}
-          defaultValue={text}
-          onChange={(value) => {
-            record = { ...record, adminFlag: value };
-            handleCellSave(record, "adminFlag");
-          }}
-          options={comboAdminFlag}
-        />
-      ),
-    }),
-    setColumn({
       title: "사용여부",
       key: "useFlag",
       render: (text, record, _) => (
         // (text, record, index)
         // text : data값, record: 선택한 row값 배열, index: 선택한 row index
         <Select
-          style={{
-            width: 80,
-          }}
           defaultValue={text}
+          style={{
+            width: 120,
+          }}
           onChange={(value) => {
             record = { ...record, useFlag: value };
             handleCellSave(record, "useFlag");
@@ -82,22 +182,6 @@ function ManageMenu() {
       max: 999,
       type: "number",
     }),
-    setColumn({
-      title: "중메뉴",
-      key: "middleMenu",
-      render: (text, record, _) =>
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        record.menuId ? (
-          <Button
-            icon={<CaretRightOutlined className="table-btn-icon" />}
-            onClick={() => navigate(`/admin/manageMenu/${record.menuId}`)}
-            // shape="circle"
-          />
-        ) : (
-          ""
-        ),
-    }),
   ];
 
   useEffect(() => {
@@ -110,25 +194,18 @@ function ManageMenu() {
   // Table Button Event
   async function handleSearch() {
     try {
-      const { menu, totalCount, comboPerPage, comboAdminFlag, comboUseFlag } =
-        await getManageMenu(
-          currentPage,
-          perPage,
-          searchMenuName,
-          searchAdminFlag,
-          searchUseFlag
-        );
+      const { menu, totalCount, comboPerPage, comboUseFlag } =
+        await getManageMenu(currentPage, perPage);
 
       setDataSource(menu);
       setTotalCount(totalCount);
       setComboPerPage(comboPerPage);
-      setComboAdminFlag(comboAdminFlag);
       setComboUseFlag(comboUseFlag);
-      setNewItemCount(0);
       setSelectedRowKeys([]);
       showMessage("조회성공!");
     } catch (error) {
-      showMessage(error.message, "error");
+      showMessage("조회실패!", "error");
+      console.log("error: " + error);
     }
   }
 
@@ -153,7 +230,7 @@ function ManageMenu() {
                 `${index + 1}번째줄의 메뉴이름을 입력해주세요. ('-', 공백 불가)`
               );
             }
-
+            debugger;
             fetchData.push(row);
           }
           break;
@@ -166,7 +243,8 @@ function ManageMenu() {
       showMessage(message);
     } catch (error) {
       if (isShowModal) showModal("데이터 체크", error.message);
-      else showMessage(error.message, "error");
+      else showMessage("저장실패!", "error");
+      console.log("error: " + error);
     }
   }
 
@@ -196,7 +274,8 @@ function ManageMenu() {
 
       await handleSearch();
     } catch (error) {
-      showMessage(error.message, "error");
+      showMessage("삭제실패!", "error");
+      console.log("error: " + error);
     }
   }
 
@@ -208,7 +287,6 @@ function ManageMenu() {
       createdUser: null,
       updatedAt: null,
       updatedUser: null,
-      adminFlag: comboAdminFlag[0].value,
       useFlag: comboUseFlag[0].value,
       sort: 1,
       status: "I",
@@ -246,13 +324,13 @@ function ManageMenu() {
   };
 
   // Table Paging Event
-  async function handlePagingChange(page, pageSize) {
+  async function handleChange(page, pageSize) {
     // 로우 수 보여주는 콤보박스 및 페이지 변경 이벤트
     setCurrentPage(page);
     setPerPage(pageSize);
   }
 
-  // // Table Cell Event
+  // Table Cell Event
   function handleCellSave(row, dataIndex) {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
@@ -270,52 +348,86 @@ function ManageMenu() {
     }
   }
 
+  // Table row, col seting
+  const columns = defaultColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        handleCellSave,
+        type: col.type,
+        min: col.min,
+        max: col.max,
+      }),
+    };
+  });
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+
   return (
-    <AppTable
-      defaultColumns={defaultColumns}
-      dataSource={dataSource}
-      handleCellSave={handleCellSave}
-      comboPerPage={comboPerPage}
-      selectedRowKeys={selectedRowKeys}
-      onSelectChange={onSelectChange}
-      handleItemAdd={handleItemAdd}
-      handleItemRemove={handleItemRemove}
-      handleSearch={handleSearch}
-      handleSave={handleSave}
-      handleDelete={handleDelete}
-      currentPage={currentPage}
-      totalCount={totalCount}
-      handlePagingChange={handlePagingChange}
-    >
-      <span>메뉴명</span>
-      <Input
-        showCount
-        maxLength={30}
-        onChange={(e) => setSearchMenuName(e.target.value)}
-      />
-      <span>페이지타입</span>
-      <Select
+    <>
+      <AppBreadcrumb />
+      <Content
+        className="scroll"
         style={{
-          width: 130,
+          padding: 24,
+          margin: 0,
+          minHeight: 280,
+          background: colorBgContainer,
+          overflow: "auto",
         }}
-        value={searchAdminFlag}
-        onChange={(value) => {
-          setSearchAdminFlag(value);
-        }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboAdminFlag]}
-      />
-      <span>사용유무</span>
-      <Select
-        style={{
-          width: 80,
-        }}
-        value={searchUseFlag}
-        onChange={(value) => {
-          setSearchUseFlag(value);
-        }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboUseFlag]}
-      />
-    </AppTable>
+      >
+        <div
+          style={{
+            marginBottom: 16,
+          }}
+        >
+          <Button
+            icon={<PlusOutlined style={{ fontSize: "14px" }} />}
+            onClick={handleItemAdd}
+            shape="circle"
+          ></Button>
+          <Button
+            icon={<MinusOutlined style={{ fontSize: "14px" }} />}
+            onClick={handleItemRemove}
+            shape="circle"
+          ></Button>
+
+          <Button onClick={handleSearch}>조회</Button>
+          <Button onClick={handleSave}>저장</Button>
+          <Button onClick={handleDelete} danger>
+            삭제
+          </Button>
+        </div>
+        <Table
+          components={components}
+          columns={columns}
+          dataSource={dataSource}
+          bordered
+          pagination={false}
+          rowSelection={{ selectedRowKeys, onChange: onSelectChange }}
+        />
+        <Pagination
+          showSizeChanger
+          current={currentPage}
+          total={totalCount}
+          onChange={handleChange}
+          pageSizeOptions={comboPerPage}
+          style={{ margin: "16px 0px", textAlign: "right" }}
+        />
+      </Content>
+    </>
   );
 }
 
