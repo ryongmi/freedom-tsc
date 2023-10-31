@@ -24,3 +24,7 @@ export const DETAIL_MENU = `${BASE_URL}/admin/menu/detailMenu`;
 
 // 말머리 관련
 export const BRACKET = `${BASE_URL}/admin/menu/manageBracket`;
+
+// 공통코드 관련
+export const MANAGE_COMCD = `${BASE_URL}/admin/com-cd/manageComCd`;
+export const DETAIL_COMCD = `${BASE_URL}/admin/com-cd/detailComCd`;

@@ -13,6 +13,13 @@ const { body, param } = new ExpressValidator({
       return Promise.reject("존재하지 않는 코드입니다.");
     }
   },
+  isUseFlag: async (value: string, meta: Meta) => {
+    const req = meta.req as Request;
+    const comcd = await COM_CD.getComCd(req, "USE_FLAG", value);
+    if (!comcd) {
+      return Promise.reject("존재하지 않는 코드입니다.");
+    }
+  },
 });
 
 router.get("/manageComCd", comCdController.getManageComCd);
@@ -36,19 +43,6 @@ router.post(
       .notEmpty()
       .isLength({ min: 1, max: 30 })
       .trim(),
-    body("comCd.*.useFlag", "사용유무가 비정상적입니다.")
-      .isString()
-      .notEmpty()
-      .trim()
-      .custom(async (value, { req }) => {
-        if (value !== "Y" && value !== "N") {
-          return Promise.reject("사용유무가 비정상적입니다.");
-        }
-      }),
-    body("comCd.*.sort", "정렬순서가 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
-      .trim(),
   ],
   comCdController.postManageComCd
 );
@@ -56,12 +50,6 @@ router.post(
   "/detailComCd",
   [
     body("comCd").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("comCd.*.comId", "코드 ID가 비정상적입니다.")
-      .isString()
-      .notEmpty()
-      .isLength({ min: 1, max: 25 })
-      .isComID()
-      .trim(),
     body("comCd.*.value", "값이 비정상적입니다.")
       .isString()
       .notEmpty()
@@ -75,18 +63,16 @@ router.post(
     body("comCd.*.useFlag", "사용유무가 비정상적입니다.")
       .isString()
       .notEmpty()
-      .trim()
-      .custom(async (value, { req }) => {
-        if (value !== "Y" && value !== "N") {
-          return Promise.reject("사용유무가 비정상적입니다.");
-        }
-      }),
-    body("comCd.*.sort", "정렬순서가 비정상적입니다.")
-      .isNumeric()
+      .isUseFlag()
+      .trim(),
+    body("comCd.*.sort", "정렬순서가 비정상적입니다.").isNumeric().notEmpty(),
+    body("comId", "코드 ID가 비정상적입니다.")
+      .isString()
       .notEmpty()
+      .isComID()
       .trim(),
   ],
-  comCdController.postManageComCd
+  comCdController.postDetailComCd
 );
 
 router.patch(
@@ -106,16 +92,15 @@ router.patch(
   "/detailComCd",
   [
     body("comCd").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("comCd.*.comId", "코드 ID가 비정상적입니다.")
-      .isString()
-      .notEmpty()
-      .isLength({ min: 1, max: 25 })
-      .isComID()
-      .trim(),
     body("comCd.*.value", "값이 비정상적입니다.")
       .isString()
       .notEmpty()
       .isLength({ min: 1, max: 30 })
+      .trim(),
+    body("comId", "코드 ID가 비정상적입니다.")
+      .isString()
+      .notEmpty()
+      .isComID()
       .trim(),
   ],
   comCdController.deleteDetailComCd

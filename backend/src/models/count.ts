@@ -227,16 +227,23 @@ export const getBrackets = tyrCatchModelHandler(
 // ************************** COM-CD ************************** //
 export const getMainComCd = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    let perPage: number = 15;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
+    const comcdOption: string = req.query.comcdOption?.toString() ?? "";
+    const comcdOptionValue: string =
+      req.query.comcdOptionValue?.toString() ?? "";
 
-    const sql =
+    let sql: string =
       ` SELECT` +
-      `   (COUNT(COM_ID) DIV ${perPage}) + 1 AS totalCount` +
+      `   COUNT(COM_ID) AS totalCount` +
       `   FROM comcd` +
       `  WHERE VALUE = '0'` +
       `    AND DELETED_AT IS NULL`;
+
+    if (comcdOptionValue !== "") {
+      if (comcdOption === "ID")
+        sql += ` AND COM_ID LIKE '%${comcdOptionValue}%'`;
+      else if (comcdOption === "NAME")
+        sql += ` AND NAME LIKE '%${comcdOptionValue}%'`;
+    }
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
@@ -246,18 +253,30 @@ export const getMainComCd = tyrCatchModelHandler(
 
 export const getDetailComCd = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const comId = req.params.comId;
-    let perPage: number = 15;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
+    const comId: string = req.params.comId;
+    const comcdOption: string = req.query.comcdOption?.toString() ?? "";
+    const comcdOptionValue: string =
+      req.query.comcdOptionValue?.toString() ?? "";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
 
-    const sql =
+    let sql: string =
       ` SELECT` +
-      `   (COUNT(COM_ID) DIV ${perPage}) + 1 AS totalCount` +
+      `   COUNT(COM_ID) AS totalCount` +
       `   FROM comcd` +
       `  WHERE COM_ID = '${comId}'` +
       `    AND VALUE != '0'` +
       `    AND DELETED_AT IS NULL`;
+
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
+
+    if (comcdOptionValue !== "") {
+      if (comcdOption === "ID")
+        sql += ` AND VALUE LIKE '%${comcdOptionValue}%'`;
+      else if (comcdOption === "NAME")
+        sql += ` AND NAME LIKE '%${comcdOptionValue}%'`;
+    }
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;

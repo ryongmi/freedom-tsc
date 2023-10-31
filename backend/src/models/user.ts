@@ -333,10 +333,12 @@ export const getBanUsers = tyrCatchModelHandler(
       `        AND COM2.VALUE  = U.BROADCASTER_TYPE` +
       `      WHERE U.USER_STATUS = 'B'`;
 
-    if (userOption === "ID")
-      sql += ` AND U.USER_LOGIN_ID LIKE '%${userOptionValue}%'`;
-    else if (userOption === "NAME")
-      sql += ` AND U.DISPLAY_NAME LIKE '%${userOptionValue}%'`;
+    if (userOptionValue !== "") {
+      if (userOption === "ID")
+        sql += ` AND U.USER_LOGIN_ID LIKE '%${userOptionValue}%'`;
+      else if (userOption === "NAME")
+        sql += ` AND U.DISPLAY_NAME LIKE '%${userOptionValue}%'`;
+    }
 
     sql +=
       `      GROUP BY B.USER_ID, USER_NAME, A.AUTH_NAME, TWITCH_TYPE, BROADCASTER_TYPE, BAN_COUNT` +

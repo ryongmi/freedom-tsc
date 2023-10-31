@@ -6,93 +6,62 @@ import { CaretRightOutlined } from "@ant-design/icons";
 import AppTable from "../../../components/table/AppTable";
 import { setColumn } from "../../../components/table/SetColumn";
 
+import { patchManageMenu, postManageMenu } from "../../../services/apiMenu";
 import {
-  getManageMenu,
-  patchManageMenu,
-  postManageMenu,
-} from "../../../services/apiMenu";
+  getManageComCd,
+  patchManageComCd,
+  postManageComCd,
+} from "../../../services/apiComCd";
 
 function ManageComCd() {
   const { showMessage, showModal } = useOutletContext();
   const navigate = useNavigate();
 
+  // 기본
   const [dataSource, setDataSource] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [comboPerPage, setComboPerPage] = useState([]);
-  const [comboAdminFlag, setComboAdminFlag] = useState([]);
-  const [comboUseFlag, setComboUseFlag] = useState([]);
-
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [newItemCount, setNewItemCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(null);
+  const [newItemCount, setNewItemCount] = useState(0);
 
-  const [searchMenuName, setSearchMenuName] = useState("");
-  const [searchAdminFlag, setSearchAdminFlag] = useState("ALL");
-  const [searchUseFlag, setSearchUseFlag] = useState("ALL");
+  // 콤보박스 아이템
+  const [comboComCdOption, setComboComCdOption] = useState([]);
+
+  // 검색조건
+  const [searchComCdOption, setSearchComCdOption] = useState("");
+  const [searchComCdOptionValue, setSearchComCdOptionValue] = useState("");
 
   const defaultColumns = [
-    setColumn({ title: "메뉴명", key: "menuName", editable: true, max: 30 }),
+    setColumn({
+      title: "코드값",
+      key: "comId",
+      // 추가한 로우에서만 수정되게 하기
+      onCell: (record) => ({
+        record,
+        editable: record["status"] === "I" ? true : false,
+        dataIndex: "comId",
+        title: "코드ID",
+        handleCellSave,
+        max: 25,
+      }),
+    }),
+    setColumn({ title: "코드명", key: "name", editable: true, max: 30 }),
     setColumn({ title: "생성일", key: "createdAt" }),
     setColumn({ title: "생성자", key: "createdUser" }),
     setColumn({ title: "수정일", key: "updatedAt" }),
     setColumn({ title: "수정자", key: "updatedUser" }),
     setColumn({
-      title: "페이지유형",
-      key: "adminFlag",
-      render: (text, record, _) => (
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        <Select
-          style={{
-            width: 130,
-          }}
-          defaultValue={text}
-          onChange={(value) => {
-            record = { ...record, adminFlag: value };
-            handleCellSave(record, "adminFlag");
-          }}
-          options={comboAdminFlag}
-        />
-      ),
-    }),
-    setColumn({
-      title: "사용여부",
-      key: "useFlag",
-      render: (text, record, _) => (
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        <Select
-          style={{
-            width: 80,
-          }}
-          defaultValue={text}
-          onChange={(value) => {
-            record = { ...record, useFlag: value };
-            handleCellSave(record, "useFlag");
-          }}
-          options={comboUseFlag}
-        />
-      ),
-    }),
-    setColumn({
-      title: "순서",
-      key: "sort",
-      editable: true,
-      min: 1,
-      max: 999,
-      type: "number",
-    }),
-    setColumn({
-      title: "중메뉴",
-      key: "middleMenu",
+      title: "상세",
+      key: "DetailComcd",
       render: (text, record, _) =>
         // (text, record, index)
         // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        record.menuId ? (
+        record.createdAt ? (
           <Button
             icon={<CaretRightOutlined className="table-btn-icon" />}
-            onClick={() => navigate(`/admin/manageMenu/${record.menuId}`)}
+            onClick={() => navigate(`/admin/manageComCd/${record.comId}`)}
             // shape="circle"
           />
         ) : (
@@ -111,22 +80,24 @@ function ManageComCd() {
   // Table Button Event
   async function handleSearch() {
     try {
-      const { menu, totalCount, comboPerPage, comboAdminFlag, comboUseFlag } =
-        await getManageMenu(
+      const { comCd, totalCount, comboPerPage, comboComCdOption } =
+        await getManageComCd(
           currentPage,
           perPage,
-          searchMenuName,
-          searchAdminFlag,
-          searchUseFlag
+          searchComCdOption,
+          searchComCdOptionValue
         );
 
-      setDataSource(menu);
+      setDataSource(comCd);
       setTotalCount(totalCount);
       setComboPerPage(comboPerPage);
-      setComboAdminFlag(comboAdminFlag);
-      setComboUseFlag(comboUseFlag);
+
+      setComboComCdOption(comboComCdOption);
+      setSearchComCdOption(comboComCdOption[0].value ?? "");
+
       setNewItemCount(0);
       setSelectedRowKeys([]);
+
       showMessage("조회성공!");
     } catch (error) {
       showMessage(error.message, "error");
@@ -148,10 +119,16 @@ function ManageComCd() {
           if (row.key !== key) continue;
 
           if (row.status !== "S") {
-            if (row.menuName === "-") {
+            if (row.comId === "-") {
               isShowModal = true;
               throw Error(
-                `${index + 1}번째줄의 메뉴이름을 입력해주세요. ('-', 공백 불가)`
+                `${index + 1}번째줄의 코드ID을 입력해주세요. ('-', 공백 불가)`
+              );
+            }
+            if (row.name === "-") {
+              isShowModal = true;
+              throw Error(
+                `${index + 1}번째줄의 코드명을 입력해주세요. ('-', 공백 불가)`
               );
             }
 
@@ -162,7 +139,7 @@ function ManageComCd() {
       });
 
       if (fetchData.length === 0) return;
-      const { message } = await postManageMenu(fetchData);
+      const { message } = await postManageComCd(fetchData);
       await handleSearch();
       showMessage(message);
     } catch (error) {
@@ -184,14 +161,14 @@ function ManageComCd() {
           const row = dataSource[index];
           if (row.key !== key) continue;
 
-          if (row.status !== "I") fetchData.push({ menuId: row.menuId });
+          if (row.status !== "I") fetchData.push({ comId: row.comId });
 
           break;
         }
       });
 
       if (fetchData.length > 0) {
-        const { message } = await patchManageMenu(fetchData);
+        const { message } = await patchManageComCd(fetchData);
         showMessage(message);
       }
 
@@ -204,16 +181,13 @@ function ManageComCd() {
   function handleItemAdd() {
     const newData = {
       key: `new${newItemCount}`,
-      menuName: "-",
+      comId: "-",
+      name: "-",
       createdAt: null,
       createdUser: null,
       updatedAt: null,
       updatedUser: null,
-      adminFlag: comboAdminFlag[0].value,
-      useFlag: comboUseFlag[0].value,
-      sort: 1,
       status: "I",
-      menuId: null,
     };
 
     setDataSource([...dataSource, newData]);
@@ -255,6 +229,7 @@ function ManageComCd() {
 
   // // Table Cell Event
   function handleCellSave(row, dataIndex) {
+    debugger;
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
@@ -288,30 +263,18 @@ function ManageComCd() {
       totalCount={totalCount}
       handlePagingChange={handlePagingChange}
     >
-      <span>메뉴명</span>
-      <Input onChange={(e) => setSearchMenuName(e.target.value)} />
-      <span>페이지타입</span>
+      <span>공통코드</span>
       <Select
         style={{
-          width: 130,
+          width: 100,
         }}
-        value={searchAdminFlag}
+        value={searchComCdOption}
         onChange={(value) => {
-          setSearchAdminFlag(value);
+          setSearchComCdOption(value);
         }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboAdminFlag]}
+        options={[...comboComCdOption]}
       />
-      <span>사용유무</span>
-      <Select
-        style={{
-          width: 80,
-        }}
-        value={searchUseFlag}
-        onChange={(value) => {
-          setSearchUseFlag(value);
-        }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboUseFlag]}
-      />
+      <Input onChange={(e) => setSearchComCdOptionValue(e.target.value)} />
     </AppTable>
   );
 }

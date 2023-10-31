@@ -16,6 +16,8 @@ import ManageWarnUser from "../pages/admin/user/ManageWarnUser";
 import ContentWarnUser from "../pages/admin/user/ContentWarnUser";
 import ContentBanUser from "../pages/admin/user/ContentBanUser";
 import ManageBanUser from "../pages/admin/user/ManageBanUser";
+import ManageComCd from "../pages/admin/com-cd/ManageComCd";
+import DetailComCd from "../pages/admin/com-cd/DetailComCd";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +60,14 @@ const router = createBrowserRouter([
           {
             path: "manageBanUser/:userId",
             element: <ContentBanUser />,
+          },
+          {
+            path: "manageComCd",
+            element: <ManageComCd />,
+          },
+          {
+            path: "manageComCd/:comId",
+            element: <DetailComCd />,
           },
         ],
       },

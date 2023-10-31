@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { Button, Input, Select } from "antd";
-import { EditFilled } from "@ant-design/icons";
+import { Input, Select } from "antd";
 
 import AppTable from "../../../components/table/AppTable";
 import { setColumn } from "../../../components/table/SetColumn";
@@ -11,97 +10,41 @@ import {
   patchDetailMenu,
   postDetailMenu,
 } from "../../../services/apiMenu";
+import {
+  getDetailComCd,
+  patchDetailComCd,
+  postDetailComCd,
+} from "../../../services/apiComCd";
 
 function DetailComCd() {
-  const { topMenuId } = useParams();
+  const { comId } = useParams();
   const { showMessage, showModal } = useOutletContext();
-  const navigate = useNavigate();
 
+  // 기본
   const [dataSource, setDataSource] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [comboPerPage, setComboPerPage] = useState([]);
-  const [comboAuth, setComboAuth] = useState([]);
-  const [comboUseFlag, setComboUseFlag] = useState([]);
-  const [comboType, setComboType] = useState([]);
-
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [newItemCount, setNewItemCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(null);
+  const [newItemCount, setNewItemCount] = useState(0);
 
-  const [searchMenuName, setSearchMenuName] = useState("");
-  const [searchType, setSearchType] = useState("ALL");
+  // 콤보박스 아이템
+  const [comboComCdOption, setComboComCdOption] = useState([]);
+  const [comboUseFlag, setComboUseFlag] = useState([]);
+
+  // 검색조건
+  const [searchComCdOption, setSearchComCdOption] = useState("");
+  const [searchComCdOptionValue, setSearchComCdOptionValue] = useState("");
   const [searchUseFlag, setSearchUseFlag] = useState("ALL");
 
   const defaultColumns = [
-    setColumn({ title: "메뉴명", key: "menuName", editable: true, max: 30 }),
-    setColumn({
-      title: "권한",
-      children: [
-        setColumn({
-          title: "글쓰기",
-          key: "postAuthId",
-          render: (text, record, _) => (
-            // (text, record, index)
-            // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-            <Select
-              style={{
-                width: 130,
-              }}
-              defaultValue={text}
-              onChange={(value) => {
-                record = { ...record, postAuthId: value };
-                handleCellSave(record, "postAuthId");
-              }}
-              options={comboAuth}
-            />
-          ),
-        }),
-        setColumn({
-          title: "댓글쓰기",
-          key: "commentAuthId",
-          render: (text, record, _) => (
-            // (text, record, index)
-            // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-            <Select
-              style={{
-                width: 130,
-              }}
-              defaultValue={text}
-              onChange={(value) => {
-                record = { ...record, commentAuthId: value };
-                handleCellSave(record, "commentAuthId");
-              }}
-              options={comboAuth}
-            />
-          ),
-        }),
-        setColumn({
-          title: "읽기",
-          key: "readAuthId",
-          render: (text, record, _) => (
-            // (text, record, index)
-            // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-            <Select
-              style={{
-                width: 130,
-              }}
-              defaultValue={text}
-              onChange={(value) => {
-                record = { ...record, readAuthId: value };
-                handleCellSave(record, "readAuthId");
-              }}
-              options={comboAuth}
-            />
-          ),
-        }),
-      ],
-    }),
+    setColumn({ title: "코드값", key: "value", editable: true, max: 30 }),
+    setColumn({ title: "코드명", key: "name", editable: true, max: 30 }),
     setColumn({ title: "생성일", key: "createdAt" }),
     setColumn({ title: "생성자", key: "createdUser" }),
     setColumn({ title: "수정일", key: "updatedAt" }),
     setColumn({ title: "수정자", key: "updatedUser" }),
-    setColumn({ title: "URL", key: "url", editable: true, max: 100 }),
     setColumn({
       title: "사용여부",
       key: "useFlag",
@@ -122,51 +65,12 @@ function DetailComCd() {
       ),
     }),
     setColumn({
-      title: "유형",
-      key: "type",
-      render: (text, record, _) => (
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        <Select
-          style={{
-            width: 100,
-          }}
-          defaultValue={text}
-          onChange={(value) => {
-            record = { ...record, type: value };
-            handleCellSave(record, "type");
-          }}
-          options={comboType}
-        />
-      ),
-    }),
-    setColumn({
       title: "순서",
       key: "sort",
       editable: true,
       min: 1,
       max: 999,
       type: "number",
-    }),
-    setColumn({
-      title: "말머리",
-      key: "middleMenu",
-      render: (text, record, _) =>
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        record.menuId ? (
-          <Button
-            icon={<EditFilled className="table-btn-icon" />}
-            onClick={() =>
-              navigate(`/admin/manageBracket/${record.menuId}`, {
-                state: topMenuId,
-              })
-            }
-            // shape="circle"
-          />
-        ) : (
-          ""
-        ),
     }),
   ];
 
@@ -181,27 +85,28 @@ function DetailComCd() {
   async function handleSearch() {
     try {
       const {
-        menu,
+        detailComCd,
         totalCount,
         comboPerPage,
-        comboAuth,
         comboUseFlag,
-        comboType,
-      } = await getDetailMenu(
-        topMenuId,
+        comboComCdOption,
+      } = await getDetailComCd(
+        comId,
         currentPage,
         perPage,
-        searchMenuName,
-        searchType,
+        searchComCdOption,
+        searchComCdOptionValue,
         searchUseFlag
       );
 
-      setDataSource(menu);
+      setDataSource(detailComCd);
       setTotalCount(totalCount);
       setComboPerPage(comboPerPage);
-      setComboAuth(comboAuth);
+
+      setComboComCdOption(comboComCdOption);
+      setSearchComCdOption(comboComCdOption[0].value ?? "");
       setComboUseFlag(comboUseFlag);
-      setComboType(comboType);
+
       setNewItemCount(0);
       setSelectedRowKeys([]);
       showMessage("조회성공!");
@@ -225,15 +130,15 @@ function DetailComCd() {
           if (row.key !== key) continue;
 
           if (row.status !== "S") {
-            if (row.menuName === "-") {
+            if (row.value === "-") {
               isShowModal = true;
               throw Error(
-                `${index + 1}번째줄의 메뉴이름을 입력해주세요. ('-', 공백 불가)`
+                `${index + 1}번째줄의 코드값을 입력해주세요. ('-', 공백 불가)`
               );
-            } else if (row.url === "-") {
+            } else if (row.name === "-") {
               isShowModal = true;
               throw Error(
-                `${index + 1}번째줄의 URL을 입력해주세요. ('-', 공백 불가)`
+                `${index + 1}번째줄의 코드명을 입력해주세요. ('-', 공백 불가)`
               );
             }
 
@@ -244,7 +149,7 @@ function DetailComCd() {
       });
 
       if (fetchData.length === 0) return;
-      const { message } = await postDetailMenu(fetchData);
+      const { message } = await postDetailComCd(fetchData, comId);
       await handleSearch();
       showMessage(message);
     } catch (error) {
@@ -266,14 +171,14 @@ function DetailComCd() {
           const row = dataSource[index];
           if (row.key !== key) continue;
 
-          if (row.status !== "I") fetchData.push({ menuId: row.menuId });
+          if (row.status !== "I") fetchData.push({ value: row.value });
 
           break;
         }
       });
 
       if (fetchData.length > 0) {
-        const { message } = await patchDetailMenu(fetchData);
+        const { message } = await patchDetailComCd(fetchData, comId);
         showMessage(message);
       }
 
@@ -286,21 +191,15 @@ function DetailComCd() {
   function handleItemAdd() {
     const newData = {
       key: `new${newItemCount}`,
-      menuName: "-",
-      postAuthId: comboAuth[0].value,
-      commentAuthId: comboAuth[0].value,
-      readAuthId: comboAuth[0].value,
+      value: "-",
+      name: "-",
       createdAt: null,
       createdUser: null,
       updatedAt: null,
       updatedUser: null,
-      url: "-",
       useFlag: comboUseFlag[0].value,
-      type: comboType[0].value,
       sort: 1,
       status: "I",
-      menuId: null,
-      topMenuId,
     };
 
     setDataSource([...dataSource, newData]);
@@ -375,19 +274,18 @@ function DetailComCd() {
       totalCount={totalCount}
       handlePagingChange={handlePagingChange}
     >
-      <span>메뉴명</span>
-      <Input onChange={(e) => setSearchMenuName(e.target.value)} />
-      <span>유형</span>
+      <span>공통코드</span>
       <Select
         style={{
-          width: 80,
+          width: 100,
         }}
-        value={searchType}
+        value={searchComCdOption}
         onChange={(value) => {
-          setSearchType(value);
+          setSearchComCdOption(value);
         }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboType]}
+        options={[...comboComCdOption]}
       />
+      <Input onChange={(e) => setSearchComCdOptionValue(e.target.value)} />
       <span>사용유무</span>
       <Select
         style={{
