@@ -11,6 +11,11 @@ import AppContentLayout from "../layout/AppContentLayout";
 import ManageMenu from "../pages/admin/menu/ManageMenu";
 import DetailMenu from "../pages/admin/menu/DetailMenu";
 import ManageBracket from "../pages/admin/bracket/ManageBracket";
+import ManageUser from "../pages/admin/user/ManageUser";
+import ManageWarnUser from "../pages/admin/user/ManageWarnUser";
+import ContentWarnUser from "../pages/admin/user/ContentWarnUser";
+import ContentBanUser from "../pages/admin/user/ContentBanUser";
+import ManageBanUser from "../pages/admin/user/ManageBanUser";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +38,26 @@ const router = createBrowserRouter([
           {
             path: "manageBracket/:menuId",
             element: <ManageBracket />,
+          },
+          {
+            path: "manageUser",
+            element: <ManageUser />,
+          },
+          {
+            path: "manageWarnUser",
+            element: <ManageWarnUser />,
+          },
+          {
+            path: "manageWarnUser/:userId",
+            element: <ContentWarnUser />,
+          },
+          {
+            path: "manageBanUser",
+            element: <ManageBanUser />,
+          },
+          {
+            path: "manageBanUser/:userId",
+            element: <ContentBanUser />,
           },
         ],
       },

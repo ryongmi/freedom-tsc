@@ -3,8 +3,8 @@ import session from "express-session";
 // const session = require("express-session");
 
 type User = {
-  USER_ID: string;
-  AUTH_ID: string;
+  USER_ID: number;
+  AUTH_ID: number;
 };
 
 declare module "express-session" {

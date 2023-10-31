@@ -12,8 +12,6 @@ import {
   postDetailMenu,
 } from "../../../services/apiMenu";
 
-import "../../../styles/table.css";
-
 function DetailMenu() {
   const { topMenuId } = useParams();
   const { showMessage, showModal } = useOutletContext();
@@ -214,7 +212,7 @@ function DetailMenu() {
 
   async function handleSave() {
     if (selectedRowKeys.length === 0) {
-      showMessage("warning", "저장할 데이터를 선택해주세요!");
+      showMessage("저장할 데이터를 선택해주세요!", "warning");
       return;
     }
 
@@ -268,7 +266,7 @@ function DetailMenu() {
           const row = dataSource[index];
           if (row.key !== key) continue;
 
-          if (row.status !== "I") fetchData.push(row.menuId);
+          if (row.status !== "I") fetchData.push({ menuId: row.menuId });
 
           break;
         }
@@ -378,11 +376,7 @@ function DetailMenu() {
       handlePagingChange={handlePagingChange}
     >
       <span>메뉴명</span>
-      <Input
-        showCount
-        maxLength={30}
-        onChange={(e) => setSearchMenuName(e.target.value)}
-      />
+      <Input onChange={(e) => setSearchMenuName(e.target.value)} />
       <span>유형</span>
       <Select
         style={{

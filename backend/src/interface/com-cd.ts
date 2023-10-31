@@ -1,6 +1,6 @@
 export interface ComCd {
   // 공통코드 정보
-  comId: string;
+  comId: string | null;
   value?: string;
 }
 

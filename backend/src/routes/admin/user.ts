@@ -7,7 +7,7 @@ const router = Router();
 
 import { ExpressValidator, Meta } from "express-validator";
 const { body, param } = new ExpressValidator({
-  isUserID: async (value: string, meta: Meta) => {
+  isUserID: async (value: number, meta: Meta) => {
     const req = meta.req as Request;
     const user = await USER.getUser(req, value);
     if (!user) {
@@ -221,17 +221,8 @@ router.patch(
   "/manageUser",
   [
     body("user").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("user.*.userId", "유저 ID가 비정상적입니다.")
-      .isString()
-      .notEmpty()
-      .isLength({ min: 1, max: 15 })
-      .trim()
-      .isUserID(),
-    body("user.*.authId", "유저 권한이 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
-      .trim()
-      .isAuthID(),
+    body("user.*.userId", "유저 ID가 비정상적입니다.").isNumeric().isUserID(),
+    body("user.*.authId", "유저 권한이 비정상적입니다.").isNumeric().isAuthID(),
   ],
   userController.patchManageUser
 );
@@ -459,20 +450,12 @@ router.post(
   "/warnUser",
   [
     body("user").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("user.*.userId", "유저 ID가 비정상적입니다.")
-      .isString()
-      .notEmpty()
-      .isLength({ min: 1, max: 15 })
-      .trim()
-      .isUserID(),
-    body("user.*.postUrl", "Url이 비정상적입니다.")
-      .isString()
-      .notEmpty()
+    body("user.*.userId", "유저 ID가 비정상적입니다.").isNumeric().isUserID(),
+    body("postUrl", "Url이 비정상적입니다.")
+      .isURL()
+      .optional({ nullable: true, checkFalsy: true })
       .trim(),
-    body("user.*.warnReason", "사유가 비정상적입니다.")
-      .isString()
-      .notEmpty()
-      .trim(),
+    body("warnReason", "사유가 비정상적입니다.").isString().notEmpty().trim(),
   ],
   userController.postWarnUser
 );
@@ -492,7 +475,7 @@ router.post(
  *          schema:
  *            type: object
  *            properties:
- *              user:
+ *              warn:
  *                type: object
  *                description: "경고 ID"
  *                example:
@@ -543,11 +526,8 @@ router.patch(
   "/unWarnUser",
   [
     body("warn").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("warn.*.warnId", "경고 ID가 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
-      .trim()
-      .isWarnID(),
+    body("warn.*.warnId", "경고 ID가 비정상적입니다.").isNumeric().isWarnID(),
+    body("userId", "유저 ID가 비정상적입니다.").isNumeric().isUserID(),
   ],
   userController.patchUnWarnUser
 );
@@ -694,7 +674,7 @@ router.get("/manageBanUser", userController.getManageBanUser);
  */
 router.get(
   "/manageBanUser/:userId",
-  param("userId").isUserID(),
+  param("userId").isNumeric().isUserID(),
   userController.getManageBanContent
 );
 
@@ -768,20 +748,12 @@ router.post(
   "/banUser",
   [
     body("user").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("user.*.userId", "유저 ID가 비정상적입니다.")
-      .isString()
-      .notEmpty()
-      .isLength({ min: 1, max: 15 })
-      .trim()
-      .isUserID(),
-    body("user.*.postUrl", "Url이 비정상적입니다.")
-      .isString()
-      .notEmpty()
+    body("user.*.userId", "유저 ID가 비정상적입니다.").isNumeric().isUserID(),
+    body("postUrl", "Url이 비정상적입니다.")
+      .isURL()
+      .optional({ nullable: true, checkFalsy: true })
       .trim(),
-    body("user.*.banReason", "사유가 비정상적입니다.")
-      .isString()
-      .notEmpty()
-      .trim(),
+    body("banReason", "사유가 비정상적입니다.").isString().notEmpty().trim(),
   ],
   userController.postBanUser
 );
@@ -852,11 +824,7 @@ router.patch(
   "/unBanUser",
   [
     body("ban").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("ban.*.banId", "벤 ID가 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
-      .trim()
-      .isBanID(),
+    body("ban.*.banId", "벤 ID가 비정상적입니다.").isNumeric().isBanID(),
   ],
   userController.patchUnBanUser
 );

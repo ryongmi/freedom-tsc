@@ -20,3 +20,7 @@
 .pagination {
   text-align: right;
 }
+
+.table-user-status {
+  color: red;
+}

@@ -203,6 +203,7 @@ export const getDetailMenu = tyrCatchModelHandler(
       `   , USE_FLAG AS useFlag` +
       `   , TYPE AS type` +
       `   , SORT AS sort` +
+      `   , 'S' AS status` +
       `   FROM menu` +
       `  WHERE TOP_MENU_ID = ${topMenuId}` +
       `    AND DELETED_AT IS NULL`;
@@ -228,7 +229,7 @@ export const getDetailMenu = tyrCatchModelHandler(
 export const createdMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<Menu> = req.body.menu;
-    const adminUserId: string = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
@@ -254,7 +255,7 @@ export const createdMenu = tyrCatchModelHandler(
           `(` +
           `    ${menuId}` +
           ` , '${menuName}'` +
-          ` , '${adminUserId}'` +
+          ` ,  ${adminUserId}` +
           ` , '${adminFlag}'` +
           ` , '${useFlag}'` +
           ` ,  ${sort}` +
@@ -265,7 +266,7 @@ export const createdMenu = tyrCatchModelHandler(
           ` , USE_FLAG        = '${useFlag}'` +
           ` , SORT            =  ${sort}` +
           ` , UPDATED_AT      =  now()` +
-          ` , UPDATED_USER    = '${adminUserId}'`;
+          ` , UPDATED_USER    =  ${adminUserId}`;
 
         await conn.query(sql);
       });
@@ -286,7 +287,7 @@ export const createdMenu = tyrCatchModelHandler(
 export const createdDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<DetailMenu> = req.body.menu;
-    const adminUserId: string = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
@@ -326,7 +327,7 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` ,  ${postAuthId}` +
           ` ,  ${commentAuthId}` +
           ` ,  ${readAuthId}` +
-          ` , '${adminUserId}'` +
+          ` ,  ${adminUserId}` +
           ` , '${url}'` +
           ` , '${type}'` +
           ` , '${useFlag}'` +
@@ -342,7 +343,7 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` , USE_FLAG        = '${useFlag}'` +
           ` , SORT            =  ${sort}` +
           ` , UPDATED_AT      =  now()` +
-          ` , UPDATED_USER    = '${adminUserId}'`;
+          ` , UPDATED_USER    =  ${adminUserId}`;
 
         await conn.query(sql);
       });
@@ -363,18 +364,18 @@ export const createdDetailMenu = tyrCatchModelHandler(
 export const deletedMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<{ menuId: number }> = req.body.menu;
-    const adminUserId: string = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
 
       let sql: string = "";
       aryMenu.forEach(async (menuId) => {
-        sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE MENU_ID = ${menuId} OR TOP_MENU_ID = ${menuId}`;
+        sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE MENU_ID = ${menuId} OR TOP_MENU_ID = ${menuId}`;
 
         await conn.query(sql);
 
-        sql = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE TOP_MENU_ID = ${menuId}`;
+        sql = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE TOP_MENU_ID = ${menuId}`;
 
         await conn.query(sql);
       });
@@ -395,18 +396,18 @@ export const deletedMenu = tyrCatchModelHandler(
 export const deletedDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<{ menuId: number }> = req.body.menu;
-    const adminUserId: string = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
 
       let sql: string = "";
       aryMenu.forEach(async (menuId) => {
-        sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE MENU_ID = ${menuId}`;
+        sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE MENU_ID = ${menuId}`;
 
         await conn.query(sql);
 
-        sql = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE MENU_ID = ${menuId}`;
+        sql = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE MENU_ID = ${menuId}`;
 
         await conn.query(sql);
       });

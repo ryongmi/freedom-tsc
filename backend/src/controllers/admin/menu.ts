@@ -34,10 +34,10 @@ export const getDetailMenu = tyrCatchControllerHandler(
     if (!errors.isEmpty()) {
       return res.status(400).send({ message: errors.array()[0].msg });
     }
-    const comboPerPage = await COMBO.getComboComCd(req, "PER_PAGE");
+    const comboPerPage = await COMBO.getComboPerPage(req);
     const menu = await MENU.getDetailMenu(req);
     const totalCount = await COUNT.getDetailMenu(req);
-    const comboAuth = await COMBO.getComboAuth(req);
+    const comboAuth = await COMBO.getComboAuthAll(req);
     const comboUseFlag = await COMBO.getComboComCd(req, "USE_FLAG");
     const comboType = await COMBO.getComboComCd(req, "MENU_TYPE");
 
@@ -114,7 +114,7 @@ export const getManageBracket = tyrCatchControllerHandler(
     if (!errors.isEmpty()) {
       return res.status(400).send({ message: errors.array()[0].msg });
     }
-    const comboPerPage = await COMBO.getComboComCd(req, "PER_PAGE");
+    const comboPerPage = await COMBO.getComboPerPage(req);
     const bracket = await BRACKET.getBrackets(req);
     const totalCount = await COUNT.getBrackets(req);
     const comboUseFlag = await COMBO.getComboComCd(req, "USE_FLAG");

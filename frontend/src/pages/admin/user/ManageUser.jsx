@@ -1,44 +1,50 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
-import { Button, Input, Select } from "antd";
-import { CaretRightOutlined } from "@ant-design/icons";
+import { Link, useOutletContext } from "react-router-dom";
+import { Button, Drawer, Input, Select, Space } from "antd";
 
 import AppTable from "../../../components/table/AppTable";
 import { setColumn } from "../../../components/table/SetColumn";
 
 import {
-  getManageMenu,
-  patchManageMenu,
-  postManageMenu,
-} from "../../../services/apiMenu";
+  getManageUser,
+  patchManageUser,
+  postBanUser,
+  postWarnUser,
+} from "../../../services/apiUser";
 
-import "../../../styles/table.css";
+function ManageUser() {
+  const { showMessage } = useOutletContext();
 
-function ManageMenu() {
-  const { showMessage, showModal } = useOutletContext();
+  // 기본
   const [dataSource, setDataSource] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [comboPerPage, setComboPerPage] = useState([]);
-  const [comboAdminFlag, setComboAdminFlag] = useState([]);
-  const [comboUseFlag, setComboUseFlag] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [newItemCount, setNewItemCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [searchMenuName, setSearchMenuName] = useState("");
-  const [searchAdminFlag, setSearchAdminFlag] = useState("ALL");
-  const [searchUseFlag, setSearchUseFlag] = useState("ALL");
-  const navigate = useNavigate();
+
+  // 콤보박스 아이템
+  const [comboUserOption, setComboUserOption] = useState([]);
+  const [comboAuth, setComboAuth] = useState([]);
+  const [comboUserStatus, setComboUserStatus] = useState([]);
+
+  // 검색조건
+  const [searchUserOption, setSearchUserOption] = useState("ID");
+  const [searchUserOptionValue, setSearchUserOptionValue] = useState("");
+  const [searchUserAuthId, setSearchUserAuthId] = useState("ALL");
+  const [searchUserStatus, setSearchUserStatus] = useState("ALL");
+
+  // Drawer
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawer, setDrawer] = useState("");
+  const [drawerUrl, setDrawerUrl] = useState("");
+  const [drawerReason, setDrawerReason] = useState("");
 
   const defaultColumns = [
-    setColumn({ title: "메뉴명", key: "menuName", editable: true, max: 30 }),
-    setColumn({ title: "생성일", key: "createdAt" }),
-    setColumn({ title: "생성자", key: "createdUser" }),
-    setColumn({ title: "수정일", key: "updatedAt" }),
-    setColumn({ title: "수정자", key: "updatedUser" }),
+    setColumn({ title: "별명(아이디)", key: "userName" }),
     setColumn({
-      title: "페이지유형",
-      key: "adminFlag",
+      title: "권한",
+      key: "authId",
       render: (text, record, _) => (
         // (text, record, index)
         // text : data값, record: 선택한 row값 배열, index: 선택한 row index
@@ -48,54 +54,43 @@ function ManageMenu() {
           }}
           defaultValue={text}
           onChange={(value) => {
-            record = { ...record, adminFlag: value };
-            handleCellSave(record, "adminFlag");
+            record = { ...record, authId: value };
+            handleCellSave(record, "authId");
           }}
-          options={comboAdminFlag}
+          options={comboAuth}
         />
       ),
     }),
+    setColumn({ title: "트위치타입", key: "twitchType" }),
+    setColumn({ title: "스트리머타입", key: "broadcasterType" }),
+    setColumn({ title: "가입일", key: "createdAt" }),
+    setColumn({ title: "최종방문일", key: "lastLoginAt" }),
+    setColumn({ title: "방문횟수", key: "visit" }),
+    setColumn({ title: "게시글수", key: "post" }),
+    setColumn({ title: "댓글수", key: "comment" }),
+    setColumn({ title: "수정일", key: "updatedAt" }),
+    setColumn({ title: "수정자", key: "updatedUser" }),
+    // setColumn({ title: "상태", key: "userStatus" }),
     setColumn({
-      title: "사용여부",
-      key: "useFlag",
-      render: (text, record, _) => (
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        <Select
-          style={{
-            width: 80,
-          }}
-          defaultValue={text}
-          onChange={(value) => {
-            record = { ...record, useFlag: value };
-            handleCellSave(record, "useFlag");
-          }}
-          options={comboUseFlag}
-        />
-      ),
-    }),
-    setColumn({
-      title: "순서",
-      key: "sort",
-      editable: true,
-      min: 1,
-      max: 999,
-      type: "number",
-    }),
-    setColumn({
-      title: "중메뉴",
-      key: "middleMenu",
-      render: (text, record, _) =>
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        record.menuId ? (
-          <Button
-            icon={<CaretRightOutlined className="table-btn-icon" />}
-            onClick={() => navigate(`/admin/manageMenu/${record.menuId}`)}
-            // shape="circle"
-          />
+      title: "상태",
+      key: "userStatus",
+      render: (text, record) =>
+        text === "경고" ? (
+          <Link
+            className="table-user-status"
+            to={`/admin/manageWarnUser/${record.userId}`}
+          >
+            {text}
+          </Link>
+        ) : text === "밴" ? (
+          <Link
+            className="table-user-status"
+            to={`/admin/manageBanUser/${record.userId}`}
+          >
+            {text}
+          </Link>
         ) : (
-          ""
+          text
         ),
     }),
   ];
@@ -110,22 +105,35 @@ function ManageMenu() {
   // Table Button Event
   async function handleSearch() {
     try {
-      const { menu, totalCount, comboPerPage, comboAdminFlag, comboUseFlag } =
-        await getManageMenu(
-          currentPage,
-          perPage,
-          searchMenuName,
-          searchAdminFlag,
-          searchUseFlag
-        );
+      const {
+        user,
+        totalCount,
+        comboPerPage,
+        comboAuth,
+        comboUserStatus,
+        comboUserOption,
+      } = await getManageUser(
+        currentPage,
+        perPage,
+        searchUserOption,
+        searchUserOptionValue,
+        searchUserAuthId,
+        searchUserStatus
+      );
 
-      setDataSource(menu);
+      // 기본
+      setDataSource(user);
       setTotalCount(totalCount);
       setComboPerPage(comboPerPage);
-      setComboAdminFlag(comboAdminFlag);
-      setComboUseFlag(comboUseFlag);
-      setNewItemCount(0);
+
+      // 사용할 콤보박스 아이템
+      setComboUserOption(comboUserOption);
+      setComboAuth(comboAuth);
+      setComboUserStatus(comboUserStatus);
+
+      //초기화
       setSelectedRowKeys([]);
+
       showMessage("조회성공!");
     } catch (error) {
       showMessage(error.message, "error");
@@ -134,11 +142,10 @@ function ManageMenu() {
 
   async function handleSave() {
     if (selectedRowKeys.length === 0) {
-      showMessage("warning", "저장할 데이터를 선택해주세요!");
+      showMessage("저장할 유저를 선택해주세요!", "warning");
       return;
     }
 
-    let isShowModal = false;
     try {
       const fetchData = [];
       selectedRowKeys.forEach((key) => {
@@ -146,98 +153,96 @@ function ManageMenu() {
           const row = dataSource[index];
           if (row.key !== key) continue;
 
-          if (row.status !== "S") {
-            if (row.menuName === "-") {
-              isShowModal = true;
-              throw Error(
-                `${index + 1}번째줄의 메뉴이름을 입력해주세요. ('-', 공백 불가)`
-              );
-            }
+          if (row.status !== "S") fetchData.push(row);
 
-            fetchData.push(row);
-          }
           break;
         }
       });
 
       if (fetchData.length === 0) return;
-      const { message } = await postManageMenu(fetchData);
-      await handleSearch();
+
+      const { message } = await patchManageUser(fetchData);
       showMessage(message);
-    } catch (error) {
-      if (isShowModal) showModal("데이터 체크", error.message);
-      else showMessage(error.message, "error");
-    }
-  }
-
-  async function handleDelete() {
-    if (selectedRowKeys.length === 0) {
-      showMessage("삭제할 데이터를 선택해주세요!", "warning");
-      return;
-    }
-
-    try {
-      const fetchData = [];
-      selectedRowKeys.forEach((key) => {
-        for (let index = 0; index < dataSource.length; index++) {
-          const row = dataSource[index];
-          if (row.key !== key) continue;
-
-          if (row.status !== "I") fetchData.push(row.menuId);
-
-          break;
-        }
-      });
-
-      if (fetchData.length > 0) {
-        const { message } = await patchManageMenu(fetchData);
-        showMessage(message);
-      }
-
       await handleSearch();
     } catch (error) {
       showMessage(error.message, "error");
     }
   }
 
-  function handleItemAdd() {
-    const newData = {
-      key: `new${newItemCount}`,
-      menuName: "-",
-      createdAt: null,
-      createdUser: null,
-      updatedAt: null,
-      updatedUser: null,
-      adminFlag: comboAdminFlag[0].value,
-      useFlag: comboUseFlag[0].value,
-      sort: 1,
-      status: "I",
-      menuId: null,
-    };
-
-    setDataSource([...dataSource, newData]);
-    setSelectedRowKeys([...selectedRowKeys, newData.key]);
-    setNewItemCount(newItemCount + 1);
-  }
-
-  function handleItemRemove() {
-    const newData = [...dataSource];
-    const newSelRowKeys = [...selectedRowKeys];
-
-    for (let index = 0; index < newSelRowKeys.length; index++) {
-      const selRowKey = newSelRowKeys[index];
-
-      const removeInex = newData.findIndex((item) => selRowKey === item.key);
-      if (newData[removeInex].status !== "I") continue;
-
-      newData.splice(removeInex, 1);
-      newSelRowKeys.splice(index, 1);
-      index--;
+  async function handleWarn() {
+    if (drawerReason.trim() === "") {
+      showMessage("사유를 입력해주세요!(사유는 필수입력입니다)", "warning");
+      return;
     }
 
-    setDataSource(newData);
-    setSelectedRowKeys(newSelRowKeys);
-    setNewItemCount(0);
+    if (selectedRowKeys.length === 0) {
+      showMessage("경고할 유저를 선택해주세요!", "warning");
+      return;
+    }
+
+    try {
+      const fetchData = [];
+      selectedRowKeys.forEach((key) => {
+        for (let index = 0; index < dataSource.length; index++) {
+          const row = dataSource[index];
+          if (row.key !== key) continue;
+
+          fetchData.push({ userId: row.userId });
+
+          break;
+        }
+      });
+
+      if (fetchData.length === 0) return;
+
+      const { message } = await postWarnUser(
+        fetchData,
+        drawerUrl,
+        drawerReason
+      );
+
+      onDrawerClose();
+      showMessage(message);
+      await handleSearch();
+    } catch (error) {
+      showMessage(error.message, "error");
+    }
+  }
+
+  async function handleBan() {
+    if (drawerReason.trim() === "") {
+      showMessage("사유를 입력해주세요!(사유는 필수입력입니다)", "warning");
+      return;
+    }
+
+    if (selectedRowKeys.length === 0) {
+      showMessage("밴할 유저를 선택해주세요!", "warning");
+      return;
+    }
+
+    try {
+      const fetchData = [];
+      selectedRowKeys.forEach((key) => {
+        for (let index = 0; index < dataSource.length; index++) {
+          const row = dataSource[index];
+          if (row.key !== key) continue;
+
+          fetchData.push({ userId: row.userId });
+
+          break;
+        }
+      });
+
+      if (fetchData.length === 0) return;
+
+      const { message } = await postBanUser(fetchData, drawerUrl, drawerReason);
+
+      onDrawerClose();
+      showMessage(message);
+      await handleSearch();
+    } catch (error) {
+      showMessage(error.message, "error");
+    }
   }
 
   // Table CheckBox Click Event
@@ -270,53 +275,123 @@ function ManageMenu() {
     }
   }
 
+  const showDrawer = (openDrawerCheck) => {
+    if (selectedRowKeys.length === 0) {
+      showMessage(
+        `${openDrawerCheck === "BAN" ? "밴" : "경고"}할 유저를 선택해주세요!`,
+        "warning"
+      );
+      return;
+    }
+    setDrawer(openDrawerCheck);
+    setDrawerOpen(true);
+  };
+
+  const onDrawerClose = () => {
+    setDrawerUrl("");
+    setDrawerReason("");
+    setDrawerOpen(false);
+  };
+
   return (
-    <AppTable
-      defaultColumns={defaultColumns}
-      dataSource={dataSource}
-      handleCellSave={handleCellSave}
-      comboPerPage={comboPerPage}
-      selectedRowKeys={selectedRowKeys}
-      onSelectChange={onSelectChange}
-      handleItemAdd={handleItemAdd}
-      handleItemRemove={handleItemRemove}
-      handleSearch={handleSearch}
-      handleSave={handleSave}
-      handleDelete={handleDelete}
-      currentPage={currentPage}
-      totalCount={totalCount}
-      handlePagingChange={handlePagingChange}
-    >
-      <span>메뉴명</span>
-      <Input
-        showCount
-        maxLength={30}
-        onChange={(e) => setSearchMenuName(e.target.value)}
-      />
-      <span>페이지타입</span>
-      <Select
-        style={{
-          width: 130,
+    <>
+      <AppTable
+        defaultColumns={defaultColumns}
+        dataSource={dataSource}
+        handleCellSave={handleCellSave}
+        comboPerPage={comboPerPage}
+        selectedRowKeys={selectedRowKeys}
+        onSelectChange={onSelectChange}
+        handleSearch={handleSearch}
+        handleSave={handleSave}
+        handleWarn={() => {
+          showDrawer("WARN");
         }}
-        value={searchAdminFlag}
-        onChange={(value) => {
-          setSearchAdminFlag(value);
+        handleBan={() => {
+          showDrawer("BAN");
         }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboAdminFlag]}
-      />
-      <span>사용유무</span>
-      <Select
-        style={{
-          width: 80,
+        currentPage={currentPage}
+        totalCount={totalCount}
+        handlePagingChange={handlePagingChange}
+      >
+        <span>유저검색</span>
+        <Select
+          style={{
+            width: 130,
+          }}
+          value={searchUserOption}
+          onChange={(value) => {
+            setSearchUserOption(value);
+          }}
+          options={[...comboUserOption]}
+        />
+        <Input onChange={(e) => setSearchUserOptionValue(e.target.value)} />
+        <span>권한</span>
+        <Select
+          style={{
+            width: 130,
+          }}
+          value={searchUserAuthId}
+          onChange={(value) => {
+            setSearchUserAuthId(value);
+          }}
+          options={[{ value: "ALL", label: "ALL" }, ...comboAuth]}
+        />
+        <span>상태</span>
+        <Select
+          style={{
+            width: 80,
+          }}
+          value={searchUserStatus}
+          onChange={(value) => {
+            setSearchUserStatus(value);
+          }}
+          options={[{ value: "ALL", label: "ALL" }, ...comboUserStatus]}
+        />
+      </AppTable>
+
+      <Drawer
+        title={`${drawer === "BAN" ? "밴" : "경고"} 내용 입력`}
+        width={500}
+        onClose={onDrawerClose}
+        open={drawerOpen}
+        styles={{
+          body: {
+            paddingBottom: 80,
+          },
         }}
-        value={searchUseFlag}
-        onChange={(value) => {
-          setSearchUseFlag(value);
-        }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboUseFlag]}
-      />
-    </AppTable>
+        extra={
+          <Space>
+            <Button onClick={onDrawerClose}>취소</Button>
+            <Button
+              onClick={drawer === "BAN" ? handleBan : handleWarn}
+              type="primary"
+            >
+              저장
+            </Button>
+          </Space>
+        }
+      >
+        <span>URL</span>
+        <Input
+          placeholder="게시글 URL을 입력해주세요"
+          value={drawerUrl}
+          onChange={(e) => setDrawerUrl(e.target.value)}
+        />
+        <br />
+        <br />
+        <span>사유</span>
+        <Input.TextArea
+          showCount
+          rows={4}
+          placeholder="사유를 입력해주세요"
+          maxLength={100}
+          value={drawerReason}
+          onChange={(e) => setDrawerReason(e.target.value)}
+        />
+      </Drawer>
+    </>
   );
 }
 
-export default ManageMenu;
+export default ManageUser;

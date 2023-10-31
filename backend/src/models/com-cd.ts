@@ -108,7 +108,7 @@ export const createdComCd = tyrCatchModelHandler(
           `)` +
           `VALUES` +
           `(` +
-          `   '${comId}'` +
+          `    ${comId}` +
           ` , '${value}'` +
           ` , '${name}'` +
           ` , '${adminUserId}'` +
@@ -154,7 +154,7 @@ export const deletedComCd = tyrCatchModelHandler(
         let sql =
           `UPDATE comcd ` +
           `   SET DELETED_AT   = now()` +
-          `     , DELETED_USER = '${adminUserId}'` +
+          `     , DELETED_USER = ${adminUserId}` +
           ` WHERE COM_ID = '${comId}'`;
 
         await conn.query(sql);

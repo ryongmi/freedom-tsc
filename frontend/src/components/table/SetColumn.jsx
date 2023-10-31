@@ -8,6 +8,7 @@ export const setColumn = ({
   type,
   render,
   children,
+  onCell,
 }) => {
   return {
     title,
@@ -20,5 +21,6 @@ export const setColumn = ({
     type,
     render,
     children,
+    onCell,
   };
 };

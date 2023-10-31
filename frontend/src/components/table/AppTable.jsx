@@ -15,11 +15,16 @@ function AppTable({
   totalCount,
   handleCellSave,
   onSelectChange,
+  getCheckboxProps,
   handleItemAdd,
   handleItemRemove,
   handleSearch,
   handleSave,
   handleDelete,
+  handleWarn,
+  handleUnWarn,
+  handleBan,
+  handleUnBan,
   handlePagingChange,
   children,
 }) {
@@ -45,15 +50,21 @@ function AppTable({
 
   return (
     <>
-      <Card title="검색조건" bordered={false}>
-        <Space size={"middle"}>{children}</Space>
-      </Card>
+      {children && (
+        <Card title="검색조건" bordered={false}>
+          <Space size={"middle"}>{children}</Space>
+        </Card>
+      )}
       <TableButton
         handleItemAdd={handleItemAdd}
         handleItemRemove={handleItemRemove}
         handleSearch={handleSearch}
         handleSave={handleSave}
         handleDelete={handleDelete}
+        handleWarn={handleWarn}
+        handleUnWarn={handleUnWarn}
+        handleBan={handleBan}
+        handleUnBan={handleUnBan}
       />
       <Table
         className="table-content"
@@ -61,7 +72,11 @@ function AppTable({
         columns={columns}
         dataSource={dataSource}
         pagination={false}
-        rowSelection={{ selectedRowKeys, onChange: onSelectChange }}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: onSelectChange,
+          getCheckboxProps,
+        }}
         bordered
       />
       <Pagination

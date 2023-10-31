@@ -39,6 +39,7 @@ export const getBrackets = tyrCatchModelHandler(
       `   , SORT AS sort` +
       `   , MENU_ID AS menuId` +
       `   , TOP_MENU_ID AS topMenuId` +
+      `   , 'S' AS status` +
       `   FROM bracket` +
       `  WHERE MENU_ID = ${menuId}` +
       `    AND DELETED_AT IS NULL`;
@@ -61,7 +62,7 @@ export const getBrackets = tyrCatchModelHandler(
 export const createdBracket = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryBracket: Array<Bracket> = req.body.bracket;
-    const adminUserId: string = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
@@ -91,7 +92,7 @@ export const createdBracket = tyrCatchModelHandler(
           ` ,  ${menuId}` +
           ` ,  ${topMenuId}` +
           ` , '${content}'` +
-          ` , '${adminUserId}'` +
+          ` ,  ${adminUserId}` +
           ` , '${useFlag}'` +
           ` ,  ${sort}` +
           `)` +
@@ -100,7 +101,7 @@ export const createdBracket = tyrCatchModelHandler(
           ` , USE_FLAG     = '${useFlag}'` +
           ` , SORT         =  ${sort}` +
           ` , UPDATED_AT   =  now()` +
-          ` , UPDATED_USER = '${adminUserId}'`;
+          ` , UPDATED_USER =  ${adminUserId}`;
 
         await conn.query(sql);
       });
@@ -121,13 +122,13 @@ export const createdBracket = tyrCatchModelHandler(
 export const deletedBracket = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryBracket: Array<Bracket> = req.body.bracket;
-    const adminUserId: string = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.USER_ID;
 
     try {
       await conn.beginTransaction();
 
       aryBracket.forEach(async (bracketId) => {
-        const sql: string = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = '${adminUserId}' WHERE BRACKET_ID = ${bracketId}`;
+        const sql: string = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE BRACKET_ID = ${bracketId}`;
 
         await conn.query(sql);
       });

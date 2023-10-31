@@ -8,10 +8,18 @@ export const TWITCH_LOGIN_API = `http://id.twitch.tv/oauth2/authorize?response_t
 // 유저 및 로그인 관련
 export const USER_INFO = `${BASE_URL}/userState/userInfo`;
 export const LOGOUT = `${BASE_URL}/userState/logout`;
+export const MANAGE_USER = `${BASE_URL}/admin/user/manageUser`;
+export const MANAGE_WARN_USER = `${BASE_URL}/admin/user/manageWarnUser`;
+export const MANAGE_BAN_USER = `${BASE_URL}/admin/user/manageBanUser`;
+
+export const WARN_USER = `${BASE_URL}/admin/user/warnUser`;
+export const UN_WARN_USER = `${BASE_URL}/admin/user/unWarnUser`;
+export const BAN_USER = `${BASE_URL}/admin/user/banUser`;
+export const UN_BAN_USER = `${BASE_URL}/admin/user/unBanUser`;
 
 // 메뉴 관련
 export const MENU_INFO = `${BASE_URL}/useInfo/getMenu`;
-export const MAMAGE_MENU = `${BASE_URL}/admin/menu/manageMenu`;
+export const MANAGE_MENU = `${BASE_URL}/admin/menu/manageMenu`;
 export const DETAIL_MENU = `${BASE_URL}/admin/menu/detailMenu`;
 
 // 말머리 관련

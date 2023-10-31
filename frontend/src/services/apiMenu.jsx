@@ -1,4 +1,4 @@
-import { MENU_INFO, MAMAGE_MENU, DETAIL_MENU } from "../config/apiUrl";
+import { MENU_INFO, MANAGE_MENU, DETAIL_MENU } from "../config/apiUrl";
 
 export async function getMenuInfo(adminFlag) {
   const res = await fetch(`${MENU_INFO}/${adminFlag}`);
@@ -19,7 +19,7 @@ export async function getManageMenu(
   useFlag
 ) {
   const res = await fetch(
-    `${MAMAGE_MENU}?page=${currentPage}&perPage=${perPage}&menuName=${menuName}&adminFalg=${adminFalg}&useFlag=${useFlag}`
+    `${MANAGE_MENU}?page=${currentPage}&perPage=${perPage}&menuName=${menuName}&adminFalg=${adminFalg}&useFlag=${useFlag}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -31,7 +31,7 @@ export async function getManageMenu(
 }
 
 export async function postManageMenu(item) {
-  const res = await fetch(MAMAGE_MENU, {
+  const res = await fetch(MANAGE_MENU, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -53,7 +53,7 @@ export async function postManageMenu(item) {
 }
 
 export async function patchManageMenu(item) {
-  const res = await fetch(MAMAGE_MENU, {
+  const res = await fetch(MANAGE_MENU, {
     method: "PATCH",
     headers: {
       Accept: "application/json",

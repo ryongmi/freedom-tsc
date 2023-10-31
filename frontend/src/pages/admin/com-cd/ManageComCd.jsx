@@ -12,7 +12,7 @@ import {
   postManageMenu,
 } from "../../../services/apiMenu";
 
-function ManageMenu() {
+function ManageComCd() {
   const { showMessage, showModal } = useOutletContext();
   const navigate = useNavigate();
 
@@ -316,4 +316,4 @@ function ManageMenu() {
   );
 }
 
-export default ManageMenu;
+export default ManageComCd;

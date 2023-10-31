@@ -15,7 +15,7 @@ export const tyrCatchModelHandler = (handler: Function, apiName: string) => {
       return result;
     } catch (error: IError | any) {
       console.log(error);
-      throw log.setErrorLog(req, error, apiName);
+      await log.setErrorLog(req, error, apiName);
     } finally {
       if (conn) await db.releaseConnection(conn);
     }

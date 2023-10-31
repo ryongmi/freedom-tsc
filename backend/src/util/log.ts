@@ -37,7 +37,7 @@ export const setErrorLog = async (
                 , '${error.sql}'
                 , '${error.apiName}'
                 , '${error.isLoggedIn}'
-                , '${error.userId}'
+                ,  ${error.userId}
                 ,  ${error.auth}
               ) `;
   console.log(sql);

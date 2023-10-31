@@ -25,8 +25,7 @@ export const getComboPerPage = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const sql =
       ` SELECT` +
-      `     VALUE AS value` +
-      `   , NAME AS label` +
+      `     VALUE` +
       `   FROM comcd` +
       `   WHERE COM_ID = 'PER_PAGE'` +
       `     AND VALUE != '0'` +
@@ -36,21 +35,36 @@ export const getComboPerPage = tyrCatchModelHandler(
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
 
-    if (!req.query.perPage) req.query.perPage = rows[0].value;
+    if (req.query.perPage === "null") req.query.perPage = rows[0].VALUE;
 
-    return rows;
+    const perPage: Array<string> = [];
+    rows.forEach((item) => {
+      perPage.push(item["VALUE"]);
+    });
+
+    return perPage;
   },
   "getComboComCd"
 );
 
 export const getComboAuth = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
-    const sql: string = `SELECT AUTH_ID AS value, AUTH_NAME AS label FROM auth ORDER BY AUTH_ID DESC`;
+    const sql: string = `SELECT AUTH_ID AS value, AUTH_NAME AS label FROM auth WHERE AUTH_ID != 99 ORDER BY AUTH_ID DESC`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
   },
   "getComboAuth"
+);
+
+export const getComboAuthAll = tyrCatchModelHandler(
+  async (_: Request, conn: mysql.PoolConnection) => {
+    const sql: string = `SELECT AUTH_ID AS value, AUTH_NAME AS label FROM auth ORDER BY AUTH_ID DESC`;
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows;
+  },
+  "getComboAuthAll"
 );
 
 export const getComboBracket = tyrCatchModelHandler(

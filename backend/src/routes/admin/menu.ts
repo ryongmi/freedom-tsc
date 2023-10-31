@@ -513,10 +513,7 @@ router.patch(
   "/manageMenu",
   [
     body("menu").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("menu.*.menuId", "코드 ID가 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
-      .isMenuID(),
+    body("menu.*.menuId", "코드 ID가 비정상적입니다.").isNumeric().isMenuID(),
   ],
   menuController.patchManageMenu
 );
@@ -587,10 +584,7 @@ router.patch(
   "/detailMenu",
   [
     body("menu").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("menu.*.menuId", "코드 ID가 비정상적입니다.")
-      .isNumeric()
-      .notEmpty()
-      .isMenuID(),
+    body("menu.*.menuId", "코드 ID가 비정상적입니다.").isNumeric().isMenuID(),
   ],
   menuController.patchDetailMenu
 );
@@ -675,15 +669,15 @@ router.get(
  *                       {
  *                          "bracketId": null,
  *                          "content": "테스트22",
- *                          "sort": 5
- *                          "menuId": 5
- *                          "topMenuId": 5
+ *                          "sort": 3,
+ *                          "menuId": 3,
+ *                          "topMenuId": 3
  *                       },
  *                       {
  *                          "bracketId": 3,
  *                          "content": "테스트32",
- *                          "sort": 5
- *                          "menuId": 5
+ *                          "sort": 3,
+ *                          "menuId": 5,
  *                          "topMenuId": 5
  *                       }
  *                    ]

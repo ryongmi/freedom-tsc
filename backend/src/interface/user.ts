@@ -1,7 +1,7 @@
 interface defaultUser {
   // 로그인 후 프론트에서 받아오는 정보
-  userId?: string;
-  authId?: number;
+  userId: number;
+  authId: number;
 }
 
 export interface User extends defaultUser {
@@ -16,13 +16,9 @@ export interface User extends defaultUser {
 }
 
 export interface WarnUser extends defaultUser {
-  warnId?: number;
-  postUrl?: string;
-  warnReason?: string;
+  warnId: number;
 }
 
 export interface BanUser extends defaultUser {
-  banId?: number;
-  postUrl?: string;
-  banReason?: string;
+  banId: number;
 }

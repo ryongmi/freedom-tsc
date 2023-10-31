@@ -11,8 +11,6 @@ import {
   postManageBracket,
 } from "../../../services/apiBracket";
 
-import "../../../styles/table.css";
-
 function ManageBracket() {
   const { menuId } = useParams();
   const { state: topMenuId } = useLocation();
@@ -98,7 +96,7 @@ function ManageBracket() {
 
   async function handleSave() {
     if (selectedRowKeys.length === 0) {
-      showMessage("warning", "저장할 데이터를 선택해주세요!");
+      showMessage("저장할 데이터를 선택해주세요!", "warning");
       return;
     }
 

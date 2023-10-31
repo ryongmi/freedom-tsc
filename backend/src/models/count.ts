@@ -19,27 +19,31 @@ export const getUser = tyrCatchModelHandler(
 
 export const getUsers = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const userOption = req.query.userOption;
-    const userOptionValue = req.query.userOptionValue;
-    const userAuthId = req.query.userAuthId;
-    let perPage: number = 15;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
+    const userOption: string = req.query.userOption?.toString() ?? "";
+    const userOptionValue: string = req.query.userOptionValue?.toString() ?? "";
+    const userAuthId: string = req.query.userAuthId?.toString() ?? "ALL";
+    const userStatus: string = req.query.userStatus?.toString() ?? "ALL";
 
     let sql =
       ` SELECT` +
-      `   (COUNT(USER_ID) DIV ${perPage}) + 1 AS totalCount` +
+      `     COUNT(USER_ID) AS totalCount` +
       `   FROM user` +
       `  WHERE 1=1`;
 
-    if (userAuthId) {
+    if (userAuthId !== "ALL") {
       sql += ` AND AUTH_ID = ${userAuthId}`;
     }
 
-    if (userOption === "ID")
-      sql += ` AND USER_LOGIN_ID LIKE '%${userOptionValue}%'`;
-    else if (userOption === "NAME")
-      sql += ` AND DISPLAY_NAME LIKE '%${userOptionValue}%'`;
+    if (userAuthId !== "ALL") {
+      sql += ` AND USER_STATUS = '${userStatus}'`;
+    }
+
+    if (userOptionValue !== "") {
+      if (userOption === "ID")
+        sql += ` AND USER_LOGIN_ID LIKE '%${userOptionValue}%'`;
+      else if (userOption === "NAME")
+        sql += ` AND DISPLAY_NAME LIKE '%${userOptionValue}%'`;
+    }
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
@@ -49,24 +53,24 @@ export const getUsers = tyrCatchModelHandler(
 
 export const getWarnUsers = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const userOption = req.query.userOption;
-    const userOptionValue = req.query.userOptionValue;
-    let perPage: number = 15;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
+    const userOption: string = req.query.userOption?.toString() ?? "";
+    const userOptionValue: string = req.query.userOptionValue?.toString() ?? "";
 
     let sql =
       ` SELECT` +
-      `   (COUNT(W.WARN_ID) DIV ${perPage}) + 1 AS totalCount` +
-      `   FROM warn W` +
-      `  INNER JOIN user U` +
-      `     ON W.USER_ID = U.USER_ID` +
-      `    AND W.UN_WARN_AT IS NULL`;
+      `     COUNT(WARN_ID) AS totalCount` +
+      `   FROM user U ` +
+      `  INNER JOIN warn W` +
+      `     ON U.USER_ID = W.USER_ID` +
+      `    AND W.UN_WARN_AT IS NULL` +
+      `  WHERE U.USER_STATUS = "W"`;
 
-    if (userOption === "ID")
-      sql += ` AND U.USER_LOGIN_ID LIKE '%${userOptionValue}%'`;
-    else if (userOption === "NAME")
-      sql += ` AND U.DISPLAY_NAME LIKE '%${userOptionValue}%'`;
+    if (userOptionValue !== "") {
+      if (userOption === "ID")
+        sql += ` AND U.USER_LOGIN_ID LIKE "%${userOptionValue}%"`;
+      else if (userOption === "NAME")
+        sql += ` AND U.DISPLAY_NAME LIKE "%${userOptionValue}%"`;
+    }
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
@@ -76,18 +80,13 @@ export const getWarnUsers = tyrCatchModelHandler(
 
 export const getWarnContents = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const userId = req.params.userId;
-    let perPage: number = 15;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
+    const userId: number = Number(req.params.userId);
 
     const sql =
       ` SELECT` +
-      `   (COUNT(W.WARN_ID) DIV ${perPage}) + 1 AS totalCount` +
-      `   FROM warn W` +
-      `  INNER JOIN user U` +
-      `     ON W.USER_ID = U.USER_ID` +
-      `  WHERE W.USER_ID = '${userId}'`;
+      `     COUNT(WARN_ID) AS totalCount` +
+      `   FROM warn` +
+      `  WHERE USER_ID = ${userId}`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
@@ -97,24 +96,23 @@ export const getWarnContents = tyrCatchModelHandler(
 
 export const getBanUsers = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const userOption = req.query.userOption;
-    const userOptionValue = req.query.userOptionValue;
-    let perPage: number = 15;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
+    const userOption: string = req.query.userOption?.toString() ?? "";
+    const userOptionValue: string = req.query.userOptionValue?.toString() ?? "";
 
     let sql =
       ` SELECT` +
-      `   (COUNT(B.BAN_ID) DIV ${perPage}) + 1 AS totalCount` +
+      `     COUNT(BAN_ID) AS totalCount` +
       `   FROM ban B` +
       `  INNER JOIN user U` +
       `     ON B.USER_ID = U.USER_ID` +
       `    AND B.UN_BAN_AT IS NULL`;
 
-    if (userOption === "ID")
-      sql += ` AND U.USER_LOGIN_ID LIKE '%${userOptionValue}%'`;
-    else if (userOption === "NAME")
-      sql += ` AND U.DISPLAY_NAME LIKE '%${userOptionValue}%'`;
+    if (userOptionValue !== "") {
+      if (userOption === "ID")
+        sql += ` AND U.USER_LOGIN_ID LIKE "%${userOptionValue}%"`;
+      else if (userOption === "NAME")
+        sql += ` AND U.DISPLAY_NAME LIKE "%${userOptionValue}%"`;
+    }
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
@@ -124,18 +122,13 @@ export const getBanUsers = tyrCatchModelHandler(
 
 export const getBanContents = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const userId = req.params.userId;
-    let perPage: number = 15;
-    if (req.query.perPage && typeof req.query.perPage === "number")
-      perPage = req.query.perPage;
+    const userId: number = Number(req.params.userId);
 
     const sql =
       ` SELECT` +
-      `   (COUNT(B.BAN_ID) DIV ${perPage}) + 1 AS totalCount` +
+      `     COUNT(BAN_ID) AS totalCount` +
       `   FROM ban B` +
-      `  INNER JOIN user U` +
-      `     ON B.USER_ID = U.USER_ID` +
-      `  WHERE B.USER_ID = '${userId}'`;
+      `  WHERE USER_ID = ${userId}`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
