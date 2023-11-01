@@ -18,6 +18,8 @@ import ContentBanUser from "../pages/admin/user/ContentBanUser";
 import ManageBanUser from "../pages/admin/user/ManageBanUser";
 import ManageComCd from "../pages/admin/com-cd/ManageComCd";
 import DetailComCd from "../pages/admin/com-cd/DetailComCd";
+import ManageAuth from "../pages/admin/auth/ManageAuth";
+import ManageAuthLevelCondition from "../pages/admin/auth/ManageAuthLevelCondition";
 
 const router = createBrowserRouter([
   {
@@ -68,6 +70,14 @@ const router = createBrowserRouter([
           {
             path: "manageComCd/:comId",
             element: <DetailComCd />,
+          },
+          {
+            path: "manageAuth",
+            element: <ManageAuth />,
+          },
+          {
+            path: "manageAuthLevelCondition",
+            element: <ManageAuthLevelCondition />,
           },
         ],
       },

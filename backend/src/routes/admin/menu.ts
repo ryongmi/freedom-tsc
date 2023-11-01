@@ -15,6 +15,7 @@ const { body, param } = new ExpressValidator({
     if (!menu) {
       return Promise.reject("존재하지 않는 메뉴입니다.");
     }
+    req.body.adminFlag = menu.ADMIN_FLAG;
   },
   isAuthID: async (value: number, meta: Meta) => {
     const req = meta.req as Request;
@@ -417,24 +418,28 @@ router.post(
     body("menu").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
     body("menu.*.menuId", "메뉴 ID가 비정상적입니다.")
       .isNumeric()
-      .optional({ nullable: true }),
+      .optional({ nullable: true })
+      .isMenuID(),
     body("menu.*.menuName", "메뉴이름이 비정상적입니다.")
       .isString()
       .notEmpty()
       .isLength({ min: 1, max: 30 })
       .trim(),
-    body("menu.*.topMenuId", "상위 메뉴 ID가 비정상적입니다.").isNumeric(),
     body("menu.*.postAuthId", "게시글 권한이 비정상적입니다.")
       .isNumeric()
+      .optional({ nullable: true })
       .isAuthID(),
     body("menu.*.commentAuthId", "댓글 권한이 비정상적입니다.")
       .isNumeric()
+      .optional({ nullable: true })
       .isAuthID(),
     body("menu.*.readAuthId", "읽기 권한이 비정상적입니다.")
       .isNumeric()
+      .optional({ nullable: true })
       .isAuthID(),
     body("menu.*.type", "타입이 비정상적입니다.")
       .isString()
+      .optional({ nullable: true })
       .isMenuType()
       .trim(),
     body("menu.*.useFlag", "사용유무가 비정상적입니다.")
@@ -443,6 +448,7 @@ router.post(
       .isUseFlag()
       .trim(),
     body("menu.*.sort", "정렬순서가 비정상적입니다.").isNumeric().notEmpty(),
+    body("topMenuId", "상위 메뉴 ID가 비정상적입니다.").isNumeric().isMenuID(),
   ],
   menuController.postDetailMenu
 );

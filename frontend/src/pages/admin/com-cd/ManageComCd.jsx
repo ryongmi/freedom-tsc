@@ -6,7 +6,6 @@ import { CaretRightOutlined } from "@ant-design/icons";
 import AppTable from "../../../components/table/AppTable";
 import { setColumn } from "../../../components/table/SetColumn";
 
-import { patchManageMenu, postManageMenu } from "../../../services/apiMenu";
 import {
   getManageComCd,
   patchManageComCd,

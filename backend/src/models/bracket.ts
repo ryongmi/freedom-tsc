@@ -127,7 +127,9 @@ export const deletedBracket = tyrCatchModelHandler(
     try {
       await conn.beginTransaction();
 
-      aryBracket.forEach(async (bracketId) => {
+      aryBracket.forEach(async (bracket) => {
+        const bracketId = bracket.bracketId;
+
         const sql: string = `UPDATE bracket SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE BRACKET_ID = ${bracketId}`;
 
         await conn.query(sql);

@@ -68,12 +68,12 @@ export const getLogin = tyrCatchControllerHandler(
 
             // 세션을 저장하는 메서드
             // 일반적으로는 알아서 저장되기 때문에 필요없지만, 세션이 확실히 저장되고 나서 진행해야 할 경우 사용
-            return req.session.save((err) => {
+            req.session.save((err) => {
               console.log(err);
               console.log(req.session.user);
               if (err) throw err;
 
-              res.redirect("/");
+              res.redirect(redirect_uri);
             });
           }
         );

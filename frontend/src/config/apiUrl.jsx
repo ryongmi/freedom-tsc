@@ -11,7 +11,6 @@ export const LOGOUT = `${BASE_URL}/userState/logout`;
 export const MANAGE_USER = `${BASE_URL}/admin/user/manageUser`;
 export const MANAGE_WARN_USER = `${BASE_URL}/admin/user/manageWarnUser`;
 export const MANAGE_BAN_USER = `${BASE_URL}/admin/user/manageBanUser`;
-
 export const WARN_USER = `${BASE_URL}/admin/user/warnUser`;
 export const UN_WARN_USER = `${BASE_URL}/admin/user/unWarnUser`;
 export const BAN_USER = `${BASE_URL}/admin/user/banUser`;
@@ -28,3 +27,7 @@ export const BRACKET = `${BASE_URL}/admin/menu/manageBracket`;
 // 공통코드 관련
 export const MANAGE_COMCD = `${BASE_URL}/admin/com-cd/manageComCd`;
 export const DETAIL_COMCD = `${BASE_URL}/admin/com-cd/detailComCd`;
+
+// 권한 관련
+export const MANAGE_AUTH = `${BASE_URL}/admin/auth/manageAuth`;
+export const MANAGE_AUTH_LEVEL = `${BASE_URL}/admin/auth/manageAuthLevelCondition`;

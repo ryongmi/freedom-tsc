@@ -9,10 +9,9 @@ export interface Menu {
 
 export interface DetailMenu extends Menu {
   // 중메뉴 정보
-  topMenuId: number;
-  postAuthId: number;
-  commentAuthId: number;
-  readAuthId: number;
+  postAuthId: number | null;
+  commentAuthId: number | null;
+  readAuthId: number | null;
   url: string;
   type: string | null;
 }

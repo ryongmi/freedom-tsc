@@ -145,7 +145,7 @@ function ManageBracket() {
           const row = dataSource[index];
           if (row.key !== key) continue;
 
-          if (row.status !== "I") fetchData.push(row.bracketId);
+          if (row.status !== "I") fetchData.push({ bracketId: row.bracketId });
 
           break;
         }

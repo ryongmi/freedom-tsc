@@ -48,6 +48,7 @@ export const getDetailMenu = tyrCatchControllerHandler(
       comboAuth,
       comboUseFlag,
       comboType,
+      adminFlag: req.body.adminFlag,
     });
   }
 );

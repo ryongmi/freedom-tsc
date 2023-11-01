@@ -66,7 +66,9 @@ export const postDetailComCd = tyrCatchControllerHandler(
     }
 
     const rowCount = await COM_CD.createdDetailComCd(req);
-    return res.send({ message: `${rowCount}건 정상적으로 저장되었습니다.` });
+    res
+      .status(200)
+      .send({ message: `${rowCount}건 정상적으로 저장되었습니다.` });
   }
 );
 
@@ -78,7 +80,9 @@ export const deleteManageComCd = tyrCatchControllerHandler(
     }
 
     const rowCount = await COM_CD.deletedComCd(req);
-    return res.send({ message: `${rowCount}건 정상적으로 삭제되었습니다.` });
+    res
+      .status(200)
+      .send({ message: `${rowCount}건 정상적으로 삭제되었습니다.` });
   }
 );
 
@@ -90,6 +94,8 @@ export const deleteDetailComCd = tyrCatchControllerHandler(
     }
 
     const rowCount = await COM_CD.deletedDetailComCd(req);
-    return res.send({ message: `${rowCount}건 정상적으로 삭제되었습니다.` });
+    res
+      .status(200)
+      .send({ message: `${rowCount}건 정상적으로 삭제되었습니다.` });
   }
 );

@@ -28,7 +28,8 @@ export const getMenu = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, menuId: number) => {
     const sql: string =
       ` SELECT` +
-      `     MENU_ID` +
+      `     MENU_ID,` +
+      `     ADMIN_FLAG` +
       `   FROM menu` +
       `  WHERE MENU_ID = ${menuId}` +
       `    AND DELETED_AT IS NULL`;
@@ -160,7 +161,7 @@ export const getTopMenu = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     if (menuName !== "") {
-      sql += ` AND MENU_NAME LIKE '${menuName}'`;
+      sql += ` AND MENU_NAME LIKE '%${menuName}%'`;
     }
     if (adminFalg !== "ALL") {
       sql += ` AND ADMIN_FLAG = '${adminFalg}'`;
@@ -190,7 +191,6 @@ export const getDetailMenu = tyrCatchModelHandler(
       ` SELECT` +
       `     MENU_ID AS 'key'` +
       `   , MENU_ID AS menuId ` +
-      `   , TOP_MENU_ID AS topMenuId ` +
       `   , MENU_NAME AS menuName` +
       `   , POST_AUTH_ID AS postAuthId` +
       `   , COMMENT_AUTH_ID AS commentAuthId` +
@@ -209,7 +209,7 @@ export const getDetailMenu = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     if (menuName !== "") {
-      sql += ` AND MENU_NAME LIKE '${menuName}'`;
+      sql += ` AND MENU_NAME LIKE '%${menuName}%'`;
     }
     if (type !== "ALL") {
       sql += ` AND ADMIN_FLAG = '${type}'`;
@@ -229,7 +229,8 @@ export const getDetailMenu = tyrCatchModelHandler(
 export const createdMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<Menu> = req.body.menu;
-    const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = 51513153;
 
     try {
       await conn.beginTransaction();
@@ -287,14 +288,15 @@ export const createdMenu = tyrCatchModelHandler(
 export const createdDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<DetailMenu> = req.body.menu;
-    const adminUserId: number = req.session.user!.USER_ID;
+    const topMenuId = Number(req.body.topMenuId);
+    // const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = 1231321312;
 
     try {
       await conn.beginTransaction();
 
       aryMenu.forEach(async (menu) => {
         const menuId = menu.menuId;
-        const topMenuId = menu.topMenuId;
         const menuName = menu.menuName;
         const postAuthId = menu.postAuthId;
         const commentAuthId = menu.commentAuthId;
@@ -329,7 +331,7 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` ,  ${readAuthId}` +
           ` ,  ${adminUserId}` +
           ` , '${url}'` +
-          ` , '${type}'` +
+          ` ,  ${type ?? `'${type}'`}` +
           ` , '${useFlag}'` +
           ` ,  ${sort}` +
           `)` +
@@ -339,7 +341,7 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` , READ_AUTH_ID    =  ${readAuthId}` +
           ` , MENU_NAME       = '${menuName}'` +
           ` , URL             = '${url}'` +
-          ` , TYPE            = '${type}'` +
+          ` , TYPE            =  ${type ?? `'${type}'`}` +
           ` , USE_FLAG        = '${useFlag}'` +
           ` , SORT            =  ${sort}` +
           ` , UPDATED_AT      =  now()` +
@@ -370,7 +372,9 @@ export const deletedMenu = tyrCatchModelHandler(
       await conn.beginTransaction();
 
       let sql: string = "";
-      aryMenu.forEach(async (menuId) => {
+      aryMenu.forEach(async (menu) => {
+        const menuId = menu.menuId;
+
         sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE MENU_ID = ${menuId} OR TOP_MENU_ID = ${menuId}`;
 
         await conn.query(sql);
@@ -396,13 +400,16 @@ export const deletedMenu = tyrCatchModelHandler(
 export const deletedDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<{ menuId: number }> = req.body.menu;
-    const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = 51512344;
 
     try {
       await conn.beginTransaction();
 
       let sql: string = "";
-      aryMenu.forEach(async (menuId) => {
+      aryMenu.forEach(async (menu) => {
+        const menuId = menu.menuId;
+
         sql = `UPDATE menu SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE MENU_ID = ${menuId}`;
 
         await conn.query(sql);

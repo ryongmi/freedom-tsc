@@ -33,8 +33,15 @@ function DetailMenu() {
   const [searchType, setSearchType] = useState("ALL");
   const [searchUseFlag, setSearchUseFlag] = useState("ALL");
 
+  const [adminFlag, setAdminFlag] = useState(null);
+
   const defaultColumns = [
-    setColumn({ title: "메뉴명", key: "menuName", editable: true, max: 30 }),
+    setColumn({
+      title: "메뉴명",
+      key: "menuName",
+      editable: true,
+      max: 30,
+    }),
     setColumn({
       title: "권한",
       children: [
@@ -122,25 +129,6 @@ function DetailMenu() {
       ),
     }),
     setColumn({
-      title: "유형",
-      key: "type",
-      render: (text, record, _) => (
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        <Select
-          style={{
-            width: 100,
-          }}
-          defaultValue={text}
-          onChange={(value) => {
-            record = { ...record, type: value };
-            handleCellSave(record, "type");
-          }}
-          options={comboType}
-        />
-      ),
-    }),
-    setColumn({
       title: "순서",
       key: "sort",
       editable: true,
@@ -148,27 +136,57 @@ function DetailMenu() {
       max: 999,
       type: "number",
     }),
-    setColumn({
-      title: "말머리",
-      key: "middleMenu",
-      render: (text, record, _) =>
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        record.menuId ? (
-          <Button
-            icon={<EditFilled className="table-btn-icon" />}
-            onClick={() =>
-              navigate(`/admin/manageBracket/${record.menuId}`, {
-                state: topMenuId,
-              })
-            }
-            // shape="circle"
-          />
-        ) : (
-          ""
-        ),
-    }),
   ];
+
+  if (adminFlag !== "Y") {
+    defaultColumns.splice(
+      8,
+      0,
+      setColumn({
+        title: "유형",
+        key: "type",
+        render: (text, record, _) => (
+          // (text, record, index)
+          // text : data값, record: 선택한 row값 배열, index: 선택한 row index
+          <Select
+            style={{
+              width: 100,
+            }}
+            defaultValue={text}
+            onChange={(value) => {
+              record = { ...record, type: value };
+              handleCellSave(record, "type");
+            }}
+            options={comboType}
+          />
+        ),
+      })
+    );
+    defaultColumns.splice(
+      12,
+      0,
+      setColumn({
+        title: "말머리",
+        key: "middleMenu",
+        render: (text, record, _) =>
+          // (text, record, index)
+          // text : data값, record: 선택한 row값 배열, index: 선택한 row index
+          record.menuId ? (
+            <Button
+              icon={<EditFilled className="table-btn-icon" />}
+              onClick={() =>
+                navigate(`/admin/manageBracket/${record.menuId}`, {
+                  state: topMenuId,
+                })
+              }
+              // shape="circle"
+            />
+          ) : (
+            ""
+          ),
+      })
+    );
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -187,6 +205,7 @@ function DetailMenu() {
         comboAuth,
         comboUseFlag,
         comboType,
+        adminFlag,
       } = await getDetailMenu(
         topMenuId,
         currentPage,
@@ -196,12 +215,16 @@ function DetailMenu() {
         searchUseFlag
       );
 
+      setAdminFlag(adminFlag);
+
       setDataSource(menu);
       setTotalCount(totalCount);
+
       setComboPerPage(comboPerPage);
       setComboAuth(comboAuth);
       setComboUseFlag(comboUseFlag);
       setComboType(comboType);
+
       setNewItemCount(0);
       setSelectedRowKeys([]);
       showMessage("조회성공!");
@@ -244,7 +267,7 @@ function DetailMenu() {
       });
 
       if (fetchData.length === 0) return;
-      const { message } = await postDetailMenu(fetchData);
+      const { message } = await postDetailMenu(fetchData, topMenuId);
       await handleSearch();
       showMessage(message);
     } catch (error) {
@@ -296,11 +319,10 @@ function DetailMenu() {
       updatedUser: null,
       url: "-",
       useFlag: comboUseFlag[0].value,
-      type: comboType[0].value,
+      type: adminFlag === "Y" ? null : comboType[0].value,
       sort: 1,
       status: "I",
       menuId: null,
-      topMenuId,
     };
 
     setDataSource([...dataSource, newData]);
@@ -377,17 +399,21 @@ function DetailMenu() {
     >
       <span>메뉴명</span>
       <Input onChange={(e) => setSearchMenuName(e.target.value)} />
-      <span>유형</span>
-      <Select
-        style={{
-          width: 80,
-        }}
-        value={searchType}
-        onChange={(value) => {
-          setSearchType(value);
-        }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboType]}
-      />
+      {adminFlag !== "Y" && (
+        <>
+          <span>유형</span>
+          <Select
+            style={{
+              width: 80,
+            }}
+            value={searchType}
+            onChange={(value) => {
+              setSearchType(value);
+            }}
+            options={[{ value: "ALL", label: "ALL" }, ...comboType]}
+          />
+        </>
+      )}
       <span>사용유무</span>
       <Select
         style={{

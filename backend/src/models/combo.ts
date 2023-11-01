@@ -44,12 +44,19 @@ export const getComboPerPage = tyrCatchModelHandler(
 
     return perPage;
   },
-  "getComboComCd"
+  "getComboPerPage"
 );
 
 export const getComboAuth = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
-    const sql: string = `SELECT AUTH_ID AS value, AUTH_NAME AS label FROM auth WHERE AUTH_ID != 99 ORDER BY AUTH_ID DESC`;
+    const sql: string =
+      `SELECT ` +
+      `    AUTH_ID AS value` +
+      `  , AUTH_NAME    AS label` +
+      `  FROM auth ` +
+      ` WHERE USE_FLAG = 'Y'` +
+      `   AND DELETED_AT IS NULL` +
+      ` ORDER BY AUTH_ID DESC `;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
@@ -59,7 +66,18 @@ export const getComboAuth = tyrCatchModelHandler(
 
 export const getComboAuthAll = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
-    const sql: string = `SELECT AUTH_ID AS value, AUTH_NAME AS label FROM auth ORDER BY AUTH_ID DESC`;
+    const sql =
+      `SELECT ` +
+      `    null      AS value` +
+      `  , '전체보기' AS label` +
+      ` UNION ALL ` +
+      `SELECT ` +
+      `    AUTH_ID AS value` +
+      `  , AUTH_NAME    AS label` +
+      `  FROM auth ` +
+      ` WHERE USE_FLAG = 'Y'` +
+      `   AND DELETED_AT IS NULL` +
+      ` ORDER BY value DESC `;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;

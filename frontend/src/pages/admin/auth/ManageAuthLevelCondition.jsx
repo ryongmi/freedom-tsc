@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
-import { Input, Select } from "antd";
+import { useOutletContext } from "react-router-dom";
+import { Input } from "antd";
 
 import AppTable from "../../../components/table/AppTable";
 import { setColumn } from "../../../components/table/SetColumn";
 
 import {
-  getDetailComCd,
-  patchDetailComCd,
-  postDetailComCd,
-} from "../../../services/apiComCd";
+  getManageAuth,
+  getManageAuthLevelCondition,
+  patchManageAuth,
+  postManageAuth,
+  postManageAuthLevelCondition,
+} from "../../../services/apiAuth";
 
-function DetailComCd() {
-  const { comId } = useParams();
+function ManageAuthLevelCondition() {
   const { showMessage, showModal } = useOutletContext();
 
   // 기본
@@ -24,49 +25,45 @@ function DetailComCd() {
   const [perPage, setPerPage] = useState(null);
   const [newItemCount, setNewItemCount] = useState(0);
 
-  // 콤보박스 아이템
-  const [comboComCdOption, setComboComCdOption] = useState([]);
-  const [comboUseFlag, setComboUseFlag] = useState([]);
-
   // 검색조건
-  const [searchComCdOption, setSearchComCdOption] = useState("");
-  const [searchComCdOptionValue, setSearchComCdOptionValue] = useState("");
-  const [searchUseFlag, setSearchUseFlag] = useState("ALL");
+  const [searchAuthName, setSearchAuthName] = useState("");
 
   const defaultColumns = [
-    setColumn({ title: "코드값", key: "value", editable: true, max: 30 }),
-    setColumn({ title: "코드명", key: "name", editable: true, max: 30 }),
-    setColumn({ title: "생성일", key: "createdAt" }),
-    setColumn({ title: "생성자", key: "createdUser" }),
-    setColumn({ title: "수정일", key: "updatedAt" }),
-    setColumn({ title: "수정자", key: "updatedUser" }),
+    setColumn({ title: "등급명", key: "authName" }),
     setColumn({
-      title: "사용여부",
-      key: "useFlag",
-      render: (text, record, _) => (
-        // (text, record, index)
-        // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-        <Select
-          style={{
-            width: 80,
-          }}
-          defaultValue={text}
-          onChange={(value) => {
-            record = { ...record, useFlag: value };
-            handleCellSave(record, "useFlag");
-          }}
-          options={comboUseFlag}
-        />
-      ),
-    }),
-    setColumn({
-      title: "순서",
-      key: "sort",
+      title: "게시글수",
+      key: "post",
       editable: true,
-      min: 1,
-      max: 999,
+      min: 0,
+      max: 99999,
       type: "number",
     }),
+    setColumn({
+      title: "댓글수",
+      key: "comment",
+      editable: true,
+      min: 0,
+      max: 99999,
+      type: "number",
+    }),
+    setColumn({
+      title: "방문횟수",
+      key: "visit",
+      editable: true,
+      min: 0,
+      max: 99999,
+      type: "number",
+    }),
+    setColumn({
+      title: "가입기간(주)",
+      key: "period",
+      editable: true,
+      min: 0,
+      max: 99999,
+      type: "number",
+    }),
+    setColumn({ title: "수정일", key: "updatedAt" }),
+    setColumn({ title: "수정자", key: "updatedUser" }),
   ];
 
   useEffect(() => {
@@ -79,28 +76,12 @@ function DetailComCd() {
   // Table Button Event
   async function handleSearch() {
     try {
-      const {
-        detailComCd,
-        totalCount,
-        comboPerPage,
-        comboUseFlag,
-        comboComCdOption,
-      } = await getDetailComCd(
-        comId,
-        currentPage,
-        perPage,
-        searchComCdOption,
-        searchComCdOptionValue,
-        searchUseFlag
-      );
+      const { auth, totalCount, comboPerPage } =
+        await getManageAuthLevelCondition(currentPage, perPage, searchAuthName);
 
-      setDataSource(detailComCd);
+      setDataSource(auth);
       setTotalCount(totalCount);
       setComboPerPage(comboPerPage);
-
-      setComboComCdOption(comboComCdOption);
-      setSearchComCdOption(comboComCdOption[0].value ?? "");
-      setComboUseFlag(comboUseFlag);
 
       setNewItemCount(0);
       setSelectedRowKeys([]);
@@ -124,27 +105,13 @@ function DetailComCd() {
           const row = dataSource[index];
           if (row.key !== key) continue;
 
-          if (row.status !== "S") {
-            if (row.value === "-") {
-              isShowModal = true;
-              throw Error(
-                `${index + 1}번째줄의 코드값을 입력해주세요. ('-', 공백 불가)`
-              );
-            } else if (row.name === "-") {
-              isShowModal = true;
-              throw Error(
-                `${index + 1}번째줄의 코드명을 입력해주세요. ('-', 공백 불가)`
-              );
-            }
+          if (row.status !== "S") fetchData.push(row);
 
-            fetchData.push(row);
-          }
           break;
         }
       });
 
-      if (fetchData.length === 0) return;
-      const { message } = await postDetailComCd(fetchData, comId);
+      const { message } = await postManageAuthLevelCondition(fetchData);
       await handleSearch();
       showMessage(message);
     } catch (error) {
@@ -166,14 +133,14 @@ function DetailComCd() {
           const row = dataSource[index];
           if (row.key !== key) continue;
 
-          if (row.status !== "I") fetchData.push({ value: row.value });
+          if (row.status !== "I") fetchData.push({ authId: row.authId });
 
           break;
         }
       });
 
       if (fetchData.length > 0) {
-        const { message } = await patchDetailComCd(fetchData, comId);
+        const { message } = await patchManageAuth(fetchData);
         showMessage(message);
       }
 
@@ -186,15 +153,15 @@ function DetailComCd() {
   function handleItemAdd() {
     const newData = {
       key: `new${newItemCount}`,
-      value: "-",
-      name: "-",
-      createdAt: null,
-      createdUser: null,
+      authName: "-",
+      post: 0,
+      comment: 0,
+      visit: 0,
+      period: 0,
       updatedAt: null,
       updatedUser: null,
-      useFlag: comboUseFlag[0].value,
-      sort: 1,
       status: "I",
+      authId: null,
     };
 
     setDataSource([...dataSource, newData]);
@@ -264,36 +231,14 @@ function DetailComCd() {
       handleItemRemove={handleItemRemove}
       handleSearch={handleSearch}
       handleSave={handleSave}
-      handleDelete={handleDelete}
       currentPage={currentPage}
       totalCount={totalCount}
       handlePagingChange={handlePagingChange}
     >
-      <span>공통코드</span>
-      <Select
-        style={{
-          width: 100,
-        }}
-        value={searchComCdOption}
-        onChange={(value) => {
-          setSearchComCdOption(value);
-        }}
-        options={[...comboComCdOption]}
-      />
-      <Input onChange={(e) => setSearchComCdOptionValue(e.target.value)} />
-      <span>사용유무</span>
-      <Select
-        style={{
-          width: 80,
-        }}
-        value={searchUseFlag}
-        onChange={(value) => {
-          setSearchUseFlag(value);
-        }}
-        options={[{ value: "ALL", label: "ALL" }, ...comboUseFlag]}
-      />
+      <span>등급명</span>
+      <Input onChange={(e) => setSearchAuthName(e.target.value)} />
     </AppTable>
   );
 }
 
-export default DetailComCd;
+export default ManageAuthLevelCondition;

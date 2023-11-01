@@ -152,7 +152,7 @@ export const getTopMenu = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     if (menuName !== "") {
-      sql += ` AND MENU_NAME LIKE '${menuName}'`;
+      sql += ` AND MENU_NAME LIKE '%${menuName}%'`;
     }
     if (adminFalg !== "ALL") {
       sql += ` AND ADMIN_FLAG = '${adminFalg}'`;
@@ -183,7 +183,7 @@ export const getDetailMenu = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     if (menuName !== "") {
-      sql += ` AND MENU_NAME LIKE '${menuName}'`;
+      sql += ` AND MENU_NAME LIKE '$${menuName}$'`;
     }
     if (type !== "ALL") {
       sql += ` AND ADMIN_FLAG = '${type}'`;
@@ -212,7 +212,7 @@ export const getBrackets = tyrCatchModelHandler(
       `    AND DELETED_AT IS NULL`;
 
     if (bracketName !== "") {
-      sql += ` AND CONTENT LIKE '${bracketName}'`;
+      sql += ` AND CONTENT LIKE '%${bracketName}%'`;
     }
     if (useFlag !== "ALL") {
       sql += ` AND USE_FLAG = '${useFlag}'`;
@@ -282,4 +282,56 @@ export const getDetailComCd = tyrCatchModelHandler(
     return rows[0].totalCount;
   },
   "COUNT - getDetailComCd"
+);
+
+// ************************** AUTH ************************** //
+export const getAuths = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const authName: string = req.query.authName?.toString() ?? "";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
+
+    let sql: string =
+      ` SELECT` +
+      `   COUNT(AUTH_ID) AS totalCount` +
+      `   FROM auth` +
+      `  WHERE ADMIN_FLAG = 'N'` +
+      `    AND DELETED_AT IS NULL`;
+
+    if (authName !== "") {
+      sql += ` AND AUTH_NAME LIKE '%${authName}%'`;
+    }
+
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
+  },
+  "COUNT - getAuths"
+);
+
+export const getAuthLevelCondition = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const authName: string = req.query.authName?.toString() ?? "";
+
+    let sql: string =
+      ` SELECT` +
+      `   COUNT(A.AUTH_ID) AS totalCount` +
+      `   FROM auth A` +
+      `   LEFT JOIN auth_level_condition AL` +
+      `     ON A.AUTH_ID = AL.AUTH_ID` +
+      `  WHERE A.USE_FLAG = 'Y'` +
+      `    AND A.ADMIN_FLAG = 'N'` +
+      `    AND A.TYPE != 'NONE'` +
+      `    AND A.DELETED_AT IS NULL`;
+
+    if (authName !== "") {
+      sql += ` AND A.AUTH_NAME LIKE '%${authName}%'`;
+    }
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
+  },
+  "COUNT - getAuthLevelCondition"
 );
