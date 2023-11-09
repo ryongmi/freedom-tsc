@@ -107,7 +107,6 @@ function ManageBanUser() {
       totalCount={totalCount}
       handlePagingChange={handlePagingChange}
     >
-      <span>유저검색</span>
       <Select
         style={{
           width: 130,
@@ -116,9 +115,12 @@ function ManageBanUser() {
         onChange={(value) => {
           setSearchUserOption(value);
         }}
-        options={[...comboUserOption]}
+        options={comboUserOption}
       />
-      <Input onChange={(e) => setSearchUserOptionValue(e.target.value)} />
+      <Input
+        placeholder="검색어를 입력해주세요"
+        onChange={(e) => setSearchUserOptionValue(e.target.value)}
+      />
     </AppTable>
   );
 }

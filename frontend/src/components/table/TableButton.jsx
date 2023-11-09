@@ -11,9 +11,11 @@ function TableButton({
   handleUnWarn,
   handleBan,
   handleUnBan,
+  handlePostMove,
+  handlePostNew,
 }) {
   return (
-    <div className="table-btn table-content">
+    <div className="table-btn">
       <div>
         {handleItemAdd && (
           <Button
@@ -33,6 +35,7 @@ function TableButton({
         )}
       </div>
       <div>
+        {handlePostMove && <Button onClick={handlePostMove}>이동</Button>}
         {handleSearch && <Button onClick={handleSearch}>조회</Button>}
         {handleSave && <Button onClick={handleSave}>저장</Button>}
         {handleDelete && (
@@ -52,6 +55,7 @@ function TableButton({
           </Button>
         )}
         {handleUnBan && <Button onClick={handleUnBan}>벤 해제</Button>}
+        {handlePostNew && <Button onClick={handlePostNew}>글쓰기</Button>}
       </div>
     </div>
   );

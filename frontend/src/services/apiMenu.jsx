@@ -4,7 +4,7 @@ export async function getMenuInfo(adminFlag) {
   const res = await fetch(`${MENU_INFO}/${adminFlag}`);
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("Failed getting menu");
+  if (!res.ok) throw Error("메뉴 정보를 가져오기 실패!");
 
   const data = await res.json();
 

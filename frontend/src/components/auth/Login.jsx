@@ -1,32 +1,27 @@
 import { useLoaderData } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { getUserInfo } from "../services/apiUser";
-import { updateUser } from "../store/slice/userSlice";
-import { TWITCH_LOGIN_API } from "../config/apiUrl";
+import { getUserInfo } from "../../services/apiUser";
+import { updateUser } from "../../store/slice/userSlice";
 import { Button } from "antd";
 
-function Login() {
+function Login({ handleLogin }) {
   const dispatch = useDispatch();
   const user = useLoaderData();
 
   useEffect(() => {
     const updateUserInfo = {
-      userName: user?.DISPLAY_NAME ?? "",
-      loginId: user?.USER_LOGIN_ID ?? "",
-      profileImgUrl: user?.PROFILE_IMG_URL ?? "",
-      broadcasterType: user?.BROADCASTER_TYPE ?? "",
-      isLoggedIn: user?.DISPLAY_NAME ? true : false,
+      userName: user?.displayName ?? "",
+      loginId: user?.userLoginId ?? "",
+      profileImgUrl: user?.profileImgUrl ?? "",
+      broadcasterType: user?.broadcasterType ?? "",
+      isLoggedIn: user?.displayName ? true : false,
     };
     dispatch(updateUser(updateUserInfo));
   }, []);
 
-  function handleClick(e) {
-    window.location.href = TWITCH_LOGIN_API;
-  }
-
   return (
-    <Button onClick={handleClick} ghost>
+    <Button onClick={handleLogin} ghost>
       로그인
     </Button>
     // <button onClick={handleClick}>로그인</button>

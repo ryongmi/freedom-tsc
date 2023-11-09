@@ -106,7 +106,7 @@ export const getDetailComCd = tyrCatchModelHandler(
 export const createdComCd = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryComCd: Array<ComCd> = req.body.comCd;
-    // const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.userId;
     const adminUserId: number = 12312312;
 
     try {
@@ -156,7 +156,7 @@ export const createdDetailComCd = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryComCd: Array<DetailComCd> = req.body.comCd;
     const comId: string = req.body.comId;
-    // const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.userId;
     const adminUserId: number = 12312312;
 
     try {
@@ -213,7 +213,7 @@ export const createdDetailComCd = tyrCatchModelHandler(
 export const deletedComCd = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryComCd: Array<ComCd> = req.body.comCd;
-    // const adminUserId = req.session.user!.USER_ID;
+    // const adminUserId = req.session.user!.userId;
     const adminUserId: number = 12312312;
 
     try {
@@ -249,7 +249,7 @@ export const deletedDetailComCd = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const comId: string = req.body.comId;
     const aryComCd: Array<ComCd> = req.body.comCd;
-    // const adminUserId = req.session.user!.USER_ID;
+    // const adminUserId = req.session.user!.userId;
     const adminUserId: number = 12312312;
 
     try {

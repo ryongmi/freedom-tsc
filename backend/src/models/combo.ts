@@ -51,8 +51,8 @@ export const getComboAuth = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
     const sql: string =
       `SELECT ` +
-      `    AUTH_ID AS value` +
-      `  , AUTH_NAME    AS label` +
+      `    AUTH_ID    AS value` +
+      `  , AUTH_NAME  AS label` +
       `  FROM auth ` +
       ` WHERE USE_FLAG = 'Y'` +
       `   AND DELETED_AT IS NULL` +
@@ -64,45 +64,70 @@ export const getComboAuth = tyrCatchModelHandler(
   "getComboAuth"
 );
 
-export const getComboAuthAll = tyrCatchModelHandler(
-  async (_: Request, conn: mysql.PoolConnection) => {
-    const sql =
-      `SELECT ` +
-      `    null      AS value` +
-      `  , '전체보기' AS label` +
-      ` UNION ALL ` +
-      `SELECT ` +
-      `    AUTH_ID AS value` +
-      `  , AUTH_NAME    AS label` +
-      `  FROM auth ` +
-      ` WHERE USE_FLAG = 'Y'` +
-      `   AND DELETED_AT IS NULL` +
-      ` ORDER BY value DESC `;
-
-    const [rows] = await conn.query<RowDataPacket[]>(sql);
-    return rows;
-  },
-  "getComboAuthAll"
-);
-
 export const getComboBracket = tyrCatchModelHandler(
-  async (_: Request, conn: mysql.PoolConnection, menuId: number) => {
-    let sql =
-      `SELECT ` +
-      `    null      AS value` +
-      `  , '전체보기' AS label` +
-      ` UNION ALL ` +
+  async (_: Request, conn: mysql.PoolConnection) => {
+    // const menuId = Number(req.params.menuId);
+
+    const sql: string =
       `SELECT ` +
       `    BRACKET_ID AS value` +
       `  , CONTENT    AS label` +
-      `  FROM bracket `;
+      `  , MENU_ID    AS menuId` +
+      `  FROM bracket ` +
+      ` WHERE 1=1` +
+      `   AND USE_FLAG = 'Y'` +
+      `   AND DELETED_AT IS NULL` +
+      ` ORDER BY SORT`;
 
-    if (menuId) sql += `WHERE MENU_ID = ${menuId}`;
-
-    sql += `ORDER BY SORT`;
+    // if (menuId) sql += `WHERE MENU_ID = ${menuId}`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
   },
   "getComboBracket"
+);
+
+export const getComboMenu = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    // const menuId = Number(req.params.menuId);
+    const authId = req.session.user?.authId || 1;
+
+    const sql: string =
+      `WITH RECURSIVE CTE AS (` +
+      ` SELECT` +
+      `     MENU_ID` +
+      `   , MENU_NAME` +
+      `   , TOP_MENU_ID` +
+      `   , CAST(SORT as CHAR(100)) lvl` +
+      `   FROM menu` +
+      `  WHERE ADMIN_FLAG = 'N'` +
+      `    AND TOP_MENU_ID IS NULL` +
+      `    AND DELETED_AT IS NULL` +
+      `    AND USE_FLAG = 'Y'` +
+      ` UNION ALL` +
+      ` SELECT` +
+      `     M.MENU_ID` +
+      `   , M.MENU_NAME` +
+      `   , M.TOP_MENU_ID` +
+      `   , CONCAT(C.lvl, ',', M.SORT) lvl` +
+      `   FROM menu M` +
+      `  INNER JOIN CTE C` +
+      `     ON M.TOP_MENU_ID = C.MENU_ID` +
+      `    AND M.DELETED_AT IS NULL` +
+      `    AND M.USE_FLAG = 'Y'` +
+      `    AND M.POST_AUTH_ID >= ${authId}` +
+      ` )` +
+      ` SELECT ` +
+      `     MENU_ID AS value` +
+      `   , MENU_NAME AS label` +
+      `   FROM CTE` +
+      `  WHERE TOP_MENU_ID IS NOT NULL` +
+      `  ORDER BY lvl`;
+
+    // if (menuId) sql += `WHERE MENU_ID = ${menuId}`;
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows;
+  },
+  "getComboMenu"
 );

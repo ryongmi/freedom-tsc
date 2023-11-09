@@ -6,10 +6,7 @@ import AppTable from "../../../components/table/AppTable";
 import { setColumn } from "../../../components/table/SetColumn";
 
 import {
-  getManageAuth,
   getManageAuthLevelCondition,
-  patchManageAuth,
-  postManageAuth,
   postManageAuthLevelCondition,
 } from "../../../services/apiAuth";
 
@@ -120,36 +117,6 @@ function ManageAuthLevelCondition() {
     }
   }
 
-  async function handleDelete() {
-    if (selectedRowKeys.length === 0) {
-      showMessage("삭제할 데이터를 선택해주세요!", "warning");
-      return;
-    }
-
-    try {
-      const fetchData = [];
-      selectedRowKeys.forEach((key) => {
-        for (let index = 0; index < dataSource.length; index++) {
-          const row = dataSource[index];
-          if (row.key !== key) continue;
-
-          if (row.status !== "I") fetchData.push({ authId: row.authId });
-
-          break;
-        }
-      });
-
-      if (fetchData.length > 0) {
-        const { message } = await patchManageAuth(fetchData);
-        showMessage(message);
-      }
-
-      await handleSearch();
-    } catch (error) {
-      showMessage(error.message, "error");
-    }
-  }
-
   function handleItemAdd() {
     const newData = {
       key: `new${newItemCount}`,
@@ -236,7 +203,10 @@ function ManageAuthLevelCondition() {
       handlePagingChange={handlePagingChange}
     >
       <span>등급명</span>
-      <Input onChange={(e) => setSearchAuthName(e.target.value)} />
+      <Input
+        placeholder="검색어를 입력해주세요"
+        onChange={(e) => setSearchAuthName(e.target.value)}
+      />
     </AppTable>
   );
 }

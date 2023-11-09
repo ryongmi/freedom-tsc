@@ -37,7 +37,7 @@ export const getDetailMenu = tyrCatchControllerHandler(
     const comboPerPage = await COMBO.getComboPerPage(req);
     const menu = await MENU.getDetailMenu(req);
     const totalCount = await COUNT.getDetailMenu(req);
-    const comboAuth = await COMBO.getComboAuthAll(req);
+    const comboAuth = await COMBO.getComboAuth(req);
     const comboUseFlag = await COMBO.getComboComCd(req, "USE_FLAG");
     const comboType = await COMBO.getComboComCd(req, "MENU_TYPE");
 

@@ -266,7 +266,10 @@ function ManageAuth() {
       handlePagingChange={handlePagingChange}
     >
       <span>등급명</span>
-      <Input onChange={(e) => setSearchAuthName(e.target.value)} />
+      <Input
+        placeholder="검색어를 입력해주세요"
+        onChange={(e) => setSearchAuthName(e.target.value)}
+      />
       <span>사용유무</span>
       <Select
         style={{

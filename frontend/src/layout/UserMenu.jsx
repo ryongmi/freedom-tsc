@@ -1,8 +1,9 @@
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Dropdown, Avatar } from "antd";
+import { LOGOUT_IMG } from "../config/imgUrl";
 
-function UserMenu() {
+function UserMenu({ handleLogin, handleLogout }) {
   const { profileImgUrl, isLoggedIn } = useSelector((store) => store.user);
 
   const items = [
@@ -28,7 +29,11 @@ function UserMenu() {
     {
       key: "4",
       danger: true,
-      label: isLoggedIn ? "로그아웃" : "로그인",
+      label: isLoggedIn ? (
+        <a onClick={handleLogout}>로그아웃</a>
+      ) : (
+        <a onClick={handleLogin}>로그인</a>
+      ),
     },
   ];
 
@@ -38,27 +43,9 @@ function UserMenu() {
         items,
       }}
       trigger={["click"]}
-      placement="bottomLeft"
-      // open={true}
     >
-      <button
-        style={{
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          position: "relative",
-          top: "-3px",
-        }}
-        onClick={(e) => e.preventDefault()}
-      >
-        <Avatar
-          size="large"
-          src={
-            isLoggedIn
-              ? profileImgUrl
-              : "https://static-cdn.jtvnw.net/jtv_user_pictures/959a3937-f979-43d9-bbaf-2eb2c31a3102-profile_image-50x50.png"
-          }
-        />
+      <button className="btn-user-icon" onClick={(e) => e.preventDefault()}>
+        <Avatar size="large" src={isLoggedIn ? profileImgUrl : LOGOUT_IMG} />
       </button>
     </Dropdown>
   );

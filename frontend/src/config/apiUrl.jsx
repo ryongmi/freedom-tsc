@@ -31,3 +31,11 @@ export const DETAIL_COMCD = `${BASE_URL}/admin/com-cd/detailComCd`;
 // 권한 관련
 export const MANAGE_AUTH = `${BASE_URL}/admin/auth/manageAuth`;
 export const MANAGE_AUTH_LEVEL = `${BASE_URL}/admin/auth/manageAuthLevelCondition`;
+
+// 게시글 관련
+export const POST = `${BASE_URL}/post`;
+export const POST_EDIT = `${BASE_URL}/post/edit`;
+
+// 댓글 관련
+export const COMMENT = `${BASE_URL}/comment`;
+export const CREATED_COMMENT = `${BASE_URL}/comment/createdComment`;

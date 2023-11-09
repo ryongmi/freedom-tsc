@@ -1,5 +1,5 @@
 import { Request } from "express";
-import mysql from "mysql2/promise";
+import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 import { Auth, AuthLevelCondition } from "../interface/auth";
 
@@ -9,9 +9,8 @@ export const getAuth = tyrCatchModelHandler(
     // `    AND USE_FLAG = 'Y'` +
     // `    AND DELETED_AT IS NULL`;
 
-    const [rows] = await conn.query(sql);
-    // return rows[0];
-    return rows;
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0];
   },
   "getAuth"
 );
@@ -52,7 +51,7 @@ export const getAuths = tyrCatchModelHandler(
       `  ORDER BY AUTH_ID` +
       `  LIMIT ${(currentPage - 1) * perPage}, ${perPage}`;
 
-    const [rows] = await conn.query(sql);
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
   },
   "getAuths"
@@ -61,7 +60,7 @@ export const getAuths = tyrCatchModelHandler(
 export const updatedAuth = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryAuth: Array<Auth> = req.body.auth;
-    // const adminUserId = req.session.user!.USER_ID;
+    // const adminUserId = req.session.user!.userId;
     const adminUserId = 13432423;
 
     try {
@@ -120,7 +119,7 @@ export const updatedAuth = tyrCatchModelHandler(
 export const deletedAuth = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryAuth: Array<{ authId: number }> = req.body.auth;
-    // const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.userId;
     const adminUserId: number = 423412;
 
     try {
@@ -193,7 +192,7 @@ export const getAuthLevelCondition = tyrCatchModelHandler(
 export const updatedAuthLevelCondition = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryAuth: Array<AuthLevelCondition> = req.body.auth;
-    // const adminUserId = req.session.user!.USER_ID;
+    // const adminUserId = req.session.user!.userId;
     const adminUserId = 132132;
 
     try {

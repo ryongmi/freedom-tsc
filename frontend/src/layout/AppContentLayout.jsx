@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import { Layout, Modal, message, theme } from "antd";
 import { Content } from "antd/es/layout/layout";
 
-import AppSider from "./AppSider";
+import AppSider from "../components/sider/AppSider";
 
 import "../styles/content.css";
 
@@ -34,21 +34,23 @@ function AppContentLayout() {
   } = theme.useToken();
 
   return (
-    <Layout>
-      <AppSider colorBgContainer={colorBgContainer} />
-      <Layout className="content-container">
-        {contextMessage}
-        {contextModal}
-        <Content
-          className="scroll content"
-          style={{
-            background: colorBgContainer,
-          }}
-        >
-          <Outlet context={{ showMessage, showModal }} />
-        </Content>
+    <>
+      <Layout>
+        <AppSider colorBgContainer={colorBgContainer} showModal={showModal} />
+        <Layout className="content-container">
+          {contextMessage}
+          {contextModal}
+          <Content
+            className="scroll content"
+            style={{
+              background: colorBgContainer,
+            }}
+          >
+            <Outlet context={{ showMessage, showModal }} />
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+    </>
   );
 }
 

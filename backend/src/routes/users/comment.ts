@@ -1,5 +1,5 @@
 import { Router, Request } from "express";
-import * as postController from "../../controllers/post/post";
+import * as commentController from "../../controllers/users/comment";
 import * as MENU from "../../models/menu";
 
 const router = Router();
@@ -13,16 +13,16 @@ const { body, param } = new ExpressValidator({
       return Promise.reject("존재하지 않는 메뉴입니다.");
     }
   },
+  isPostID: async (value: number, meta: Meta) => {
+    const req = meta.req as Request;
+    const menu = await MENU.getMenu(req, value);
+    if (!menu) {
+      return Promise.reject("존재하지 않는 메뉴입니다.");
+    }
+  },
 });
 
-router.get("/", postController.getPostAll);
-
-router.get("/:menuId", param("menuId").isMenuID(), postController.getPosts);
-
-router.get(
-  "/:menuId/:postId",
-  param("menuId").isMenuID(),
-  postController.getPost
-);
+router.get("/", commentController.getComment);
+router.post("/createdComment", commentController.postCreatedComment);
 
 export default router;

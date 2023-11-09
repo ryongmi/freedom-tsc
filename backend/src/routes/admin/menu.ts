@@ -20,9 +20,11 @@ const { body, param } = new ExpressValidator({
   isAuthID: async (value: number, meta: Meta) => {
     const req = meta.req as Request;
 
-    const auth = await AUTH.getAuth(req, value);
-    if (!auth) {
-      return Promise.reject("존재하지 않는 권한입니다.");
+    if (value !== 99999) {
+      const auth = await AUTH.getAuth(req, value);
+      if (!auth) {
+        return Promise.reject("존재하지 않는 권한입니다.");
+      }
     }
   },
   isMenuType: async (value: string, meta: Meta) => {
@@ -374,7 +376,7 @@ router.post(
  *                          "readAuthId": 5,
  *                          "useFlag": "N",
  *                          "sort": 7,
- *                          "type": "PHOTO"
+ *                          "type": null
  *                       }
  *                    ]
  *    responses:
@@ -427,21 +429,17 @@ router.post(
       .trim(),
     body("menu.*.postAuthId", "게시글 권한이 비정상적입니다.")
       .isNumeric()
-      .optional({ nullable: true })
       .isAuthID(),
     body("menu.*.commentAuthId", "댓글 권한이 비정상적입니다.")
       .isNumeric()
-      .optional({ nullable: true })
       .isAuthID(),
     body("menu.*.readAuthId", "읽기 권한이 비정상적입니다.")
       .isNumeric()
-      .optional({ nullable: true })
       .isAuthID(),
     body("menu.*.type", "타입이 비정상적입니다.")
       .isString()
-      .optional({ nullable: true })
-      .isMenuType()
-      .trim(),
+      .optional({ nullable: true, checkFalsy: true })
+      .isMenuType(),
     body("menu.*.useFlag", "사용유무가 비정상적입니다.")
       .isString()
       .notEmpty()

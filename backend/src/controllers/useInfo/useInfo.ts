@@ -16,6 +16,7 @@ export const getMenus = tyrCatchControllerHandler(
 
     res.send({
       menu,
+      adminFlag,
     });
   }
 );

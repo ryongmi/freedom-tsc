@@ -42,73 +42,10 @@ function DetailMenu() {
       editable: true,
       max: 30,
     }),
-    setColumn({
-      title: "권한",
-      children: [
-        setColumn({
-          title: "글쓰기",
-          key: "postAuthId",
-          render: (text, record, _) => (
-            // (text, record, index)
-            // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-            <Select
-              style={{
-                width: 130,
-              }}
-              defaultValue={text}
-              onChange={(value) => {
-                record = { ...record, postAuthId: value };
-                handleCellSave(record, "postAuthId");
-              }}
-              options={comboAuth}
-            />
-          ),
-        }),
-        setColumn({
-          title: "댓글쓰기",
-          key: "commentAuthId",
-          render: (text, record, _) => (
-            // (text, record, index)
-            // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-            <Select
-              style={{
-                width: 130,
-              }}
-              defaultValue={text}
-              onChange={(value) => {
-                record = { ...record, commentAuthId: value };
-                handleCellSave(record, "commentAuthId");
-              }}
-              options={comboAuth}
-            />
-          ),
-        }),
-        setColumn({
-          title: "읽기",
-          key: "readAuthId",
-          render: (text, record, _) => (
-            // (text, record, index)
-            // text : data값, record: 선택한 row값 배열, index: 선택한 row index
-            <Select
-              style={{
-                width: 130,
-              }}
-              defaultValue={text}
-              onChange={(value) => {
-                record = { ...record, readAuthId: value };
-                handleCellSave(record, "readAuthId");
-              }}
-              options={comboAuth}
-            />
-          ),
-        }),
-      ],
-    }),
     setColumn({ title: "생성일", key: "createdAt" }),
     setColumn({ title: "생성자", key: "createdUser" }),
     setColumn({ title: "수정일", key: "updatedAt" }),
     setColumn({ title: "수정자", key: "updatedUser" }),
-    setColumn({ title: "URL", key: "url", editable: true, max: 100 }),
     setColumn({
       title: "사용여부",
       key: "useFlag",
@@ -139,6 +76,72 @@ function DetailMenu() {
   ];
 
   if (adminFlag !== "Y") {
+    defaultColumns.splice(
+      1,
+      0,
+      setColumn({
+        title: "권한",
+        children: [
+          setColumn({
+            title: "글쓰기",
+            key: "postAuthId",
+            render: (text, record, _) => (
+              // (text, record, index)
+              // text : data값, record: 선택한 row값 배열, index: 선택한 row index
+              <Select
+                style={{
+                  width: 130,
+                }}
+                defaultValue={text}
+                onChange={(value) => {
+                  record = { ...record, postAuthId: value };
+                  handleCellSave(record, "postAuthId");
+                }}
+                options={[{ value: 99999, label: "전체보기" }, ...comboAuth]}
+              />
+            ),
+          }),
+          setColumn({
+            title: "댓글쓰기",
+            key: "commentAuthId",
+            render: (text, record, _) => (
+              // (text, record, index)
+              // text : data값, record: 선택한 row값 배열, index: 선택한 row index
+              <Select
+                style={{
+                  width: 130,
+                }}
+                defaultValue={text}
+                onChange={(value) => {
+                  record = { ...record, commentAuthId: value };
+                  handleCellSave(record, "commentAuthId");
+                }}
+                options={[{ value: 99999, label: "전체보기" }, ...comboAuth]}
+              />
+            ),
+          }),
+          setColumn({
+            title: "읽기",
+            key: "readAuthId",
+            render: (text, record, _) => (
+              // (text, record, index)
+              // text : data값, record: 선택한 row값 배열, index: 선택한 row index
+              <Select
+                style={{
+                  width: 130,
+                }}
+                defaultValue={text}
+                onChange={(value) => {
+                  record = { ...record, readAuthId: value };
+                  handleCellSave(record, "readAuthId");
+                }}
+                options={[{ value: 99999, label: "전체보기" }, ...comboAuth]}
+              />
+            ),
+          }),
+        ],
+      })
+    );
     defaultColumns.splice(
       8,
       0,
@@ -185,6 +188,12 @@ function DetailMenu() {
             ""
           ),
       })
+    );
+  } else {
+    defaultColumns.splice(
+      6,
+      0,
+      setColumn({ title: "URL", key: "url", editable: true, max: 100 })
     );
   }
 
@@ -310,14 +319,14 @@ function DetailMenu() {
     const newData = {
       key: `new${newItemCount}`,
       menuName: "-",
-      postAuthId: comboAuth[0].value,
-      commentAuthId: comboAuth[0].value,
-      readAuthId: comboAuth[0].value,
+      postAuthId: adminFlag === "Y" ? 99999 : comboAuth[0].value,
+      commentAuthId: adminFlag === "Y" ? 99999 : comboAuth[0].value,
+      readAuthId: adminFlag === "Y" ? 99999 : comboAuth[0].value,
       createdAt: null,
       createdUser: null,
       updatedAt: null,
       updatedUser: null,
-      url: "-",
+      url: adminFlag === "Y" ? "-" : null,
       useFlag: comboUseFlag[0].value,
       type: adminFlag === "Y" ? null : comboType[0].value,
       sort: 1,
@@ -398,7 +407,10 @@ function DetailMenu() {
       handlePagingChange={handlePagingChange}
     >
       <span>메뉴명</span>
-      <Input onChange={(e) => setSearchMenuName(e.target.value)} />
+      <Input
+        placeholder="검색어를 입력해주세요"
+        onChange={(e) => setSearchMenuName(e.target.value)}
+      />
       {adminFlag !== "Y" && (
         <>
           <span>유형</span>

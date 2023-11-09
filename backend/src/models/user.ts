@@ -7,13 +7,13 @@ export const getUser = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, userId: number) => {
     const sql =
       ` SELECT` +
-      `     USER_ID` +
-      `   , USER_LOGIN_ID` +
-      `   , DISPLAY_NAME` +
-      `   , AUTH_ID` +
-      `   , COM.NAME AS BROADCASTER_TYPE` +
-      `   , PROFILE_IMAGE_URL` +
-      `   , (SELECT IF(COUNT(B.BAN_ID) > 0, 'Y' ,'N') FROM ban B WHERE U.USER_ID = B.USER_ID AND B.UN_BAN_AT IS NULL) AS BAN_YN` +
+      `     USER_ID AS userId` +
+      `   , USER_LOGIN_ID AS userLoginId` +
+      `   , DISPLAY_NAME AS displayName` +
+      `   , AUTH_ID AS authId` +
+      `   , COM.NAME AS broadcasterType` +
+      `   , PROFILE_IMAGE_URL AS profileImgUrl` +
+      `   , USER_STATUS AS userStatus` +
       `   FROM user U` +
       `   INNER JOIN comcd COM` +
       `      ON COM.COM_ID = "BROADCASTER_TYPE"` +
@@ -104,6 +104,7 @@ export const createdUser = tyrCatchModelHandler(
       `(` +
       `   USER_ID` +
       ` , USER_LOGIN_ID` +
+      ` , AUTH_ID` +
       ` , DISPLAY_NAME` +
       ` , TWITCH_TYPE` +
       ` , BROADCASTER_TYPE` +
@@ -114,6 +115,7 @@ export const createdUser = tyrCatchModelHandler(
       `(` +
       `    ${userId}` +
       ` , '${userLoginId}'` +
+      ` , (SELECT MAX(AUTH_ID) FROM AUTH WHERE ADMIN_FLAG = 'N' AND USE_FLAG = 'Y' AND DELETED_AT IS NULL)` +
       ` , '${displayName}'` +
       ` , '${twitchType}'` +
       ` , '${broadcasterType}'` +
@@ -137,7 +139,7 @@ export const createdUser = tyrCatchModelHandler(
 export const updatedUser = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryUser: Array<User> = req.body.user;
-    const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -389,7 +391,7 @@ export const getBanContents = tyrCatchModelHandler(
 export const createdWarnUser = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryUser: Array<WarnUser> = req.body.user;
-    const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.userId;
     const postUrl: string = req.body.postUrl;
     const warnReason: string = req.body.warnReason;
 
@@ -445,7 +447,7 @@ export const updatedUnWarnUser = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryWarn: Array<WarnUser> = req.body.warn;
     const userId: number = Number(req.body.userId);
-    const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -482,7 +484,7 @@ export const updatedUnWarnUser = tyrCatchModelHandler(
 export const createdBanUser = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryUser: Array<BanUser> = req.body.user;
-    const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.userId;
     const postUrl: string = req.body.postUrl;
     const banReason: string = req.body.banReason;
 
@@ -537,7 +539,7 @@ export const createdBanUser = tyrCatchModelHandler(
 export const updatedUnBanUser = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryBan: Array<BanUser> = req.body.ban;
-    const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.userId;
     const userId: number = Number(req.body.userId);
 
     try {

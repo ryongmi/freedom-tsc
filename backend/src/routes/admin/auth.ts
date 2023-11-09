@@ -82,10 +82,7 @@ router.post(
   "/manageAuthLevelCondition",
   [
     body("auth").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
-    body("auth.*.authId", "권한 ID가 비정상적입니다.")
-      .isNumeric()
-      .optional({ nullable: true })
-      .isAuthID(),
+    body("auth.*.authId", "권한 ID가 비정상적입니다.").isNumeric().isAuthID(),
     body("auth.*.post", "게시글수가 비정상적입니다.")
       .isNumeric()
       .isLength({ min: 1, max: 99999 }),

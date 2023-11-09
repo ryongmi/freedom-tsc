@@ -15,7 +15,7 @@ export const getBracket = tyrCatchModelHandler(
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "getMenu"
+  "getBracket"
 );
 
 export const getBrackets = tyrCatchModelHandler(
@@ -62,7 +62,8 @@ export const getBrackets = tyrCatchModelHandler(
 export const createdBracket = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryBracket: Array<Bracket> = req.body.bracket;
-    const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number = 13123;
 
     try {
       await conn.beginTransaction();
@@ -122,7 +123,7 @@ export const createdBracket = tyrCatchModelHandler(
 export const deletedBracket = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryBracket: Array<Bracket> = req.body.bracket;
-    const adminUserId: number = req.session.user!.USER_ID;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();

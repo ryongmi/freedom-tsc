@@ -6,7 +6,7 @@ import { Menu, DetailMenu } from "../interface/menu";
 export const getMenuAuth = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
-    const authId = req.session.user!.AUTH_ID;
+    const authId = req.session.user?.authId;
 
     const sql: string =
       ` SELECT` +
@@ -28,8 +28,9 @@ export const getMenu = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, menuId: number) => {
     const sql: string =
       ` SELECT` +
-      `     MENU_ID,` +
-      `     ADMIN_FLAG` +
+      `     MENU_ID` +
+      `   , ADMIN_FLAG` +
+      `   , MENU_NAME AS menuName` +
       `   FROM menu` +
       `  WHERE MENU_ID = ${menuId}` +
       `    AND DELETED_AT IS NULL`;
@@ -52,6 +53,7 @@ export const getUserMenus = tyrCatchModelHandler(
       `   , MENU_NAME` +
       `   , TOP_MENU_ID` +
       `   , TYPE` +
+      `   , URL` +
       `   , CAST(SORT as CHAR(100)) lvl` +
       `   FROM menu` +
       `  WHERE ADMIN_FLAG = 'N'` +
@@ -67,11 +69,11 @@ export const getUserMenus = tyrCatchModelHandler(
       `   , M.MENU_NAME` +
       `   , M.TOP_MENU_ID` +
       `   , M.TYPE` +
+      `   , CONCAT('/post/', M.MENU_ID) AS URL` +
       `   , CONCAT(C.lvl, ',', M.SORT) lvl` +
       `   FROM menu M` +
       `  INNER JOIN CTE C` +
       `     ON M.TOP_MENU_ID = C.MENU_ID` +
-      `    AND M.ADMIN_FLAG = 'Y'` +
       `    AND M.DELETED_AT IS NULL` +
       `    AND M.USE_FLAG = 'Y'` +
       ` )` +
@@ -83,6 +85,7 @@ export const getUserMenus = tyrCatchModelHandler(
       `   , COMMENT_AUTH_ID` +
       `   , READ_AUTH_ID` +
       `   , TYPE` +
+      `   , URL` +
       `   FROM CTE` +
       `  ORDER BY lvl`;
 
@@ -117,7 +120,6 @@ export const getAdminMenus = tyrCatchModelHandler(
       `   FROM menu M` +
       `  INNER JOIN CTE C` +
       `     ON M.TOP_MENU_ID = C.MENU_ID` +
-      `    AND M.ADMIN_FLAG = 'Y'` +
       `    AND M.DELETED_AT IS NULL` +
       `    AND M.USE_FLAG = 'Y'` +
       ` )` +
@@ -192,9 +194,9 @@ export const getDetailMenu = tyrCatchModelHandler(
       `     MENU_ID AS 'key'` +
       `   , MENU_ID AS menuId ` +
       `   , MENU_NAME AS menuName` +
-      `   , POST_AUTH_ID AS postAuthId` +
-      `   , COMMENT_AUTH_ID AS commentAuthId` +
-      `   , READ_AUTH_ID AS readAuthId` +
+      `   , IFNULL(POST_AUTH_ID, 99999) AS postAuthId` +
+      `   , IFNULL(COMMENT_AUTH_ID, 99999) AS commentAuthId` +
+      `   , IFNULL(READ_AUTH_ID, 99999) AS readAuthId` +
       `   , GET_DATE_FORMAT(CREATED_AT) AS createdAt` +
       `   , GET_USER_NAME(CREATED_USER) AS createdUser` +
       `   , GET_DATE_FORMAT(UPDATED_AT) AS updatedAt` +
@@ -229,7 +231,7 @@ export const getDetailMenu = tyrCatchModelHandler(
 export const createdMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<Menu> = req.body.menu;
-    // const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.userId;
     const adminUserId: number = 51513153;
 
     try {
@@ -289,7 +291,7 @@ export const createdDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<DetailMenu> = req.body.menu;
     const topMenuId = Number(req.body.topMenuId);
-    // const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.userId;
     const adminUserId: number = 1231321312;
 
     try {
@@ -298,9 +300,10 @@ export const createdDetailMenu = tyrCatchModelHandler(
       aryMenu.forEach(async (menu) => {
         const menuId = menu.menuId;
         const menuName = menu.menuName;
-        const postAuthId = menu.postAuthId;
-        const commentAuthId = menu.commentAuthId;
-        const readAuthId = menu.readAuthId;
+        const postAuthId = menu.postAuthId === 99999 ? null : menu.postAuthId;
+        const commentAuthId =
+          menu.commentAuthId === 99999 ? null : menu.commentAuthId;
+        const readAuthId = menu.readAuthId === 99999 ? null : menu.readAuthId;
         const useFlag = menu.useFlag;
         const url = menu.url;
         const sort = menu.sort;
@@ -330,8 +333,8 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` ,  ${commentAuthId}` +
           ` ,  ${readAuthId}` +
           ` ,  ${adminUserId}` +
-          ` , '${url}'` +
-          ` ,  ${type ?? `'${type}'`}` +
+          ` ,  ${url === null ? null : `'${url}'`}` +
+          ` ,  ${type === null ? null : `'${type}'`}` +
           ` , '${useFlag}'` +
           ` ,  ${sort}` +
           `)` +
@@ -340,8 +343,8 @@ export const createdDetailMenu = tyrCatchModelHandler(
           ` , COMMENT_AUTH_ID =  ${commentAuthId}` +
           ` , READ_AUTH_ID    =  ${readAuthId}` +
           ` , MENU_NAME       = '${menuName}'` +
-          ` , URL             = '${url}'` +
-          ` , TYPE            =  ${type ?? `'${type}'`}` +
+          ` , URL             =  ${url === null ? null : `'${url}'`}` +
+          ` , TYPE            =  ${type === null ? null : `'${type}'`}` +
           ` , USE_FLAG        = '${useFlag}'` +
           ` , SORT            =  ${sort}` +
           ` , UPDATED_AT      =  now()` +
@@ -366,7 +369,8 @@ export const createdDetailMenu = tyrCatchModelHandler(
 export const deletedMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<{ menuId: number }> = req.body.menu;
-    const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number = 131312;
 
     try {
       await conn.beginTransaction();
@@ -400,7 +404,7 @@ export const deletedMenu = tyrCatchModelHandler(
 export const deletedDetailMenu = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<{ menuId: number }> = req.body.menu;
-    // const adminUserId: number = req.session.user!.USER_ID;
+    // const adminUserId: number = req.session.user!.userId;
     const adminUserId: number = 51512344;
 
     try {

@@ -262,7 +262,6 @@ function ManageComCd() {
       totalCount={totalCount}
       handlePagingChange={handlePagingChange}
     >
-      <span>공통코드</span>
       <Select
         style={{
           width: 100,
@@ -271,9 +270,12 @@ function ManageComCd() {
         onChange={(value) => {
           setSearchComCdOption(value);
         }}
-        options={[...comboComCdOption]}
+        options={comboComCdOption}
       />
-      <Input onChange={(e) => setSearchComCdOptionValue(e.target.value)} />
+      <Input
+        placeholder="검색어를 입력해주세요"
+        onChange={(e) => setSearchComCdOptionValue(e.target.value)}
+      />
     </AppTable>
   );
 }

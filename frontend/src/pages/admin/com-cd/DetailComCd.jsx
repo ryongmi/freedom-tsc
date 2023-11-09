@@ -269,7 +269,6 @@ function DetailComCd() {
       totalCount={totalCount}
       handlePagingChange={handlePagingChange}
     >
-      <span>공통코드</span>
       <Select
         style={{
           width: 100,
@@ -278,9 +277,12 @@ function DetailComCd() {
         onChange={(value) => {
           setSearchComCdOption(value);
         }}
-        options={[...comboComCdOption]}
+        options={comboComCdOption}
       />
-      <Input onChange={(e) => setSearchComCdOptionValue(e.target.value)} />
+      <Input
+        placeholder="검색어를 입력해주세요"
+        onChange={(e) => setSearchComCdOptionValue(e.target.value)}
+      />
       <span>사용유무</span>
       <Select
         style={{

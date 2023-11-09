@@ -1,0 +1,51 @@
+.ck-editor {
+  width: 100% !important;
+}
+/* .ck-editor__main, */
+/* .ck-editor__editable */
+.ck-content {
+  min-height: 300px;
+  height: 700px;
+}
+
+.post-title {
+  display: flex;
+  text-align: left;
+}
+
+.post-link-title {
+  color: black;
+}
+
+.post-link-title:hover {
+  color: black;
+  text-decoration: underline;
+  text-decoration-color: gray;
+}
+
+.post-link-bracket {
+  color: gray;
+}
+
+.post-link-comment {
+  color: red;
+}
+
+.post-link-comment:hover {
+  color: red;
+  text-decoration: underline;
+  text-decoration-color: red;
+}
+
+.post-content-btn > button:not(:last-of-type) {
+  margin-right: 8px;
+}
+
+.user-name {
+  color: black;
+  font-weight: bold;
+}
+
+.user-name:hover {
+  color: black;
+}

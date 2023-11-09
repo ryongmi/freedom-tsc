@@ -252,8 +252,7 @@ function ManageBracket() {
     >
       <span>말머리명</span>
       <Input
-        showCount
-        maxLength={50}
+        placeholder="검색어를 입력해주세요"
         onChange={(e) => setSearchBracketName(e.target.value)}
       />
       <span>사용유무</span>

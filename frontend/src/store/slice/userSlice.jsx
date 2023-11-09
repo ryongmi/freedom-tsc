@@ -6,6 +6,7 @@ const initialState = {
   profileImgUrl: "",
   broadcasterType: "",
   isLoggedIn: false,
+  adminFlag: "N",
 };
 
 const userSlice = createSlice({
@@ -19,6 +20,7 @@ const userSlice = createSlice({
         profileImgUrl = "",
         broadcasterType = "",
         isLoggedIn = false,
+        adminFlag = "N",
       }) {
         return {
           payload: {
@@ -27,6 +29,7 @@ const userSlice = createSlice({
             profileImgUrl,
             broadcasterType,
             isLoggedIn,
+            adminFlag,
           },
         };
       },
@@ -36,6 +39,7 @@ const userSlice = createSlice({
         state.profileImgUrl = action.payload.profileImgUrl;
         state.broadcasterType = action.payload.broadcasterType;
         state.isLoggedIn = action.payload.isLoggedIn;
+        state.adminFlag = action.payload.adminFlag;
       },
     },
   },

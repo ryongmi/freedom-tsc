@@ -1,0 +1,14 @@
+.header {
+  color: white;
+  padding: 0 40px;
+}
+
+/* .header > div {
+  margin: 0 -15px;
+} */
+
+.btn-user-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+}

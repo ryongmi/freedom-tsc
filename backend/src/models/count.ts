@@ -335,3 +335,56 @@ export const getAuthLevelCondition = tyrCatchModelHandler(
   },
   "COUNT - getAuthLevelCondition"
 );
+
+// ************************** POST ************************** //
+export const getPostAll = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const authName: string = req.query.authName?.toString() ?? "";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
+
+    let sql: string =
+      ` SELECT` +
+      `   COUNT(AUTH_ID) AS totalCount` +
+      `   FROM auth` +
+      `  WHERE ADMIN_FLAG = 'N'` +
+      `    AND DELETED_AT IS NULL`;
+
+    if (authName !== "") {
+      sql += ` AND AUTH_NAME LIKE '%${authName}%'`;
+    }
+
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
+  },
+  "COUNT - getPostAll"
+);
+
+export const getPost = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const authName: string = req.query.authName?.toString() ?? "";
+    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
+
+    let sql: string =
+      ` SELECT` +
+      `   COUNT(AUTH_ID) AS totalCount` +
+      `   FROM auth` +
+      `  WHERE ADMIN_FLAG = 'N'` +
+      `    AND DELETED_AT IS NULL`;
+
+    if (authName !== "") {
+      sql += ` AND AUTH_NAME LIKE '%${authName}%'`;
+    }
+
+    if (useFlag !== "ALL") {
+      sql += ` AND USE_FLAG = '${useFlag}'`;
+    }
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0].totalCount;
+  },
+  "COUNT - getPost"
+);

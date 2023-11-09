@@ -289,7 +289,10 @@ function ManageMenu() {
       handlePagingChange={handlePagingChange}
     >
       <span>메뉴명</span>
-      <Input onChange={(e) => setSearchMenuName(e.target.value)} />
+      <Input
+        placeholder="검색어를 입력해주세요"
+        onChange={(e) => setSearchMenuName(e.target.value)}
+      />
       <span>페이지타입</span>
       <Select
         style={{

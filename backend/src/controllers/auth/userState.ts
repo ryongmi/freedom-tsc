@@ -1,17 +1,19 @@
 import request from "request";
-import * as USER from "../../models/user";
 import { Request, Response, NextFunction } from "express";
+
 import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+
+import * as USER from "../../models/user";
 
 export const getLogin = tyrCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const client_id = process.env.CLIENT_ID; // "tymp4f3nwou50k5wgrameksysbthdk";
-    const client_secret = process.env.CLIENT_SECRET; // "q27rhyzvw0miyty5lj6yf2ccinw33h";
+    const client_id = process.env.CLIENT_ID;
+    const client_secret = process.env.CLIENT_SECRET;
     const code = req.query.code;
     const state = req.query.state;
     const grant_type = "authorization_code";
     const redirect_uri = "http://localhost:8000";
-    const twitchState = process.env.TWITCH_STATE; // "c3ab8aa609ea11e793ae92361f002671"
+    const twitchState = process.env.TWITCH_STATE;
 
     if (state !== twitchState)
       throw new Error("트위치 API를 받아오는 도중 에러가 발생하였습니다.");
@@ -28,8 +30,9 @@ export const getLogin = tyrCatchControllerHandler(
         },
       },
       function (err, _httpResponse, body) {
-        if (!err) {
+        if (err) {
           // 에러 발생..
+          throw err;
         }
         const tokenData = JSON.parse(body);
         const access_token = tokenData.access_token;
@@ -43,26 +46,25 @@ export const getLogin = tyrCatchControllerHandler(
             },
           },
           async function (error, _response, body) {
-            if (!error) {
-              // 에러 발생
+            if (error) {
+              throw error;
             }
 
             const twichUser = JSON.parse(body).data[0];
 
-            const result = await USER.createdUser(req, twichUser);
-            if (!result) {
-              // 에러 발생
-            }
+            await USER.createdUser(req, twichUser);
+
             const user = await USER.getUser(req, twichUser.id);
-            if (!user || user.BAN_YN === "Y") {
+            if (!user || user.userStatus === "B") {
               // 에러 발생, 벤 유저가 로그인시 로그인불가 및 팝업창 띄우기
+              throw new Error("밴 유저는 로그인이 불가능합니다.");
             }
 
             req.session.isLoggedIn = true;
             req.session.access_token = access_token;
             req.session.user = {
-              USER_ID: user.USER_ID,
-              AUTH_ID: user.AUTH_ID,
+              userId: user.userId,
+              authId: user.authId,
             };
             req.session.cookie.maxAge = 1000 * 60 * 5; // 1000 = 1초, 1000 * 60 = 1분
 
@@ -86,16 +88,16 @@ export const getUserInfo = tyrCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.session.isLoggedIn) return res.send({});
 
-    const user = await USER.getUser(req, req.session.user?.USER_ID);
-    if (!user || user.BAN_YN === "Y") {
+    const user = await USER.getUser(req, req.session.user?.userId);
+    if (!user || user.userStatus === "B") {
       // 에러 발생, 벤 유저가 로그인시 로그인불가 및 팝업창 띄우기
     }
     res.send({
-      DISPLAY_NAME: user.DISPLAY_NAME,
-      USER_LOGIN_ID: user.USER_LOGIN_ID,
+      displayName: user.displayName,
+      userLoginId: user.userLoginId,
       //AUTH_ID: user.AUTH_ID,
-      PROFILE_IMG_URL: user.PROFILE_IMAGE_URL,
-      BROADCASTER_TYPE: user.BROADCASTER_TYPE,
+      profileImgUrl: user.profileImgUrl,
+      broadcasterType: user.broadcasterType,
     });
   }
 );
@@ -109,7 +111,6 @@ export const deleteLogout = tyrCatchControllerHandler(
       } else {
         console.log("세션 삭제 성공");
         res.status(200).send({ message: "세션 삭제 성공" });
-        // res.status(200).redirect("/");
       }
     });
   }
