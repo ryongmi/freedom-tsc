@@ -447,7 +447,7 @@ function PostContent() {
         <Col
           span={24}
           // style={{ borderBottom: "1px solid" }}
-          style={{ textAlign: "center" }}
+          // style={{ textAlign: "center" }}
           dangerouslySetInnerHTML={{ __html: content }}
         />
 

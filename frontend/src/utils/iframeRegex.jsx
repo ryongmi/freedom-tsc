@@ -6,7 +6,7 @@ export function iframeRegex(htmlString) {
   // If an oembed element was found, convert it to an iframe element
   if (oembedMatch) {
     const oembedUrl = oembedMatch[0].match(/url="([^"]*)"/)[1];
-    const iframeElement = `<iframe src="${oembedUrl}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    const iframeElement = `<iframe class="post-content-video" src="${oembedUrl}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
     htmlString = htmlString.replace(oembedRegex, iframeElement);
   }
 
