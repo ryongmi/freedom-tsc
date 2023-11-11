@@ -5,24 +5,32 @@ import { Comment } from "../interface/comment";
 
 export const getComments = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const menuId = req.params.menuId || req.query.menuId;
-    const postId = req.params.postId || req.query.postId;
+    const menuId = req.params.menuId;
+    const postId = req.params.postId;
+    // const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number = 133095116;
 
     const sql =
       `WITH RECURSIVE CTE AS (` +
       ` SELECT` +
-      `     COMMENT_ID` +
-      `   , CONTENT` +
-      `   , CREATED_AT` +
-      `   , CREATED_USER` +
-      `   , TOP_COMMENT_ID` +
+      `     C.COMMENT_ID` +
+      `   , C.CONTENT` +
+      `   , C.CREATED_AT` +
+      `   , C.CREATED_USER` +
+      `   , C.TOP_COMMENT_ID` +
       `   , '........................' AS TOP_USER_ID` +
-      `   , COMMENT_ID AS lvl` +
-      `   FROM comment` +
-      `  WHERE MENU_ID = ${menuId}` +
-      `    AND POST_ID = ${postId}` +
-      `    AND TOP_COMMENT_ID IS NULL` +
-      `    AND DELETED_AT IS NULL` +
+      `   , C.DELETED_AT` +
+      `   , IF(C.CREATED_USER = ${adminUserId}, 'TRUE', 'FALSE') AS writer` +
+      `   , COUNT(TC.COMMENT_ID) AS childCount` +
+      `   , C.COMMENT_ID AS lvl` +
+      `   FROM comment C` +
+      `   LEFT JOIN comment TC` +
+      `     ON C.COMMENT_ID = TC.TOP_COMMENT_ID` +
+      `  WHERE C.MENU_ID = ${menuId}` +
+      `    AND C.POST_ID = ${postId}` +
+      `    AND C.TOP_COMMENT_ID IS NULL` +
+      // `    AND DELETED_AT IS NULL` +
+      `  GROUP BY C.COMMENT_ID ` +
       ` UNION ALL` +
       ` SELECT` +
       `     C.COMMENT_ID` +
@@ -31,6 +39,9 @@ export const getComments = tyrCatchModelHandler(
       `   , C.CREATED_USER` +
       `   , C.TOP_COMMENT_ID` +
       `   , CT.CREATED_USER AS TOP_USER_ID` +
+      `   , C.DELETED_AT` +
+      `   , IF(C.CREATED_USER = ${adminUserId}, 'TRUE', 'FALSE') AS writer` +
+      `   , 0 AS childCount` +
       `   , CT.lvl AS lvl` +
       // `   , CONCAT(CT.lvl, ',', C.COMMENT_ID) lvl` +
       `   FROM comment C` +
@@ -48,6 +59,9 @@ export const getComments = tyrCatchModelHandler(
       `   , U.PROFILE_IMAGE_URL AS profileImg` +
       `   , TOP_COMMENT_ID AS topCommentId` +
       `   , CU.DISPLAY_NAME AS topUserName` +
+      `   , CTE.DELETED_AT AS deletedAt` +
+      `   , writer` +
+      `   , childCount` +
       `   FROM CTE` +
       `  INNER JOIN user U ` +
       `     ON CTE.CREATED_USER = U.USER_ID` +
@@ -104,5 +118,23 @@ export const createdComment = tyrCatchModelHandler(
       throw error;
     }
   },
-  "createdMenu"
+  "createdComment"
+);
+
+export const deletedComment = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const commentId: number = req.body.comment;
+    // const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number = 131312;
+
+    try {
+      const sql = `UPDATE comment SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE COMMENT_ID = ${commentId}`;
+
+      await conn.query(sql);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+  "deletedComment"
 );

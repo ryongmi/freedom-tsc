@@ -1,7 +1,7 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
-import { Post } from "../interface/post";
+import { Post, PostContent } from "../interface/post";
 
 export const getPostAll = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
@@ -63,7 +63,8 @@ export const getPost = tyrCatchModelHandler(
 
     let sql =
       ` SELECT` +
-      `     P.POST_ID AS postId` +
+      `     P.POST_ID AS 'key'` +
+      `   , P.POST_ID AS postId` +
       `   , P.MENU_ID AS menuId` +
       `   , B.CONTENT AS bracket` +
       `   , P.TITLE AS title` +
@@ -150,41 +151,63 @@ export const getPostContent = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const postId = req.params.postId;
+    // const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number = 133095116;
 
     const sql =
       ` SELECT` +
-      `     P.POST_ID AS postId` +
-      `   , P.MENU_ID AS menuId` +
-      `   , M.MENU_NAME AS menuName` +
-      `   , A.AUTH_NAME AS authName` +
-      `   , B.CONTENT AS bracket` +
-      `   , P.TITLE AS title` +
-      `   , P.CONTENT AS content` +
-      `   , GET_DATE_FORMAT(P.CREATED_AT) AS createdAt` +
-      `   , U.DISPLAY_NAME AS createdUser` +
-      `   , U.PROFILE_IMAGE_URL AS profileImgUrl` +
-      `   , COM.NAME AS nocite` +
-      `   FROM post P` +
-      `  INNER JOIN menu M` +
-      `     ON P.MENU_ID = M.MENU_ID` +
-      `    AND M.DELETED_AT IS NULL` +
-      `  INNER JOIN user U` +
-      `     ON P.CREATED_USER = U.USER_ID` +
-      `  INNER JOIN auth A` +
-      `     ON U.AUTH_ID = A.AUTH_ID` +
-      `    AND A.USE_FLAG = 'Y'` +
-      `    AND A.DELETED_AT IS NULL` +
-      `   LEFT JOIN bracket B` +
-      `     ON P.MENU_ID    = B.MENU_ID` +
-      `    AND P.BRACKET_ID = B.BRACKET_ID` +
-      `    AND B.USE_FLAG = 'Y'` +
-      `    AND B.DELETED_AT IS NULL` +
-      `   LEFT JOIN comcd COM` +
-      `     ON COM.COM_ID = 'NOTICE_OPTION'` +
-      `    AND P.NOTICE = COM.VALUE` +
-      `  WHERE P.POST_ID = ${postId}` +
-      `    AND P.MENU_ID = ${menuId}` +
-      `    AND P.DELETED_AT IS NULL`;
+      `   R.POST_ID AS postId` +
+      ` , R.MENU_ID AS menuId` +
+      ` , R.MENU_NAME AS menuName` +
+      ` , R.AUTH_NAME AS authName` +
+      ` , R.bracket AS bracket` +
+      ` , R.TITLE AS title` +
+      ` , R.content AS content` +
+      ` , GET_DATE_FORMAT(R.CREATED_AT) AS createdAt` +
+      ` , R.DISPLAY_NAME AS createdUser` +
+      ` , R.PROFILE_IMAGE_URL AS profileImgUrl` +
+      ` , IF(R.CREATED_USER = ${adminUserId}, 'TRUE', 'FALSE') AS writer` +
+      ` , R.prevMenuId` +
+      ` , R.prevPostId` +
+      ` , R.nextMenuId` +
+      ` , R.nextPostId` +
+      `    FROM (` +
+      `       SELECT` +
+      `           P.POST_ID` +
+      `         , P.MENU_ID` +
+      `         , M.MENU_NAME` +
+      `         , A.AUTH_NAME` +
+      `         , B.CONTENT AS bracket` +
+      `         , P.TITLE` +
+      `         , P.CONTENT AS content` +
+      `         , P.CREATED_AT` +
+      `         , U.DISPLAY_NAME` +
+      `         , U.PROFILE_IMAGE_URL` +
+      `         , P.NOTICE` +
+      `         , P.CREATED_USER` +
+      `         , LAG(P.MENU_ID) OVER(ORDER BY P.MENU_ID DESC) AS prevMenuId` +
+      `         , LEAD(P.MENU_ID) OVER(ORDER BY P.MENU_ID DESC) AS nextMenuId` +
+      `         , LAG(P.POST_ID) OVER(ORDER BY P.POST_ID DESC) AS prevPostId` +
+      `         , LEAD(P.POST_ID) OVER(ORDER BY P.POST_ID DESC) AS nextPostId` +
+      `         FROM post P` +
+      `        INNER JOIN menu M` +
+      `           ON P.MENU_ID = M.MENU_ID` +
+      `          AND M.DELETED_AT IS NULL` +
+      `        INNER JOIN user U` +
+      `           ON P.CREATED_USER = U.USER_ID` +
+      `        INNER JOIN auth A` +
+      `           ON U.AUTH_ID = A.AUTH_ID` +
+      `          AND A.USE_FLAG = 'Y'` +
+      `          AND A.DELETED_AT IS NULL` +
+      `         LEFT JOIN bracket B` +
+      `           ON P.MENU_ID    = B.MENU_ID` +
+      `          AND P.BRACKET_ID = B.BRACKET_ID` +
+      `          AND B.USE_FLAG = 'Y'` +
+      `          AND B.DELETED_AT IS NULL` +
+      `        WHERE P.DELETED_AT IS NULL` +
+      `    ) R` +
+      `   WHERE R.MENU_ID = ${menuId}` +
+      `     AND R.POST_ID = ${postId}`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
@@ -218,7 +241,7 @@ export const getPostEdit = tyrCatchModelHandler(
 
 export const createdPost = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const post: Post = req.body.post;
+    const post: PostContent = req.body.post;
     // const adminUserId: number = req.session.user!.userId;
     const adminUserId: number = 51513;
 
@@ -267,4 +290,61 @@ export const createdPost = tyrCatchModelHandler(
     }
   },
   "createdPost"
+);
+
+export const updateNotice = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const menuId: number = req.body.menuId;
+    const postId: number = req.body.postId;
+    const notice: string | null = req.body.notice;
+    // const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number = 131312;
+
+    try {
+      const sql =
+        `UPDATE post ` +
+        `   SET NOTICE = ${notice ? `'${notice}'` : notice}` +
+        `     , UPDATED_AT = now()` +
+        `     , UPDATED_USER = ${adminUserId}` +
+        ` WHERE MENU_ID = ${menuId}` +
+        `   AND POST_ID = ${postId}`;
+
+      await conn.query(sql);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+  "updateNotice"
+);
+
+export const deletedPost = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const aryPost: Array<Post> = req.body.post;
+    // const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number = 131312;
+
+    try {
+      await conn.beginTransaction();
+
+      aryPost.forEach(async (post) => {
+        const menuId = post.menuId;
+        const postId = post.postId;
+
+        const sql = `UPDATE post SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE MENU_ID = ${menuId} AND POST_ID = ${postId}`;
+
+        await conn.query(sql);
+      });
+
+      await conn.commit();
+      return aryPost.length;
+    } catch (error) {
+      if (conn) {
+        conn.rollback();
+      }
+      console.log(error);
+      throw error;
+    }
+  },
+  "deletedPost"
 );

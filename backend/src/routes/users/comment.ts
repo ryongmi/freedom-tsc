@@ -22,7 +22,8 @@ const { body, param } = new ExpressValidator({
   },
 });
 
-router.get("/", commentController.getComment);
-router.post("/createdComment", commentController.postCreatedComment);
+router.get("/:menuId/:postId", commentController.getComment);
+router.post("/createdComment", commentController.postComment);
+router.patch("/", commentController.patchComment);
 
 export default router;

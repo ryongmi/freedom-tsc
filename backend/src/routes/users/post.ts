@@ -23,6 +23,7 @@ const { body, param } = new ExpressValidator({
 });
 
 router.get("/", postController.getPostAll);
+router.patch("/", postController.patchPost);
 
 router.get("/edit", postController.getPostEdit);
 router.post("/edit", postController.postCreatePost);
@@ -34,5 +35,7 @@ router.get(
   param("menuId").isMenuID(),
   postController.getPostContent
 );
+
+router.patch("/changeNotice", postController.patchChangeNotice);
 
 export default router;

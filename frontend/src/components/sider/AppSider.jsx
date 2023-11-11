@@ -72,10 +72,10 @@ function AppSider({ colorBgContainer, showModal }) {
   }, [menu, adminFlag]);
 
   function menuItemClick({ item, key, keyPath, selectedKeys }) {
-    console.log("item: " + item);
-    console.log("key: " + key);
-    console.log("keyPath: " + keyPath);
-    console.log("selectedKeys: " + selectedKeys);
+    // console.log("item: " + item);
+    // console.log("key: " + key);
+    // console.log("keyPath: " + keyPath);
+    // console.log("selectedKeys: " + selectedKeys);
     navigate(key);
   }
 
@@ -95,7 +95,8 @@ function AppSider({ colorBgContainer, showModal }) {
         mode="inline"
         //defaultSelectedKeys={["1"]} // 기본으로 선택할 키 설정
         //defaultOpenKeys={["sub1"]} // 기본으로 열려있는 키 설정
-        onSelect={menuItemClick}
+        // onSelect={menuItemClick}
+        onClick={menuItemClick}
         items={menuItem}
       />
     </Sider>

@@ -66,10 +66,12 @@ export const getPostContent = tyrCatchControllerHandler(
 
     const post = await POST.getPostContent(req);
     const comments = await COMMNET.getComments(req);
+    const comboNoticeOption = await COMBO.getComboComCd(req, "NOTICE_OPTION");
 
     return res.send({
       post,
       comments,
+      comboNoticeOption,
     });
   }
 );
@@ -105,5 +107,33 @@ export const postCreatePost = tyrCatchControllerHandler(
     await POST.createdPost(req);
 
     res.status(200).send({ message: "정상적으로 저장되었습니다." });
+  }
+);
+
+export const patchChangeNotice = tyrCatchControllerHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ message: errors.array()[0].msg });
+    }
+
+    await POST.updateNotice(req);
+
+    res.status(200).send({ message: "정상적으로 저장되었습니다." });
+  }
+);
+
+export const patchPost = tyrCatchControllerHandler(
+  async (req: Request, res: Response, _: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ message: errors.array()[0].msg });
+    }
+
+    const rowCount: number = await POST.deletedPost(req);
+
+    res
+      .status(200)
+      .send({ message: `${rowCount}건 정상적으로 삭제되었습니다.` });
   }
 );

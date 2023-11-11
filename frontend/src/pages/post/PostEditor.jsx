@@ -3,14 +3,18 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { Button, Checkbox, Col, Flex, Input, Row, Select } from "antd";
 import { getPostEdit, postCreatePost } from "../../services/apiPost";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import "../../styles/post.css";
+import { useSelector } from "react-redux";
 
 function PostEditor() {
+  const adminFlag = useSelector((store) => store.user.adminFlag);
   const { showMessage, showModal } = useOutletContext();
+  const navigate = useNavigate();
   const { state } = useLocation();
   const menuId = state?.menuId ?? null;
   const postId = state?.postId ?? null;
+
   const [noticeChecked, setNoticeChecked] = useState(false);
   const [noticeOption, setNoticeOption] = useState("");
   const [menu, setMenu] = useState(null);
@@ -89,10 +93,13 @@ function PostEditor() {
 
       const { message } = await postCreatePost(fetchData);
       showMessage(message);
+      navigate(-1);
     } catch (error) {
       showMessage(error.message, "error");
     }
   }
+
+  console.log(adminFlag);
 
   return (
     <div className="post-content">
@@ -101,22 +108,27 @@ function PostEditor() {
           <Flex justify={"space-between"} align={"center"}>
             <h2>카페 글쓰기</h2>
             <div>
-              <Checkbox
-                checked={noticeChecked}
-                onChange={(e) => setNoticeChecked(e.target.checked)}
-              >
-                공지 등록
-              </Checkbox>
-              {noticeChecked && (
-                <Select
-                  style={{ width: "120px" }}
-                  value={noticeOption}
-                  onChange={(value) => {
-                    setNoticeOption(value);
-                  }}
-                  options={comboNoticeOption}
-                />
+              {adminFlag === "Y" && (
+                <>
+                  <Checkbox
+                    checked={noticeChecked}
+                    onChange={(e) => setNoticeChecked(e.target.checked)}
+                  >
+                    공지 등록
+                  </Checkbox>
+                  {noticeChecked && (
+                    <Select
+                      style={{ width: "120px" }}
+                      value={noticeOption}
+                      onChange={(value) => {
+                        setNoticeOption(value);
+                      }}
+                      options={comboNoticeOption}
+                    />
+                  )}
+                </>
               )}
+
               <Button type="primary" onClick={handleSave}>
                 등록
               </Button>

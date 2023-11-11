@@ -1,7 +1,7 @@
 import { Avatar, Button, Flex, List } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useEffect, useState } from "react";
-import { postCreatedComment } from "../../services/apiComment";
+import { postComment, postCreatedComment } from "../../services/apiComment";
 
 function ReplyComment({
   commentId = null,
@@ -21,6 +21,7 @@ function ReplyComment({
     setCount(value?.length ?? 0);
   }, []);
 
+  // 댓글 저장
   async function handleSubmit(e) {
     e.preventDefault();
     try {
@@ -32,7 +33,7 @@ function ReplyComment({
         content: comment,
       };
 
-      const { message } = await postCreatedComment(fetchData);
+      const { message } = await postComment(fetchData);
       await handleSearchComment();
       setComment(null);
       setCount(0);

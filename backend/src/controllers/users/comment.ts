@@ -22,7 +22,7 @@ export const getComment = tyrCatchControllerHandler(
   }
 );
 
-export const postCreatedComment = tyrCatchControllerHandler(
+export const postComment = tyrCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -32,5 +32,18 @@ export const postCreatedComment = tyrCatchControllerHandler(
     await COMMNET.createdComment(req);
 
     res.status(200).send({ message: "정상적으로 저장되었습니다." });
+  }
+);
+
+export const patchComment = tyrCatchControllerHandler(
+  async (req: Request, res: Response, _: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ message: errors.array()[0].msg });
+    }
+
+    await COMMNET.deletedComment(req);
+
+    res.status(200).send({ message: "정상적으로 삭제되었습니다." });
   }
 );
