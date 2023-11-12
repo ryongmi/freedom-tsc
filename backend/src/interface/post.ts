@@ -9,3 +9,8 @@ export interface PostContent extends Post {
   bracketId: number;
   notice: string | null;
 }
+
+export interface PostMove extends Post {
+  changeMenu: number;
+  changeBracket: number | null;
+}

@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useLoaderData, useNavigate, useOutletContext } from "react-router-dom";
+import {
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useOutletContext,
+} from "react-router-dom";
 import { Layout, Menu } from "antd";
 
 import { getMenuInfo } from "../../services/apiMenu";
@@ -23,9 +28,12 @@ const adminItems = [getItem("대시보드", "/admin/dashBoard")];
 
 function AppSider({ colorBgContainer, showModal }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const collapsed = useOutletContext();
   const { menu, adminFlag } = useLoaderData();
   const [menuItem, setMenuItem] = useState([]);
+  const splitPath = location.pathname.split("/");
+  const selectedMenu = `/${splitPath[1]}/${splitPath[2]}`;
 
   useEffect(() => {
     async function fetchData() {
@@ -96,6 +104,7 @@ function AppSider({ colorBgContainer, showModal }) {
         //defaultSelectedKeys={["1"]} // 기본으로 선택할 키 설정
         //defaultOpenKeys={["sub1"]} // 기본으로 열려있는 키 설정
         // onSelect={menuItemClick}
+        selectedKeys={[selectedMenu]}
         onClick={menuItemClick}
         items={menuItem}
       />

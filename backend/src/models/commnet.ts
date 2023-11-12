@@ -67,6 +67,11 @@ export const getComments = tyrCatchModelHandler(
       `     ON CTE.CREATED_USER = U.USER_ID` +
       `   LEFT JOIN user CU ` +
       `     ON CTE.TOP_USER_ID = CU.USER_ID` +
+      `  WHERE CTE.DELETED_AT IS NULL` +
+      `     OR (` +
+      `          CTE.DELETED_AT IS NOT NULL` +
+      `          AND childCount != 0` +
+      `         )` +
       `  ORDER BY lvl, commentId`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);

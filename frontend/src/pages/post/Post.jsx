@@ -31,13 +31,14 @@ function Post() {
   // 콤보박스 아이템
   const [comboDateOption, setComboDateOption] = useState([]);
   const [comboPostOption, setComboPostOption] = useState([]);
+  const [comboBracketOption, setComboBracketOption] = useState([]);
 
   // 검색조건
   const [searchDateOpen, setSearchDateOpen] = useState(false);
   const [searchDateValue, setSearchDateValue] = useState([]);
   const [searchDateOption, setSearchDateOption] = useState("ALL");
   const [searchPostValue, setSearchPostValue] = useState("");
-  const [searchPostOption, setSearchPostOption] = useState("");
+  const [searchPostOption, setSearchPostOption] = useState("TITLE");
 
   const defaultColumns = [
     setColumn({ key: "postId", width: "5%" }),
@@ -65,10 +66,11 @@ function Post() {
           </a>
           {record.commentCount > 0 && (
             <a
+              // href={`/post/${menuId}/${record.postId}#comment-container`}
               className="post-link-comment"
               onClick={(e) => {
                 e.preventDefault();
-                navigate(`${record.postId}`, { state: "comment" });
+                navigate(`${record.postId}`);
               }}
             >
               <span>&nbsp;[{record.commentCount}]</span>
@@ -126,13 +128,12 @@ function Post() {
       setTotalCount(totalCount);
       setComboPerPage(comboPerPage);
 
+      setMenuName(menuName);
       setSelectedRowKeys([]);
 
       setComboDateOption(comboDateOption);
       setComboPostOption(comboPostOption);
-      setMenuName(menuName);
-
-      setSearchPostOption(comboPostOption[0].value ?? "");
+      setComboBracketOption(comboBracket);
     } catch (error) {
       showMessage(error.message, "error");
     }

@@ -1,7 +1,7 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
-import { Post, PostContent } from "../interface/post";
+import { Post, PostContent, PostMove } from "../interface/post";
 
 export const getPostAll = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
@@ -68,7 +68,7 @@ export const getPost = tyrCatchModelHandler(
       `   , P.MENU_ID AS menuId` +
       `   , B.CONTENT AS bracket` +
       `   , P.TITLE AS title` +
-      `   , COUNT(COMMENT_ID) AS commentCount` +
+      `   , COUNT(C.COMMENT_ID) + COUNT(MC.COMMENT_ID) AS commentCount` +
       `   , FN_POST_DATE_FORMAT(P.CREATED_AT) AS createdAt` +
       `   , U.DISPLAY_NAME AS createdUser` +
       `   FROM post P` +
@@ -79,6 +79,11 @@ export const getPost = tyrCatchModelHandler(
       `     ON P.MENU_ID = C.MENU_ID` +
       `    AND P.POST_ID = C.POST_ID` +
       `    AND C.DELETED_AT IS NULL` +
+      `   LEFT JOIN comment MC` +
+      `     ON P.MENU_ID = MC.MENU_ID` +
+      `    AND P.POST_ID = MC.POST_ID` +
+      `    AND C.COMMENT_ID = MC.TOP_COMMENT_ID` +
+      `    AND MC.DELETED_AT IS NOT NULL` +
       `   LEFT JOIN user U` +
       `     ON U.USER_ID = P.CREATED_USER` +
       `  WHERE P.MENU_ID = ${menuId}` +
@@ -152,12 +157,13 @@ export const getPostContent = tyrCatchModelHandler(
     const menuId = req.params.menuId;
     const postId = req.params.postId;
     // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 133095116;
+    const adminUserId: number = 13213;
 
-    const sql =
+    let sql =
       ` SELECT` +
       `   R.POST_ID AS postId` +
       ` , R.MENU_ID AS menuId` +
+      ` , R.BRACKET_ID AS bracketId` +
       ` , R.MENU_NAME AS menuName` +
       ` , R.AUTH_NAME AS authName` +
       ` , R.bracket AS bracket` +
@@ -167,6 +173,7 @@ export const getPostContent = tyrCatchModelHandler(
       ` , R.DISPLAY_NAME AS createdUser` +
       ` , R.PROFILE_IMAGE_URL AS profileImgUrl` +
       ` , IF(R.CREATED_USER = ${adminUserId}, 'TRUE', 'FALSE') AS writer` +
+      ` , R.NOTICE AS notice` +
       ` , R.prevMenuId` +
       ` , R.prevPostId` +
       ` , R.nextMenuId` +
@@ -175,6 +182,7 @@ export const getPostContent = tyrCatchModelHandler(
       `       SELECT` +
       `           P.POST_ID` +
       `         , P.MENU_ID` +
+      `         , B.BRACKET_ID` +
       `         , M.MENU_NAME` +
       `         , A.AUTH_NAME` +
       `         , B.CONTENT AS bracket` +
@@ -185,9 +193,9 @@ export const getPostContent = tyrCatchModelHandler(
       `         , U.PROFILE_IMAGE_URL` +
       `         , P.NOTICE` +
       `         , P.CREATED_USER` +
-      `         , LAG(P.MENU_ID) OVER(ORDER BY P.MENU_ID DESC) AS prevMenuId` +
-      `         , LEAD(P.MENU_ID) OVER(ORDER BY P.MENU_ID DESC) AS nextMenuId` +
+      `         , LAG(P.MENU_ID) OVER(ORDER BY P.POST_ID DESC) AS prevMenuId` +
       `         , LAG(P.POST_ID) OVER(ORDER BY P.POST_ID DESC) AS prevPostId` +
+      `         , LEAD(P.MENU_ID) OVER(ORDER BY P.POST_ID DESC) AS nextMenuId` +
       `         , LEAD(P.POST_ID) OVER(ORDER BY P.POST_ID DESC) AS nextPostId` +
       `         FROM post P` +
       `        INNER JOIN menu M` +
@@ -204,10 +212,13 @@ export const getPostContent = tyrCatchModelHandler(
       `          AND P.BRACKET_ID = B.BRACKET_ID` +
       `          AND B.USE_FLAG = 'Y'` +
       `          AND B.DELETED_AT IS NULL` +
-      `        WHERE P.DELETED_AT IS NULL` +
-      `    ) R` +
-      `   WHERE R.MENU_ID = ${menuId}` +
-      `     AND R.POST_ID = ${postId}`;
+      `        WHERE P.DELETED_AT IS NULL`;
+
+    if (menuId) {
+      sql += `   AND P.MENU_ID = ${menuId}`;
+    }
+
+    sql += `  ) R WHERE R.POST_ID = ${postId}`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
@@ -316,6 +327,57 @@ export const updateNotice = tyrCatchModelHandler(
     }
   },
   "updateNotice"
+);
+
+export const updateMenuId = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const aryPost: Array<PostMove> = req.body.post;
+    // const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number = 131312;
+
+    let sql;
+    try {
+      await conn.beginTransaction();
+
+      aryPost.forEach(async (post) => {
+        const menuId = post.menuId;
+        const postId = post.postId;
+        const changeMenu = post.changeMenu;
+        const changeBracket = post.changeBracket;
+
+        sql =
+          `UPDATE post ` +
+          `   SET MENU_ID      = ${changeMenu}` +
+          `     , BRACKET_ID   = ${changeBracket}` +
+          `     , UPDATED_AT   = now()` +
+          `     , UPDATED_USER = ${adminUserId}` +
+          ` WHERE MENU_ID = ${menuId}` +
+          `   AND POST_ID = ${postId}`;
+
+        await conn.query(sql);
+
+        sql =
+          `UPDATE comment ` +
+          `   SET MENU_ID      = ${changeMenu}` +
+          `     , UPDATED_AT   = now()` +
+          `     , UPDATED_USER = ${adminUserId}` +
+          ` WHERE MENU_ID = ${menuId}` +
+          `   AND POST_ID = ${postId}`;
+
+        await conn.query(sql);
+      });
+
+      await conn.commit();
+      return aryPost.length;
+    } catch (error) {
+      if (conn) {
+        conn.rollback();
+      }
+      console.log(error);
+      throw error;
+    }
+  },
+  "updateMenuId"
 );
 
 export const deletedPost = tyrCatchModelHandler(

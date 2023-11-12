@@ -2,6 +2,7 @@ import { Avatar, Button, Flex, List } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useEffect, useState } from "react";
 import { postComment, postCreatedComment } from "../../services/apiComment";
+import { useOutletContext } from "react-router-dom";
 
 function ReplyComment({
   commentId = null,
@@ -13,6 +14,7 @@ function ReplyComment({
   handleCommentCancel,
   handleSearchComment,
 }) {
+  const { showMessage, showModal } = useOutletContext();
   const [count, setCount] = useState(0);
   const [comment, setComment] = useState(null);
 
@@ -24,6 +26,12 @@ function ReplyComment({
   // 댓글 저장
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (comment.length === 0) {
+      showModal("데이터 미입력", "댓글을 입력해주세요.");
+      return;
+    }
+
     try {
       const fetchData = {
         commentId,

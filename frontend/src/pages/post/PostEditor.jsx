@@ -12,7 +12,7 @@ function PostEditor() {
   const { showMessage, showModal } = useOutletContext();
   const navigate = useNavigate();
   const { state } = useLocation();
-  const menuId = state?.menuId ?? null;
+  let menuId = state?.menuId ?? null;
   const postId = state?.postId ?? null;
 
   const [noticeChecked, setNoticeChecked] = useState(false);
@@ -44,9 +44,14 @@ function PostEditor() {
             comboBracket.filter((item) => item.menuId === post.menuId)
           );
 
+        if (menuId) {
+          setMenu(post?.menuId ?? Number(menuId));
+        } else {
+          setMenu(post?.menuId ?? null);
+        }
+
         setTitle(post?.title ?? "");
         setContent(post?.content ?? "");
-        setMenu(post?.menuId ?? null);
         setBracket(post?.bracketId ?? null);
         setNoticeChecked(post?.notice ?? false);
         setNoticeOption(post?.notice ?? comboNoticeOption[0].value);
@@ -93,7 +98,8 @@ function PostEditor() {
 
       const { message } = await postCreatePost(fetchData);
       showMessage(message);
-      navigate(-1);
+      navigate(`/post/${menu}`);
+      // navigate(-1);
     } catch (error) {
       showMessage(error.message, "error");
     }
@@ -102,7 +108,7 @@ function PostEditor() {
   console.log(adminFlag);
 
   return (
-    <div className="post-content">
+    <div id="post-content">
       <Row gutter={[16, 16]}>
         <Col span={24} style={{ borderBottom: "1px solid" }}>
           <Flex justify={"space-between"} align={"center"}>

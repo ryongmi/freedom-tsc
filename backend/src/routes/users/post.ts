@@ -37,5 +37,6 @@ router.get(
 );
 
 router.patch("/changeNotice", postController.patchChangeNotice);
+router.patch("/movePost", postController.patchMovePost);
 
 export default router;

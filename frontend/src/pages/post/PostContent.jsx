@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Avatar,
   Button,
@@ -7,17 +7,25 @@ import {
   Dropdown,
   Flex,
   List,
+  Modal,
   Radio,
   Row,
+  Select,
   Space,
   Tag,
 } from "antd";
 import {
   getPostContent,
   patchChangeNotice,
+  patchMovePost,
   patchPost,
 } from "../../services/apiPost";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import ReplyComment from "../../components/post/ReplyComment";
 import "../../styles/post.css";
 import "../../styles/comment.css";
@@ -38,38 +46,50 @@ const commentItems = [
 ];
 
 function PostContent() {
-  const { adminFlag, userName } = useSelector((store) => store.user);
-  const { menuId, postId } = useParams();
   const { showMessage, showModal } = useOutletContext();
+  const { adminFlag } = useSelector((store) => store.user);
+  const { menuId, postId } = useParams();
   const navigate = useNavigate();
-
-  // Drawer
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // combo
   const [comboNotice, setComboNotice] = useState([]);
   const [noticeValue, setNoticeValue] = useState([]);
+  const [comboMenu, setComboMenu] = useState([]);
+  const [comboBracket, setComboBracket] = useState([]);
+  const [comboMenuAtBracket, setComboMenuAtBracket] = useState([]);
+  const [changeMenu, setChangeMenu] = useState(null);
+  const [changeBracket, setChangeBracket] = useState(null);
 
-  const [prevPostId, setPrevPostId] = useState(null);
-  const [nextPostId, setNextPostId] = useState(null);
-  const [prevMenuId, setPrevMenuId] = useState(null);
-  const [nextMenuId, setNextMenuId] = useState(null);
-
-  const [menuName, setMenuName] = useState("");
-  const [bracket, setBracket] = useState(null);
-  const [notice, setNotice] = useState(null);
-  const [title, setTitle] = useState("");
-  const [authName, setAuthName] = useState("");
-  const [content, setContent] = useState("");
-  const [profileImg, setProfileImg] = useState("");
-  const [createdAt, setCreatedAt] = useState("");
-  const [createdUser, setCreatedUser] = useState("");
-  const [writer, setWriter] = useState(false);
+  // 게시글
+  const [post, setPost] = useState({});
+  const {
+    menuName,
+    bracket,
+    notice,
+    title,
+    authName,
+    content,
+    profileImgUrl,
+    createdAt,
+    createdUser,
+    writer,
+    prevPostId,
+    nextPostId,
+    prevMenuId,
+    nextMenuId,
+  } = { ...post, content: iframeRegex(post?.content ?? "") };
 
   // 댓글
   const [commentData, setCommentData] = useState([]);
   const [openReplyComment, setOpenReplyComment] = useState(null);
   const [updateComment, setUpdateComment] = useState(null);
+
+  // Drawer
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const postItems = [
     {
@@ -90,36 +110,29 @@ function PostContent() {
       await handleSearch();
     }
     fetchData();
-  }, []);
+  }, [menuId, postId]);
 
   // 전체 조회 이벤트
   async function handleSearch() {
     try {
-      const { post, comments, comboNoticeOption } = await getPostContent(
-        menuId,
-        postId
-      );
+      const { post, comments, comboBracket, comboMenu, comboNoticeOption } =
+        await getPostContent(menuId, postId);
 
-      // 게시글 관련
-      setTitle(post.title);
-      // setContent(post.content);
-      setContent(iframeRegex(post.content));
-      setMenuName(post.menuName);
-      setBracket(post.bracket);
-      setAuthName(post.authName);
-      setProfileImg(post.profileImgUrl);
-      setCreatedAt(post.createdAt);
-      setCreatedUser(post.createdUser);
-      setNotice(post.notice);
-      setWriter(post.writer);
-      setPrevMenuId(post.prevMenuId);
-      setNextMenuId(post.nextMenuId);
-      setPrevPostId(post.prevPostId);
-      setNextPostId(post.nextPostId);
-
+      setPost(post);
       setCommentData(comments);
       setComboNotice(comboNoticeOption);
       setNoticeValue(post.notice ?? comboNoticeOption[0].value);
+
+      setComboBracket(comboBracket);
+      setComboMenu(comboMenu);
+
+      if (post?.menuId ?? null)
+        setComboMenuAtBracket(
+          comboBracket.filter((item) => item.menuId === post.menuId)
+        );
+
+      setChangeMenu(post.menuId);
+      setChangeBracket(post.bracketId);
     } catch (error) {
       console.log(error);
     }
@@ -135,33 +148,6 @@ function PostContent() {
     } catch (error) {
       console.log(error);
     }
-  }
-
-  async function handleSave() {
-    // if (title.length === 0) {
-    //   showModal("데이터 미입력", "제목을 입력해주세요.");
-    //   return;
-    // }
-    // if (content.length === 0) {
-    //   showModal("데이터 미입력", "내용을 입력해주세요.");
-    //   return;
-    // }
-    // try {
-    //   const notice = noticeChecked ? noticeOption : null;
-    //   const fetchData = {
-    //     postId,
-    //     menuId: menu,
-    //     title,
-    //     content,
-    //     bracketId: bracket,
-    //     notice,
-    //   };
-    //   debugger;
-    //   const { message } = await postCreatePost(fetchData);
-    //   showMessage(message);
-    // } catch (error) {
-    //   showMessage(error.message, "error");
-    // }
   }
 
   // 게시글 삭제
@@ -294,20 +280,54 @@ function PostContent() {
     setDrawerOpen(false);
   };
 
-  // const oembedRegex = /<oembed[^>]*>/g;
-  // const oembedMatch = content.match(oembedRegex);
+  // 게시글 이동 팝업 - 메뉴 변경 이벤트
+  function handleMenuChange(value) {
+    setChangeMenu(value);
+    setChangeBracket(null);
+    setComboMenuAtBracket(comboBracket.filter((item) => item.menuId === value));
+  }
 
-  // // If an oembed element was found, convert it to an iframe element
-  // if (oembedMatch) {
-  //   const oembedUrl = oembedMatch[0].match(/url="([^"]*)"/)[1];
-  //   const iframeElement = `<iframe src="${oembedUrl}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-  //   // content = htmlString.replace(oembedRegex, iframeElement);
+  const showMovePostModal = () => {
+    setModalOpen(true);
+  };
 
-  //   setContent(content.replace(oembedRegex, iframeElement));
-  // }
+  // 팝업 ok 클릭 이벤트
+  async function handleOk() {
+    if (!changeMenu) {
+      showModal("데이터 미입력", "게시판을 선택해주세요.");
+      return;
+    }
+
+    setConfirmLoading(true);
+
+    try {
+      const fetchData = [
+        {
+          menuId,
+          postId,
+          changeMenu,
+          changeBracket,
+        },
+      ];
+      const { message } = await patchMovePost(fetchData);
+
+      setModalOpen(false);
+      navigate(`/post/${changeMenu}/${postId}`);
+      //   showMessage(message);
+    } catch (error) {
+      //   showMessage(error.message, "error");
+    } finally {
+      setConfirmLoading(false);
+    }
+  }
+
+  // 팝업 cancel 클릭 이벤트
+  const handleCancel = () => {
+    setModalOpen(false);
+  };
 
   return (
-    <div className="post-content">
+    <div id="post-content">
       <Row gutter={[16, 0]}>
         <Col
           span={24}
@@ -315,35 +335,135 @@ function PostContent() {
         >
           <Flex justify={"space-between"} align={"center"}>
             <Flex align={"center"} gap={10}>
-              <Button type="primary" onClick={handleSave}>
-                이동
-              </Button>
-              <Button
-                type="primary"
-                onClick={(e) =>
-                  navigate("/post/edit", {
-                    state: { menuId, postId },
-                  })
-                }
-              >
-                수정
-              </Button>
-              <Button type="primary" onClick={handleDeletePost}>
-                삭제
-              </Button>
+              {writer !== "TRUE" && adminFlag !== "Y" && <div></div>}
+              {adminFlag === "Y" && (
+                <>
+                  <Button type="primary" onClick={showMovePostModal}>
+                    이동
+                  </Button>
+                  <Modal
+                    title="게시글 이동"
+                    open={modalOpen}
+                    onOk={handleOk}
+                    confirmLoading={confirmLoading}
+                    onCancel={handleCancel}
+                  >
+                    <Row gutter={[16, 24]} style={{ padding: "16px 0" }}>
+                      <Col span={24}>
+                        <Flex align={"center"} justify={"center"} gap={20}>
+                          <span>게시판선택</span>
+                          <Select
+                            style={{
+                              width: "50%",
+                            }}
+                            value={changeMenu}
+                            placeholder="게시판을 선택해주세요."
+                            onChange={handleMenuChange}
+                            options={comboMenu}
+                          />
+                        </Flex>
+                      </Col>
+                      <Col span={24}>
+                        <Flex align={"center"} justify={"center"} gap={20}>
+                          <span>말머리선택</span>
+                          <Select
+                            style={{
+                              width: "50%",
+                            }}
+                            value={changeBracket}
+                            placeholder="말머리 선택"
+                            disabled={comboMenuAtBracket.length === 0}
+                            onChange={(value) => {
+                              setChangeBracket(value === "null" ? null : value);
+                            }}
+                            options={[
+                              { value: "null", label: "말머리 선택 안함" },
+                              ...comboMenuAtBracket,
+                            ]}
+                          />
+                        </Flex>
+                      </Col>
+                    </Row>
+                  </Modal>
+                </>
+              )}
+              {(writer === "TRUE" || adminFlag === "Y") && (
+                <>
+                  <Button
+                    type="primary"
+                    onClick={(e) =>
+                      navigate("/post/edit", {
+                        state: { menuId, postId },
+                      })
+                    }
+                  >
+                    수정
+                  </Button>
+                  <Button type="primary" onClick={handleDeletePost}>
+                    삭제
+                  </Button>
+                </>
+              )}
             </Flex>
             <Flex align={"center"} gap={10}>
               {prevPostId && (
-                <Button type="primary" onClick={handleSave}>
-                  이전글
+                <Button
+                  type="primary"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    paddingLeft: "5px",
+                  }}
+                  onClick={handlePrevPost}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-5 h-5"
+                    width="32"
+                    height="28"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M14.77 12.79a.75.75 0 01-1.06-.02L10 8.832 6.29 12.77a.75.75 0 11-1.08-1.04l4.25-4.5a.75.75 0 011.08 0l4.25 4.5a.75.75 0 01-.02 1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>이전글</span>
                 </Button>
               )}
               {nextPostId && (
-                <Button type="primary" onClick={handleSave}>
-                  다음글
+                <Button
+                  type="primary"
+                  onClick={handleNextPost}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    paddingLeft: "5px",
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-5 h-5"
+                    width="32"
+                    height="28"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>다음글</span>
                 </Button>
               )}
-              <Button type="primary" onClick={(e) => navigate(-1)}>
+              <Button
+                type="primary"
+                onClick={(e) => navigate(`/post/${menuId}`)}
+              >
                 목록
               </Button>
             </Flex>
@@ -353,7 +473,31 @@ function PostContent() {
         <Col span={24} style={{ borderBottom: "1px solid" }}>
           <div>
             <p>
-              <a onClick={(e) => navigate(`/post/${menuId}`)}>{menuName}</a>
+              <a
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                onClick={(e) => navigate(`/post/${menuId}`)}
+              >
+                <strong>{menuName}</strong>
+                <span style={{ display: "flex" }}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-5 h-5"
+                    width="25"
+                    height="20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </span>
+              </a>
             </p>
             <h2 style={{ margin: "0" }}>
               {notice && (
@@ -361,7 +505,7 @@ function PostContent() {
                   {notice === "MUST_READ" ? "필독" : "공지"}
                 </Tag>
               )}
-              [{bracket}] {title}
+              {bracket && `[${bracket}]`} {title}
             </h2>
           </div>
           <List
@@ -377,7 +521,7 @@ function PostContent() {
                 <List.Item.Meta
                   avatar={
                     <a>
-                      <Avatar size={50} src={profileImg} />
+                      <Avatar size={50} src={profileImgUrl} />
                     </a>
                   }
                   title={
@@ -391,6 +535,7 @@ function PostContent() {
                 <div>
                   <Flex align={"center"} gap={10}>
                     <a
+                      href="#comment"
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -401,8 +546,8 @@ function PostContent() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        width="32"
-                        height="28"
+                        width="28"
+                        height="22"
                       >
                         <path
                           fillRule="evenodd"
@@ -411,7 +556,7 @@ function PostContent() {
                         />
                       </svg>
                       <span>댓글</span>
-                      <strong>{commentData.length}</strong>
+                      <strong>&nbsp;{commentData.length}</strong>
                     </a>
                     {adminFlag === "Y" && (
                       <Dropdown
@@ -461,7 +606,7 @@ function PostContent() {
                   alignItems: "center",
                 }}
               >
-                <Avatar size={50} src={profileImg} />
+                <Avatar size={50} src={profileImgUrl} />
                 <span
                   style={{
                     marginLeft: "5px",
@@ -512,7 +657,7 @@ function PostContent() {
                   />
                 </svg>
                 <span>댓글</span>
-                <strong>{commentData.length}</strong>
+                <strong>&nbsp;{commentData.length}</strong>
               </a>
             </Flex>
           </div>
@@ -520,145 +665,153 @@ function PostContent() {
 
         <Col span={24}>
           <Flex justify={"space-between"} align={"center"}>
-            <h3>댓글</h3>
+            <h3 id="comment">댓글</h3>
           </Flex>
-          <List
-            pagination={{
-              position: "bottom",
-              align: "center",
-              pageSize: 10,
-            }}
-            dataSource={commentData}
-            renderItem={(item, index) => (
-              <>
-                {(!item.deletedAt ||
-                  (item.deletedAt && item.childCount > 0)) && (
-                  <List.Item
-                  // style={{ border: "2px solid" }}
-                  >
-                    {item.deletedAt && item.childCount > 0 ? (
-                      <p className={item.topCommentId && "comment-middle"}>
-                        삭제된 댓글입니다
-                      </p>
-                    ) : (
-                      ""
-                    )}
+          {commentData.length > 0 && (
+            <List
+              pagination={{
+                position: "bottom",
+                align: "center",
+                pageSize: 10,
+              }}
+              dataSource={commentData}
+              renderItem={(item, index) => (
+                <>
+                  {(!item.deletedAt ||
+                    (item.deletedAt && item.childCount > 0)) && (
+                    <List.Item
+                    // style={{ border: "2px solid" }}
+                    >
+                      {item.deletedAt && item.childCount > 0 ? (
+                        <p className={item.topCommentId && "comment-middle"}>
+                          삭제된 댓글입니다
+                        </p>
+                      ) : (
+                        ""
+                      )}
 
-                    {!item.deletedAt && updateComment !== item.commentId && (
-                      <List.Item.Meta
-                        avatar={
-                          <a className={item.topCommentId && "comment-middle"}>
-                            <Avatar size={50} src={item.profileImg} />
-                          </a>
-                        }
-                        title={
-                          <Flex justify={"space-between"} align={"center"}>
-                            <span>
-                              <a className="user-name">{item.createdUser}</a>
-                              {item.writer === "TRUE" && (
-                                <Tag
-                                  color="geekblue"
-                                  style={{ marginLeft: "5px" }}
-                                >
-                                  작성자
-                                </Tag>
-                              )}
-                            </span>
-                            {(adminFlag === "Y" || item.writer === "TRUE") && (
-                              <div>
-                                <Flex align={"center"}>
-                                  <Dropdown
-                                    menu={{
-                                      items: commentItems,
-                                      onClick: (e) =>
-                                        handleCommentMenuClick(e, item),
-                                    }}
-                                    trigger={["click"]}
+                      {!item.deletedAt && updateComment !== item.commentId && (
+                        <List.Item.Meta
+                          avatar={
+                            <a
+                              className={item.topCommentId && "comment-middle"}
+                            >
+                              <Avatar size={50} src={item.profileImg} />
+                            </a>
+                          }
+                          title={
+                            <Flex justify={"space-between"} align={"center"}>
+                              <span>
+                                <a className="user-name">{item.createdUser}</a>
+                                {item.writer === "TRUE" && (
+                                  <Tag
+                                    color="geekblue"
+                                    style={{ marginLeft: "5px" }}
                                   >
-                                    <a onClick={(e) => e.preventDefault()}>
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="32"
-                                        height="28"
-                                        fill="#d0cfcf"
-                                        viewBox="0 0 256 256"
-                                      >
-                                        <path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"></path>
-                                      </svg>
-                                    </a>
-                                  </Dropdown>
-                                </Flex>
-                              </div>
-                            )}
-                          </Flex>
-                        }
-                        description={
-                          <>
-                            <div style={{ display: "grid" }}>
-                              <p
-                                style={{ color: "black", margin: "0 0 5px 0" }}
-                              >
-                                {item.topCommentId && (
-                                  <a className="user-name">
-                                    {item.topUserName}&nbsp;
-                                  </a>
+                                    작성자
+                                  </Tag>
                                 )}
-                                <span style={{ whiteSpace: "pre-line" }}>
-                                  {item.content}
-                                </span>
-                              </p>
-
-                              <div>
-                                <span>{item.createdAt}&nbsp;</span>
-                                <a
-                                  onClick={(e) => {
-                                    setUpdateComment(null);
-                                    setOpenReplyComment(item.commentId);
+                              </span>
+                              {(adminFlag === "Y" ||
+                                item.writer === "TRUE") && (
+                                <div>
+                                  <Flex align={"center"}>
+                                    <Dropdown
+                                      menu={{
+                                        items: commentItems,
+                                        onClick: (e) =>
+                                          handleCommentMenuClick(e, item),
+                                      }}
+                                      trigger={["click"]}
+                                    >
+                                      <a onClick={(e) => e.preventDefault()}>
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="32"
+                                          height="28"
+                                          fill="#d0cfcf"
+                                          viewBox="0 0 256 256"
+                                        >
+                                          <path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"></path>
+                                        </svg>
+                                      </a>
+                                    </Dropdown>
+                                  </Flex>
+                                </div>
+                              )}
+                            </Flex>
+                          }
+                          description={
+                            <>
+                              <div style={{ display: "grid" }}>
+                                <p
+                                  style={{
+                                    color: "black",
+                                    margin: "0 0 5px 0",
                                   }}
                                 >
-                                  답글쓰기
-                                </a>
+                                  {item.topCommentId && (
+                                    <a className="user-name">
+                                      {item.topUserName}&nbsp;
+                                    </a>
+                                  )}
+                                  <span style={{ whiteSpace: "pre-line" }}>
+                                    {item.content}
+                                  </span>
+                                </p>
+
+                                <div>
+                                  <span>{item.createdAt}&nbsp;</span>
+                                  <a
+                                    onClick={(e) => {
+                                      setUpdateComment(null);
+                                      setOpenReplyComment(item.commentId);
+                                    }}
+                                  >
+                                    답글쓰기
+                                  </a>
+                                </div>
                               </div>
-                            </div>
-                          </>
-                        }
-                      />
-                    )}
-                    {/* 댓글 수정 */}
-                    {updateComment == item.commentId && (
-                      <List.Item.Meta
-                        description={
-                          <>
-                            <ReplyComment
-                              commentId={item.commentId}
-                              menuId={menuId}
-                              postId={postId}
-                              userName={createdUser}
-                              value={item.content}
-                              topCommentId={item.topCommentId}
-                              handleCommentCancel={handleCommentCancel}
-                              handleSearchComment={handleSearchComment}
-                            />
-                          </>
-                        }
-                      />
-                    )}
-                  </List.Item>
-                )}
-                {/* 답글 작성 */}
-                {item.commentId === openReplyComment && (
-                  <ReplyComment
-                    menuId={menuId}
-                    postId={postId}
-                    userName={createdUser}
-                    topCommentId={item.commentId}
-                    handleCommentCancel={handleCommentCancel}
-                    handleSearchComment={handleSearchComment}
-                  />
-                )}
-              </>
-            )}
-          />
+                            </>
+                          }
+                        />
+                      )}
+                      {/* 댓글 수정 */}
+                      {updateComment == item.commentId && (
+                        <List.Item.Meta
+                          description={
+                            <>
+                              <ReplyComment
+                                commentId={item.commentId}
+                                menuId={menuId}
+                                postId={postId}
+                                userName={createdUser}
+                                value={item.content}
+                                topCommentId={item.topCommentId}
+                                handleCommentCancel={handleCommentCancel}
+                                handleSearchComment={handleSearchComment}
+                              />
+                            </>
+                          }
+                        />
+                      )}
+                    </List.Item>
+                  )}
+                  {/* 답글 작성 */}
+                  {item.commentId === openReplyComment && (
+                    <ReplyComment
+                      menuId={menuId}
+                      postId={postId}
+                      userName={createdUser}
+                      topCommentId={item.commentId}
+                      handleCommentCancel={handleCommentCancel}
+                      handleSearchComment={handleSearchComment}
+                    />
+                  )}
+                </>
+              )}
+            />
+          )}
           {/* 댓글 작성 */}
           <ReplyComment
             menuId={menuId}
@@ -666,6 +819,43 @@ function PostContent() {
             userName={createdUser}
             handleSearchComment={handleSearchComment}
           />
+        </Col>
+
+        <Col span={24} style={{ padding: "16px 0px" }}>
+          <Flex justify={"space-between"} align={"center"}>
+            <Flex align={"center"} gap={10}>
+              <Button
+                type="primary"
+                onClick={(e) =>
+                  navigate("/post/edit", {
+                    state: { menuId },
+                  })
+                }
+              >
+                글쓰기
+              </Button>
+            </Flex>
+            <Flex align={"center"} gap={10}>
+              <Button
+                type="primary"
+                onClick={(e) => navigate(`/post/${menuId}`)}
+              >
+                목록
+              </Button>
+              <Button
+                href="#post-content"
+                type="primary"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  paddingLeft: "10px",
+                }}
+              >
+                <span style={{ fontSize: "small" }}>▲</span>
+                <span>&nbsp;TOP</span>
+              </Button>
+            </Flex>
+          </Flex>
         </Col>
       </Row>
 
