@@ -8,6 +8,11 @@
   height: 700px;
 }
 
+.ck-editor__editable p {
+  margin: 0;
+  text-decoration: none;
+}
+
 /* .ck-widget {
   width: 70%;
   padding-bottom: 0 !important;

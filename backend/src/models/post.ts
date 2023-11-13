@@ -254,7 +254,7 @@ export const createdPost = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const post: PostContent = req.body.post;
     // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 51513;
+    const adminUserId: number = 13213;
 
     try {
       const postId = post.postId;

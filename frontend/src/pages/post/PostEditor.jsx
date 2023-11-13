@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+// import { ImageResizeEditing } from "@ckeditor/ckeditor5-image";
 import { Button, Checkbox, Col, Flex, Input, Row, Select } from "antd";
 import { getPostEdit, postCreatePost } from "../../services/apiPost";
 import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
@@ -105,7 +106,59 @@ function PostEditor() {
     }
   }
 
-  console.log(adminFlag);
+  const imgLink = "http://localhost:8000/images";
+
+  function customUploadAdapter(loader) {
+    return {
+      upload() {
+        return new Promise((resolve, reject) => {
+          debugger;
+          const data = new FormData();
+          loader.file.then((file) => {
+            data.append("name", file.name);
+            data.append("file", file);
+
+            // const res = await fetch("http://localhost:8000/api/upload", {
+            //   method: "POST",
+            //   body: data,
+            // });
+
+            fetch("http://localhost:8000/api/upload", {
+              method: "POST",
+              body: data,
+            })
+              .then((res) => res.json())
+              .then((res) => {
+                resolve({
+                  default: `${imgLink}/${res.filename}`,
+                });
+              })
+              .catch((err) => reject(err));
+
+            // axios
+            //   .post("/api/upload", data)
+            //   .then((res) => {
+            //     if (!flag) {
+            //       setFlag(true);
+            //       setImage(res.data.filename);
+            //     }
+            //     resolve({
+            //       default: `${imgLink}/${res.data.filename}`,
+            //     });
+            //   })
+            //   .catch((err) => reject(err));
+          });
+        });
+      },
+    };
+  }
+
+  function uploadPlugin(editor) {
+    debugger;
+    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+      return customUploadAdapter(loader);
+    };
+  }
 
   return (
     <div id="post-content">
@@ -185,12 +238,16 @@ function PostEditor() {
           <CKEditor
             editor={ClassicEditor}
             data={content}
+            config={{
+              extraPlugins: [uploadPlugin],
+            }}
             // onReady={(editor) => {
             //   // You can store the "editor" and use when it is needed.
             //   console.log("Editor is ready to use!", editor);
             // }}
             onChange={(event, editor) => {
               const data = editor.getData();
+              console.log(data);
               setContent(data);
               // console.log({ event, editor, data });
             }}
