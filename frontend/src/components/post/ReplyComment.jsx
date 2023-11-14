@@ -1,7 +1,7 @@
-import { Avatar, Button, Flex, List } from "antd";
+import { Button, Flex } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useEffect, useState } from "react";
-import { postComment, postCreatedComment } from "../../services/apiComment";
+import { postComment } from "../../services/apiComment";
 import { useOutletContext } from "react-router-dom";
 
 function ReplyComment({

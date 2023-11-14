@@ -8,7 +8,6 @@ export const getComments = tyrCatchModelHandler(
     const menuId = req.params.menuId;
     const postId = req.params.postId;
     // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 133095116;
 
     const sql =
       `WITH RECURSIVE CTE AS (` +
@@ -20,7 +19,6 @@ export const getComments = tyrCatchModelHandler(
       `   , C.TOP_COMMENT_ID` +
       `   , '........................' AS TOP_USER_ID` +
       `   , C.DELETED_AT` +
-      `   , IF(C.CREATED_USER = ${adminUserId}, 'TRUE', 'FALSE') AS writer` +
       `   , COUNT(TC.COMMENT_ID) AS childCount` +
       `   , C.COMMENT_ID AS lvl` +
       `   FROM comment C` +
@@ -40,7 +38,6 @@ export const getComments = tyrCatchModelHandler(
       `   , C.TOP_COMMENT_ID` +
       `   , CT.CREATED_USER AS TOP_USER_ID` +
       `   , C.DELETED_AT` +
-      `   , IF(C.CREATED_USER = ${adminUserId}, 'TRUE', 'FALSE') AS writer` +
       `   , 0 AS childCount` +
       `   , CT.lvl AS lvl` +
       // `   , CONCAT(CT.lvl, ',', C.COMMENT_ID) lvl` +
@@ -52,17 +49,20 @@ export const getComments = tyrCatchModelHandler(
       `    AND C.DELETED_AT IS NULL` +
       ` )` +
       ` SELECT ` +
-      `     COMMENT_ID AS commentId` +
-      `   , CONTENT AS content` +
+      `     CTE.COMMENT_ID AS commentId` +
+      `   , CTE.CONTENT AS content` +
       `   , GET_DATE_FORMAT(CTE.CREATED_AT) AS createdAt` +
       `   , U.DISPLAY_NAME AS createdUser` +
       `   , U.PROFILE_IMAGE_URL AS profileImg` +
       `   , TOP_COMMENT_ID AS topCommentId` +
       `   , CU.DISPLAY_NAME AS topUserName` +
       `   , CTE.DELETED_AT AS deletedAt` +
-      `   , writer` +
+      `   , IF(P.CREATED_USER = CTE.CREATED_USER, 'TRUE', 'FALSE') AS writer` +
       `   , childCount` +
       `   FROM CTE` +
+      `  INNER JOIN post P ` +
+      `     ON P.MENU_ID = ${menuId}` +
+      `    AND P.POST_ID = ${postId}` +
       `  INNER JOIN user U ` +
       `     ON CTE.CREATED_USER = U.USER_ID` +
       `   LEFT JOIN user CU ` +

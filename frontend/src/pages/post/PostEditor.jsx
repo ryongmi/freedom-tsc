@@ -118,11 +118,6 @@ function PostEditor() {
             data.append("name", file.name);
             data.append("file", file);
 
-            // const res = await fetch("http://localhost:8000/api/upload", {
-            //   method: "POST",
-            //   body: data,
-            // });
-
             fetch("http://localhost:8000/api/upload", {
               method: "POST",
               body: data,
@@ -134,19 +129,6 @@ function PostEditor() {
                 });
               })
               .catch((err) => reject(err));
-
-            // axios
-            //   .post("/api/upload", data)
-            //   .then((res) => {
-            //     if (!flag) {
-            //       setFlag(true);
-            //       setImage(res.data.filename);
-            //     }
-            //     resolve({
-            //       default: `${imgLink}/${res.data.filename}`,
-            //     });
-            //   })
-            //   .catch((err) => reject(err));
           });
         });
       },
