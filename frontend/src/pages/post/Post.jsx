@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { Button, Divider, Input, Select, Space, DatePicker } from "antd";
+import {
+  Button,
+  Divider,
+  Input,
+  Select,
+  Space,
+  DatePicker,
+  Modal,
+  Row,
+  Flex,
+  Col,
+} from "antd";
 
 import AppTable from "../../components/table/AppTable";
 import { setColumn } from "../../components/table/SetColumn";
 
-import { getManageAuthLevelCondition } from "../../services/apiAuth";
-import { getPost } from "../../services/apiPost";
+import { getPost, patchMovePost, patchPost } from "../../services/apiPost";
 
 import { useSelector } from "react-redux";
 import "../../styles/post.css";
@@ -14,7 +24,7 @@ import "../../styles/post.css";
 const { RangePicker } = DatePicker;
 
 function Post() {
-  const adminFlag = useSelector((store) => store.user.adminFlag);
+  const { adminFlag } = useSelector((store) => store.user);
   const { menuId } = useParams();
   const navigate = useNavigate();
   const { showMessage, showModal } = useOutletContext();
@@ -32,6 +42,8 @@ function Post() {
   const [comboDateOption, setComboDateOption] = useState([]);
   const [comboPostOption, setComboPostOption] = useState([]);
   const [comboBracketOption, setComboBracketOption] = useState([]);
+  const [comboMenu, setComboMenu] = useState([]);
+  const [comboMenuAtBracket, setComboMenuAtBracket] = useState([]);
 
   // 검색조건
   const [searchDateOpen, setSearchDateOpen] = useState(false);
@@ -39,6 +51,13 @@ function Post() {
   const [searchDateOption, setSearchDateOption] = useState("ALL");
   const [searchPostValue, setSearchPostValue] = useState("");
   const [searchPostOption, setSearchPostOption] = useState("TITLE");
+  const [searchBracketValue, setSearchBracketValue] = useState(null);
+
+  // Modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [changeMenu, setChangeMenu] = useState(null);
+  const [changeBracket, setChangeBracket] = useState(null);
 
   const defaultColumns = [
     setColumn({ key: "postId", width: "5%" }),
@@ -111,6 +130,7 @@ function Post() {
         menuName,
         totalCount,
         comboPerPage,
+        comboMenu,
         comboBracket,
         comboDateOption,
         comboPostOption,
@@ -118,6 +138,7 @@ function Post() {
         menuId,
         currentPage,
         perPage,
+        searchBracketValue,
         searchDateValue,
         searchDateOption,
         searchPostValue,
@@ -133,40 +154,45 @@ function Post() {
 
       setComboDateOption(comboDateOption);
       setComboPostOption(comboPostOption);
+      setComboMenu(comboMenu);
       setComboBracketOption(comboBracket);
+
+      setChangeMenu(Number(menuId));
     } catch (error) {
       showMessage(error.message, "error");
     }
   }
 
-  // 이동 버튼
-  async function handlePostMove() {
-    // try {
-    //   const { auth, totalCount, comboPerPage } =
-    //     await getManageAuthLevelCondition(currentPage, perPage, searchAuthName);
-    //   setDataSource(auth);
-    //   setTotalCount(totalCount);
-    //   setComboPerPage(comboPerPage);
-    //   setSelectedRowKeys([]);
-    //   showMessage("조회성공!");
-    // } catch (error) {
-    //   showMessage(error.message, "error");
-    // }
-  }
-
   // 삭제 버튼
   async function handleDelete() {
-    // try {
-    //   const { auth, totalCount, comboPerPage } =
-    //     await getManageAuthLevelCondition(currentPage, perPage, searchAuthName);
-    //   setDataSource(auth);
-    //   setTotalCount(totalCount);
-    //   setComboPerPage(comboPerPage);
-    //   setSelectedRowKeys([]);
-    //   showMessage("조회성공!");
-    // } catch (error) {
-    //   showMessage(error.message, "error");
-    // }
+    if (selectedRowKeys.length === 0) {
+      showModal("데이터 미체크", "삭제할 게시글을 선택해주세요.");
+      return;
+    }
+
+    try {
+      const fetchData = [];
+      selectedRowKeys.forEach((key) => {
+        for (let index = 0; index < dataSource.length; index++) {
+          const row = dataSource[index];
+          if (row.key !== key) continue;
+
+          fetchData.push({
+            menuId: row.menuId,
+            postId: row.postId,
+          });
+          break;
+        }
+      });
+
+      if (fetchData.length === 0) return;
+      const { message } = await patchPost(fetchData);
+
+      showMessage(message);
+      await handleSearch();
+    } catch (error) {
+      showMessage(error.message, "error");
+    }
   }
 
   // 글쓰기 버튼
@@ -202,76 +228,207 @@ function Post() {
     setSearchDateOpen(false);
   }
 
+  // 게시글 이동 팝업 - 메뉴 변경 이벤트
+  function handleMenuChange(value) {
+    setChangeMenu(value);
+    setChangeBracket(null);
+    setComboMenuAtBracket(
+      comboBracketOption.filter((item) => item.menuId === value)
+    );
+  }
+
+  // 게시글 이동 팝업 - 말머리 변경 이벤트
+  function handleBracketChange(value) {
+    setChangeBracket(value === "null" ? null : value);
+  }
+
+  function showMovePostModal() {
+    if (selectedRowKeys.length === 0) {
+      showModal("데이터 미체크", "이동할 게시글을 선택해주세요.");
+      return;
+    }
+    setModalOpen(true);
+  }
+
+  // 팝업 ok 클릭 이벤트
+  async function handleOk() {
+    if (!changeMenu) {
+      showModal("데이터 미입력", "게시판을 선택해주세요.");
+      return;
+    }
+
+    setConfirmLoading(true);
+
+    try {
+      const fetchData = [];
+      selectedRowKeys.forEach((key) => {
+        for (let index = 0; index < dataSource.length; index++) {
+          const row = dataSource[index];
+          if (row.key !== key) continue;
+
+          fetchData.push({
+            menuId: row.menuId,
+            postId: row.postId,
+            changeMenu,
+            changeBracket,
+          });
+          break;
+        }
+      });
+
+      if (fetchData.length === 0) return;
+      const { message } = await patchMovePost(fetchData);
+
+      setModalOpen(false);
+      showMessage(message);
+      await handleSearch();
+    } catch (error) {
+      showMessage(error.message, "error");
+    } finally {
+      setConfirmLoading(false);
+    }
+  }
+
+  // 팝업 cancel 클릭 이벤트
+  const handleCancel = () => {
+    setModalOpen(false);
+  };
+
   return (
-    <AppTable
-      defaultColumns={defaultColumns}
-      dataSource={dataSource}
-      comboPerPage={comboPerPage}
-      selectedRowKeys={selectedRowKeys}
-      onSelectChange={adminFlag === "Y" ? onSelectChange : null}
-      currentPage={currentPage}
-      totalCount={totalCount}
-      handlePagingChange={handlePagingChange}
-      menuName={menuName}
-      handlePostMove={adminFlag === "Y" ? handlePostMove : null}
-      handleDelete={adminFlag === "Y" ? handleDelete : null}
-      handlePostNew={handlePostNew}
-    >
-      <Select
-        value={searchDateOption}
-        onSelect={handleSelectChange}
-        open={searchDateOpen}
-        onDropdownVisibleChange={(visible) => setSearchDateOpen(visible)}
-        style={{
-          width: searchDateOpen ? 320 : 100,
-        }}
-        dropdownRender={(menu) => (
-          <div
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+    <>
+      <AppTable
+        defaultColumns={defaultColumns}
+        dataSource={dataSource}
+        comboPerPage={comboPerPage}
+        selectedRowKeys={selectedRowKeys}
+        onSelectChange={onSelectChange}
+        // onSelectChange={adminFlag === "Y" ? onSelectChange : null}
+        currentPage={currentPage}
+        totalCount={totalCount}
+        menuName={menuName}
+        handlePagingChange={handlePagingChange}
+        handlePostMove={showMovePostModal}
+        // handlePostMove={adminFlag === "Y" ? showMovePostModal : null}
+        handleDelete={handleDelete}
+        // handleDelete={adminFlag === "Y" ? handleDelete : null}
+        handlePostNew={handlePostNew}
+      >
+        {comboBracketOption.length !== 0 && (
+          <Select
+            style={{
+              width: 150,
             }}
-          >
-            {menu}
-            <Divider
-              style={{
-                margin: "8px 0",
-              }}
-            />
-            <Space
-              direction="vertical"
-              style={{
-                padding: "0 8px 4px",
+            value={searchBracketValue}
+            placeholder="말머리 선택"
+            disabled={comboBracketOption.length === 0}
+            onChange={(value) => {
+              setSearchBracketValue(value === "null" ? null : value);
+            }}
+            options={[
+              { value: "null", label: "말머리 선택 안함" },
+              ...comboBracketOption,
+            ]}
+          />
+        )}
+        <Select
+          value={searchDateOption}
+          onSelect={handleSelectChange}
+          open={searchDateOpen}
+          onDropdownVisibleChange={(visible) => setSearchDateOpen(visible)}
+          style={{
+            width: searchDateOpen ? 320 : 100,
+          }}
+          dropdownRender={(menu) => (
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
               }}
             >
-              <Space>
-                <span>기간 입력</span>
+              {menu}
+              <Divider
+                style={{
+                  margin: "8px 0",
+                }}
+              />
+              <Space
+                direction="vertical"
+                style={{
+                  padding: "0 8px 4px",
+                }}
+              >
+                <Space>
+                  <span>기간 입력</span>
+                </Space>
+                <Space>
+                  <RangePicker onChange={handlePickerChange} />
+                  <Button onClick={handleSetDateClick}>설정</Button>
+                </Space>
               </Space>
-              <Space>
-                <RangePicker onChange={handlePickerChange} />
-                <Button onClick={handleSetDateClick}>설정</Button>
-              </Space>
-            </Space>
-          </div>
-        )}
-        options={comboDateOption}
-      />
-      <Select
-        style={{
-          width: 100,
-        }}
-        value={searchPostOption}
-        onChange={(value) => {
-          setSearchPostOption(value);
-        }}
-        options={comboPostOption}
-      />
-      <Input
-        placeholder="검색어를 입력해주세요"
-        onChange={(e) => setSearchPostValue(e.target.value)}
-      />
-      <Button onClick={handleSearch}>검색</Button>
-    </AppTable>
+            </div>
+          )}
+          options={comboDateOption}
+        />
+        <Select
+          style={{
+            width: 100,
+          }}
+          value={searchPostOption}
+          onChange={(value) => {
+            setSearchPostOption(value);
+          }}
+          options={comboPostOption}
+        />
+        <Input
+          placeholder="검색어를 입력해주세요"
+          onChange={(e) => setSearchPostValue(e.target.value)}
+        />
+        <Button onClick={handleSearch}>검색</Button>
+      </AppTable>
+
+      <Modal
+        title="게시글 이동"
+        open={modalOpen}
+        onOk={handleOk}
+        confirmLoading={confirmLoading}
+        onCancel={handleCancel}
+      >
+        <Row gutter={[16, 24]} style={{ padding: "16px 0" }}>
+          <Col span={24}>
+            <Flex align={"center"} justify={"center"} gap={20}>
+              <span>게시판선택</span>
+              <Select
+                style={{
+                  width: "50%",
+                }}
+                value={changeMenu}
+                placeholder="게시판을 선택해주세요."
+                onChange={handleMenuChange}
+                options={comboMenu}
+              />
+            </Flex>
+          </Col>
+          <Col span={24}>
+            <Flex align={"center"} justify={"center"} gap={20}>
+              <span>말머리선택</span>
+              <Select
+                style={{
+                  width: "50%",
+                }}
+                value={changeBracket}
+                placeholder="말머리 선택"
+                disabled={comboMenuAtBracket.length === 0}
+                onChange={handleBracketChange}
+                options={[
+                  { value: "null", label: "말머리 선택 안함" },
+                  ...comboMenuAtBracket,
+                ]}
+              />
+            </Flex>
+          </Col>
+        </Row>
+      </Modal>
+    </>
   );
 }
 

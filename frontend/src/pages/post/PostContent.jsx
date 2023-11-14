@@ -23,6 +23,7 @@ function PostContent() {
   const [comboMenuAtBracket, setComboMenuAtBracket] = useState([]);
   const [changeMenu, setChangeMenu] = useState(null);
   const [changeBracket, setChangeBracket] = useState(null);
+  const [commentCount, setCommentCount] = useState(null);
 
   // 게시글
   const [post, setPost] = useState({});
@@ -56,14 +57,20 @@ function PostContent() {
   // 전체 조회 이벤트
   async function handleSearch() {
     try {
-      const { post, comments, comboBracket, comboMenu, comboNoticeOption } =
-        await getPostContent(menuId, postId);
+      const {
+        post,
+        comments,
+        commentCount,
+        comboBracket,
+        comboMenu,
+        comboNoticeOption,
+      } = await getPostContent(menuId, postId);
 
       setPost(post);
       setCommentData(comments);
       setComboNotice(comboNoticeOption);
       setNoticeValue(post.notice ?? comboNoticeOption[0].value);
-
+      setCommentCount(commentCount);
       setComboBracket(comboBracket);
       setComboMenu(comboMenu);
 
@@ -113,7 +120,7 @@ function PostContent() {
           authName={authName}
           profileImgUrl={profileImgUrl}
           noticeValue={noticeValue}
-          commentLength={commentData.length}
+          commentLength={commentCount}
           handleSearch={handleSearch}
           setNoticeValue={setNoticeValue}
           comboNotice={comboNotice}
@@ -123,7 +130,7 @@ function PostContent() {
           content={content}
           createdUser={createdUser}
           profileImgUrl={profileImgUrl}
-          commentLength={commentData.length}
+          commentLength={commentCount}
         />
 
         <PostComment

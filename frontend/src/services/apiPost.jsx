@@ -33,13 +33,14 @@ export async function getPost(
   menuId,
   currentPage,
   perPage,
+  bracketValue,
   dateValue,
   dateOption,
   postValue,
   postOption
 ) {
   const res = await fetch(
-    `${POST}/${menuId}?page=${currentPage}&perPage=${perPage}&dateValue=${dateValue}&dateOption=${dateOption}&postValue=${postValue}&postOption=${postOption}`
+    `${POST}/${menuId}?page=${currentPage}&perPage=${perPage}&bracketId=${bracketValue}&dateValue=${dateValue}&dateOption=${dateOption}&postValue=${postValue}&postOption=${postOption}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set

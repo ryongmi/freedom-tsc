@@ -6,7 +6,7 @@ const initialState = {
   profileImgUrl: "",
   broadcasterType: "",
   isLoggedIn: false,
-  adminFlag: "N",
+  adminFlag: "Y",
 };
 
 const userSlice = createSlice({

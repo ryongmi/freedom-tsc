@@ -89,7 +89,7 @@ export const getPost = tyrCatchModelHandler(
       `  WHERE P.MENU_ID = ${menuId}` +
       `    AND P.DELETED_AT IS NULL`;
 
-    if (bracketId) {
+    if (bracketId !== "null") {
       sql += ` AND P.BRACKET_ID = ${bracketId}`;
     }
 

@@ -20,7 +20,7 @@ export const getPostAll = tyrCatchControllerHandler(
     const comboDateOption = await COMBO.getComboComCd(req, "DATE_OPTION");
     const comboPostOption = await COMBO.getComboComCd(req, "POST_OPTION");
 
-    return res.send({
+    res.send({
       post,
       totalCount,
       comboPerPage,
@@ -41,14 +41,16 @@ export const getPost = tyrCatchControllerHandler(
     const post = await POST.getPost(req);
     const menu = await MENU.getMenu(req, req.params.menuId);
     const totalCount = await COUNT.getPost(req);
+    const comboMenu = await COMBO.getComboMenu(req);
     const comboBracket = await COMBO.getComboBracket(req);
     const comboDateOption = await COMBO.getComboComCd(req, "DATE_OPTION");
     const comboPostOption = await COMBO.getComboComCd(req, "POST_OPTION");
 
-    return res.send({
+    res.send({
       post,
       menuName: menu.menuName,
       totalCount,
+      comboMenu,
       comboBracket,
       comboPerPage,
       comboDateOption,
@@ -66,13 +68,15 @@ export const getPostContent = tyrCatchControllerHandler(
 
     const post = await POST.getPostContent(req);
     const comments = await COMMNET.getComments(req);
+    const commentCount = await COUNT.getComments(req);
     const comboBracket = await COMBO.getComboBracket(req);
     const comboMenu = await COMBO.getComboMenu(req);
     const comboNoticeOption = await COMBO.getComboComCd(req, "NOTICE_OPTION");
 
-    return res.send({
+    res.send({
       post,
       comments,
+      commentCount,
       comboBracket,
       comboMenu,
       comboNoticeOption,
@@ -92,7 +96,7 @@ export const getPostEdit = tyrCatchControllerHandler(
     const comboMenu = await COMBO.getComboMenu(req);
     const comboNoticeOption = await COMBO.getComboComCd(req, "NOTICE_OPTION");
 
-    return res.send({
+    res.send({
       post,
       comboBracket,
       comboMenu,
