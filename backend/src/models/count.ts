@@ -397,13 +397,8 @@ export const getComments = tyrCatchModelHandler(
 
     const sql: string =
       ` SELECT` +
-      `   COUNT(C.COMMENT_ID) + COUNT(MC.COMMENT_ID) AS commentCount` +
+      `   COUNT(C.COMMENT_ID) AS commentCount` +
       `   FROM comment C` +
-      `   LEFT JOIN comment MC` +
-      `     ON C.MENU_ID = MC.MENU_ID` +
-      `    AND C.POST_ID = MC.POST_ID` +
-      `    AND C.COMMENT_ID = MC.TOP_COMMENT_ID` +
-      `    AND MC.DELETED_AT IS NOT NULL` +
       `  WHERE C.MENU_ID = ${menuId}` +
       `    AND C.POST_ID = ${postId}` +
       `    AND C.DELETED_AT IS NULL`;

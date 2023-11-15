@@ -111,7 +111,7 @@ function Post() {
       ),
     }),
     setColumn({ title: "작성일", key: "createdAt", width: "10%" }),
-    setColumn({ title: "조회", key: "cre", width: "5%" }),
+    setColumn({ title: "조회", key: "view", width: "5%" }),
     setColumn({ title: "좋아요", key: "crAt", width: "5%" }),
   ];
 
@@ -152,9 +152,9 @@ function Post() {
       setMenuName(menuName);
       setSelectedRowKeys([]);
 
+      setComboMenu(comboMenu);
       setComboDateOption(comboDateOption);
       setComboPostOption(comboPostOption);
-      setComboMenu(comboMenu);
       setComboBracketOption(comboBracket);
 
       setChangeMenu(Number(menuId));
@@ -301,16 +301,13 @@ function Post() {
         dataSource={dataSource}
         comboPerPage={comboPerPage}
         selectedRowKeys={selectedRowKeys}
-        onSelectChange={onSelectChange}
-        // onSelectChange={adminFlag === "Y" ? onSelectChange : null}
+        onSelectChange={adminFlag === "Y" ? onSelectChange : null}
         currentPage={currentPage}
         totalCount={totalCount}
         menuName={menuName}
         handlePagingChange={handlePagingChange}
-        handlePostMove={showMovePostModal}
-        // handlePostMove={adminFlag === "Y" ? showMovePostModal : null}
-        handleDelete={handleDelete}
-        // handleDelete={adminFlag === "Y" ? handleDelete : null}
+        handlePostMove={adminFlag === "Y" ? showMovePostModal : null}
+        handleDelete={adminFlag === "Y" ? handleDelete : null}
         handlePostNew={handlePostNew}
       >
         {comboBracketOption.length !== 0 && (

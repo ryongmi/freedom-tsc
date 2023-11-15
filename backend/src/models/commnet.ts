@@ -24,6 +24,7 @@ export const getComments = tyrCatchModelHandler(
       `   FROM comment C` +
       `   LEFT JOIN comment TC` +
       `     ON C.COMMENT_ID = TC.TOP_COMMENT_ID` +
+      `    AND TC.DELETED_AT IS NULL` +
       `  WHERE C.MENU_ID = ${menuId}` +
       `    AND C.POST_ID = ${postId}` +
       `    AND C.TOP_COMMENT_ID IS NULL` +
@@ -43,10 +44,10 @@ export const getComments = tyrCatchModelHandler(
       // `   , CONCAT(CT.lvl, ',', C.COMMENT_ID) lvl` +
       `   FROM comment C` +
       `  INNER JOIN CTE CT` +
-      `     ON C.MENU_ID        = ${menuId}` +
-      `    AND C.POST_ID        = ${postId}` +
-      `    AND C.TOP_COMMENT_ID = CT.COMMENT_ID` +
-      `    AND C.DELETED_AT IS NULL` +
+      `     ON C.TOP_COMMENT_ID = CT.COMMENT_ID` +
+      `  WHERE C.MENU_ID = ${menuId}` +
+      `    AND C.POST_ID = ${postId}` +
+      // `    AND C.DELETED_AT IS NULL` +
       ` )` +
       ` SELECT ` +
       `     CTE.COMMENT_ID AS commentId` +

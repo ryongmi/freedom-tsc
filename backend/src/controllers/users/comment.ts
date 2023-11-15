@@ -15,9 +15,11 @@ export const getComment = tyrCatchControllerHandler(
     }
 
     const comments = await COMMNET.getComments(req);
+    const commentCount = await COUNT.getComments(req);
 
     return res.send({
       comments,
+      commentCount,
     });
   }
 );

@@ -73,6 +73,8 @@ export const getPostContent = tyrCatchControllerHandler(
     const comboMenu = await COMBO.getComboMenu(req);
     const comboNoticeOption = await COMBO.getComboComCd(req, "NOTICE_OPTION");
 
+    await POST.updatePostView(req);
+
     res.send({
       post,
       comments,

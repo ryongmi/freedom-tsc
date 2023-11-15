@@ -68,9 +68,10 @@ export const getPost = tyrCatchModelHandler(
       `   , P.MENU_ID AS menuId` +
       `   , B.CONTENT AS bracket` +
       `   , P.TITLE AS title` +
-      `   , COUNT(C.COMMENT_ID) + COUNT(MC.COMMENT_ID) AS commentCount` +
+      `   , COUNT(C.COMMENT_ID) AS commentCount` +
       `   , FN_POST_DATE_FORMAT(P.CREATED_AT) AS createdAt` +
       `   , U.DISPLAY_NAME AS createdUser` +
+      `   , FN_POST_VIEW_FORMAT(P.VIEW) AS view` +
       `   FROM post P` +
       `   LEFT JOIN bracket B` +
       `     ON P.MENU_ID    = B.MENU_ID` +
@@ -79,11 +80,6 @@ export const getPost = tyrCatchModelHandler(
       `     ON P.MENU_ID = C.MENU_ID` +
       `    AND P.POST_ID = C.POST_ID` +
       `    AND C.DELETED_AT IS NULL` +
-      `   LEFT JOIN comment MC` +
-      `     ON P.MENU_ID = MC.MENU_ID` +
-      `    AND P.POST_ID = MC.POST_ID` +
-      `    AND C.COMMENT_ID = MC.TOP_COMMENT_ID` +
-      `    AND MC.DELETED_AT IS NOT NULL` +
       `   LEFT JOIN user U` +
       `     ON U.USER_ID = P.CREATED_USER` +
       `  WHERE P.MENU_ID = ${menuId}` +
@@ -409,4 +405,25 @@ export const deletedPost = tyrCatchModelHandler(
     }
   },
   "deletedPost"
+);
+
+export const updatePostView = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection) => {
+    const menuId = req.params.menuId;
+    const postId = req.params.postId;
+
+    try {
+      const sql =
+        `UPDATE post ` +
+        `   SET VIEW = VIEW + 1` +
+        ` WHERE MENU_ID = ${menuId}` +
+        `   AND POST_ID = ${postId}`;
+
+      await conn.query(sql);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+  "updatePostView"
 );

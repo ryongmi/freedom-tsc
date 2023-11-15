@@ -139,6 +139,7 @@ function PostContent() {
           createdUser={createdUser}
           commentData={commentData}
           setCommentData={setCommentData}
+          setCommentCount={setCommentCount}
         />
 
         <PostFooter menuId={menuId} />

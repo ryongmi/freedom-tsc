@@ -22,6 +22,7 @@ function PostComment({
   createdUser,
   commentData,
   setCommentData,
+  setCommentCount,
 }) {
   const { adminFlag } = useSelector((store) => store.user);
   const [openReplyComment, setOpenReplyComment] = useState(null);
@@ -30,8 +31,9 @@ function PostComment({
   // 댓글 조회 - 댓글 변경시 실행됨
   async function handleSearchComment(e) {
     try {
-      const { comments } = await getComment(menuId, postId);
+      const { comments, commentCount } = await getComment(menuId, postId);
       setCommentData(comments);
+      setCommentCount(commentCount);
       setOpenReplyComment(null);
       setUpdateComment(null);
     } catch (error) {
