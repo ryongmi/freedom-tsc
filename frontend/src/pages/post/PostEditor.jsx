@@ -112,7 +112,6 @@ function PostEditor() {
     return {
       upload() {
         return new Promise((resolve, reject) => {
-          debugger;
           const data = new FormData();
           loader.file.then((file) => {
             data.append("name", file.name);
@@ -136,7 +135,6 @@ function PostEditor() {
   }
 
   function uploadPlugin(editor) {
-    debugger;
     editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
       return customUploadAdapter(loader);
     };

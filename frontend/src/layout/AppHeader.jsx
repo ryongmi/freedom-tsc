@@ -56,17 +56,6 @@ function AppHeader({ collapsed, toggleCollapsed }) {
           </Col>
 
           <Col>
-            <Link to="/">Home</Link>
-          </Col>
-          <Col>
-            <Link to="/admin/manageMenu">Admin</Link>
-          </Col>
-          <Col
-          // style={{ textAlign: "right", marginLeft: 25 }}
-          >
-            Welcome John Cena
-          </Col>
-          <Col>
             {isLoggedIn ? (
               <Logout handleLogout={handleLogout} />
             ) : (

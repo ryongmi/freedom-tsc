@@ -23,7 +23,7 @@ function getItem(label, key, icon, children, type) {
   };
 }
 
-const userItems = [getItem("전체글보기", "/post")];
+const userItems = [getItem("전체글보기", "/postAll")];
 const adminItems = [getItem("대시보드", "/admin/dashBoard")];
 
 function AppSider({ colorBgContainer, showModal }) {
@@ -33,7 +33,16 @@ function AppSider({ colorBgContainer, showModal }) {
   const { menu, adminFlag } = useLoaderData();
   const [menuItem, setMenuItem] = useState([]);
   const splitPath = location.pathname.split("/");
-  const selectedMenu = `/${splitPath[1]}/${splitPath[2]}`;
+  let selectedMenu;
+  if (splitPath[1] === "postAll") {
+    selectedMenu = `/${splitPath[1]}`;
+  } else if (splitPath.length > 2) {
+    selectedMenu = `/${splitPath[1]}/${splitPath[2]}`;
+  } else if (splitPath.length > 1) {
+    selectedMenu = `/${splitPath[1]}`;
+  } else {
+    selectedMenu = `/`;
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -102,7 +111,7 @@ function AppSider({ colorBgContainer, showModal }) {
       <Menu
         mode="inline"
         //defaultSelectedKeys={["1"]} // 기본으로 선택할 키 설정
-        //defaultOpenKeys={["sub1"]} // 기본으로 열려있는 키 설정
+        // defaultOpenKeys={[`/${splitPath[1]}`]} // 기본으로 열려있는 키 설정
         // onSelect={menuItemClick}
         selectedKeys={[selectedMenu]}
         onClick={menuItemClick}

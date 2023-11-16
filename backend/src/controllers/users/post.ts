@@ -30,6 +30,33 @@ export const getPostAll = tyrCatchControllerHandler(
   }
 );
 
+export const getPostAllContent = tyrCatchControllerHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.send({ message: errors.array()[0].msg });
+    }
+
+    const post = await POST.getPostAllContent(req);
+    const comments = await COMMNET.getComments(req);
+    const commentCount = await COUNT.getComments(req);
+    const comboBracket = await COMBO.getComboBracket(req);
+    const comboMenu = await COMBO.getComboMenu(req);
+    const comboNoticeOption = await COMBO.getComboComCd(req, "NOTICE_OPTION");
+
+    await POST.updatePostView(req);
+
+    res.send({
+      post,
+      comments,
+      commentCount,
+      comboBracket,
+      comboMenu,
+      comboNoticeOption,
+    });
+  }
+);
+
 export const getPost = tyrCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

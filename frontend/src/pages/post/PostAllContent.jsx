@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Row } from "antd";
-import { getPostContent } from "../../services/apiPost";
+import { getPostAllContent } from "../../services/apiPost";
 import { useOutletContext, useParams } from "react-router-dom";
 import "../../styles/post.css";
 import "../../styles/comment.css";
@@ -11,7 +11,7 @@ import PostMain from "../../components/post/PostMain";
 import PostFooter from "../../components/post/PostFooter";
 import PostComment from "../../components/post/PostComment";
 
-function PostContent() {
+function PostAllContent() {
   const { showMessage, showModal } = useOutletContext();
   const { menuId, postId } = useParams();
 
@@ -64,7 +64,7 @@ function PostContent() {
         comboBracket,
         comboMenu,
         comboNoticeOption,
-      } = await getPostContent(menuId, postId);
+      } = await getPostAllContent(menuId, postId);
 
       setPost(post);
       setCommentData(comments);
@@ -106,7 +106,7 @@ function PostContent() {
           setChangeBracket={setChangeBracket}
           setComboMenuAtBracket={setComboMenuAtBracket}
           showModal={showModal}
-          postType={"post"}
+          postType={"postAll"}
         />
 
         <PostTitle
@@ -143,10 +143,10 @@ function PostContent() {
           setCommentCount={setCommentCount}
         />
 
-        <PostFooter menuId={menuId} postType={"post"} />
+        <PostFooter menuId={menuId} postType={"postAll"} />
       </Row>
     </div>
   );
 }
 
-export default PostContent;
+export default PostAllContent;

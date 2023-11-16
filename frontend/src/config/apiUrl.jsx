@@ -34,6 +34,7 @@ export const MANAGE_AUTH_LEVEL = `${BASE_URL}/admin/auth/manageAuthLevelConditio
 
 // 게시글 관련
 export const POST = `${BASE_URL}/post`;
+export const POST_ALL = `${BASE_URL}/postAll`;
 export const POST_EDIT = `${BASE_URL}/post/edit`;
 export const POST_CHANGE_NOTICE = `${BASE_URL}/post/changeNotice`;
 export const POST_MOVE = `${BASE_URL}/post/movePost`;

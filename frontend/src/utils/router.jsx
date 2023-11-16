@@ -21,6 +21,8 @@ import ManageAuthLevelCondition from "../pages/admin/auth/ManageAuthLevelConditi
 import Post from "../pages/post/Post";
 import PostContent from "../pages/post/PostContent";
 import PostEditor from "../pages/post/PostEditor";
+import PostAll from "../pages/post/PostAll";
+import PostAllContent from "../pages/post/PostAllContent";
 
 const router = createBrowserRouter([
   {
@@ -95,6 +97,8 @@ const router = createBrowserRouter([
             index: true,
             element: <Home />,
           },
+          { path: "/postAll", element: <PostAll /> },
+          { path: "/postAll/:menuId/:postId", element: <PostAllContent /> },
           { path: "/post/edit", element: <PostEditor /> },
           { path: "/post/:menuId", element: <Post /> },
           { path: "/post/:menuId/:postId", element: <PostContent /> },

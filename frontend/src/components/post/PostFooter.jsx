@@ -1,7 +1,7 @@
 import { Button, Col, Flex } from "antd";
 import { useNavigate } from "react-router-dom";
 
-function PostFooter({ menuId }) {
+function PostFooter({ menuId, postType }) {
   const navigate = useNavigate();
 
   return (
@@ -20,7 +20,16 @@ function PostFooter({ menuId }) {
           </Button>
         </Flex>
         <Flex align={"center"} gap={10}>
-          <Button type="primary" onClick={(e) => navigate(`/post/${menuId}`)}>
+          <Button
+            type="primary"
+            onClick={(e) =>
+              navigate(
+                `/${
+                  postType === "postAll" ? postType : `${postType}/${menuId}`
+                }`
+              )
+            }
+          >
             목록
           </Button>
           <Button

@@ -24,7 +24,7 @@ export const getComments = tyrCatchModelHandler(
       `   FROM comment C` +
       `   LEFT JOIN comment TC` +
       `     ON C.COMMENT_ID = TC.TOP_COMMENT_ID` +
-      `    AND TC.DELETED_AT IS NULL` +
+      // `    AND TC.DELETED_AT IS NULL` +
       `  WHERE C.MENU_ID = ${menuId}` +
       `    AND C.POST_ID = ${postId}` +
       `    AND C.TOP_COMMENT_ID IS NULL` +

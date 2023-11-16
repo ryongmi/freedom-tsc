@@ -21,6 +21,7 @@ function PostHead({
   setChangeBracket,
   setComboMenuAtBracket,
   showModal,
+  postType,
 }) {
   const navigate = useNavigate();
   const { adminFlag } = useSelector((store) => store.user);
@@ -31,7 +32,7 @@ function PostHead({
   // 이전글
   async function handleNextPost() {
     try {
-      navigate(`/post/${nextMenuId}/${nextPostId}`);
+      navigate(`/${postType}/${nextMenuId}/${nextPostId}`);
       //   showMessage(message);
     } catch (error) {
       //   showMessage(error.message, "error");
@@ -41,7 +42,7 @@ function PostHead({
   // 다음글
   async function handlePrevPost() {
     try {
-      navigate(`/post/${prevMenuId}/${prevPostId}`);
+      navigate(`/${postType}/${prevMenuId}/${prevPostId}`);
       //   showMessage(message);
     } catch (error) {
       //   showMessage(error.message, "error");
@@ -243,7 +244,16 @@ function PostHead({
               <span>다음글</span>
             </Button>
           )}
-          <Button type="primary" onClick={(e) => navigate(`/post/${menuId}`)}>
+          <Button
+            type="primary"
+            onClick={(e) =>
+              navigate(
+                `/${
+                  postType === "postAll" ? postType : `${postType}/${menuId}`
+                }`
+              )
+            }
+          >
             목록
           </Button>
         </Flex>

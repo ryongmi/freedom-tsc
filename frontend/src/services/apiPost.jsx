@@ -1,5 +1,6 @@
 import {
   POST,
+  POST_ALL,
   POST_EDIT,
   POST_CHANGE_NOTICE,
   POST_MOVE,
@@ -8,14 +9,29 @@ import {
 export async function getPostAll(
   currentPage,
   perPage,
-  userOption,
-  userOptionValue,
-  userAuthId,
-  userStatus
+  dateValue,
+  dateOption,
+  postValue,
+  postOption
 ) {
   const res = await fetch(
-    `${POST}?page=${currentPage}&perPage=${perPage}&userOption=${userOption}&userOptionValue=${userOptionValue}&userAuthId=${userAuthId}&userStatus=${userStatus}`
+    `${POST_ALL}?page=${currentPage}&perPage=${perPage}&dateValue=${dateValue}&dateOption=${dateOption}&postValue=${postValue}&postOption=${postOption}`
   );
+
+  // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
+
+  const data = await res.json();
+
+  return data;
+}
+
+export async function getPostAllContent(menuId, postId) {
+  const res = await fetch(`${POST_ALL}/${menuId}/${postId}`);
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
