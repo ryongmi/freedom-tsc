@@ -122,7 +122,7 @@ function PostHead({
       <Flex justify={"space-between"} align={"center"}>
         <Flex align={"center"} gap={10}>
           {writer !== "TRUE" && adminFlag !== "Y" && <div></div>}
-          {adminFlag === "N" && (
+          {adminFlag === "Y" && (
             <>
               <Button type="primary" onClick={showMovePostModal}>
                 이동

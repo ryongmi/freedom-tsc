@@ -7,6 +7,14 @@ import { useState } from "react";
 const commentItems = [
   {
     key: "0",
+    danger: true,
+    label: "삭제",
+  },
+];
+
+const commentWriterItems = [
+  {
+    key: "0",
     label: "수정",
   },
   {
@@ -24,7 +32,7 @@ function PostComment({
   setCommentData,
   setCommentCount,
 }) {
-  const { adminFlag } = useSelector((store) => store.user);
+  const { adminFlag, userName } = useSelector((store) => store.user);
   const [openReplyComment, setOpenReplyComment] = useState(null);
   const [updateComment, setUpdateComment] = useState(null);
 
@@ -119,12 +127,16 @@ function PostComment({
                               </Tag>
                             )}
                           </span>
-                          {(adminFlag === "Y" || item.writer === "TRUE") && (
+                          {(adminFlag === "Y" ||
+                            item.createdUser === userName) && (
                             <div>
                               <Flex align={"center"}>
                                 <Dropdown
                                   menu={{
-                                    items: commentItems,
+                                    items:
+                                      item.createdUser === userName
+                                        ? commentWriterItems
+                                        : commentItems,
                                     onClick: (e) =>
                                       handleCommentMenuClick(e, item),
                                   }}

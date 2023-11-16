@@ -15,7 +15,8 @@ function Login({ handleLogin }) {
       loginId: user?.userLoginId ?? "",
       profileImgUrl: user?.profileImgUrl ?? "",
       broadcasterType: user?.broadcasterType ?? "",
-      isLoggedIn: user?.displayName ? true : false,
+      isLoggedIn: user?.isLoggedIn ?? false,
+      adminFlag: user?.adminFlag ?? "N",
     };
     dispatch(updateUser(updateUserInfo));
   }, []);

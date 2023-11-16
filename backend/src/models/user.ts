@@ -10,7 +10,8 @@ export const getUser = tyrCatchModelHandler(
       `     USER_ID AS userId` +
       `   , USER_LOGIN_ID AS userLoginId` +
       `   , DISPLAY_NAME AS displayName` +
-      `   , AUTH_ID AS authId` +
+      `   , U.AUTH_ID AS authId` +
+      `   , A.ADMIN_FLAG AS adminFlag` +
       `   , COM.NAME AS broadcasterType` +
       `   , PROFILE_IMAGE_URL AS profileImgUrl` +
       `   , USER_STATUS AS userStatus` +
@@ -18,6 +19,8 @@ export const getUser = tyrCatchModelHandler(
       `   INNER JOIN comcd COM` +
       `      ON COM.COM_ID = "BROADCASTER_TYPE"` +
       `     AND COM.VALUE = U.BROADCASTER_TYPE` +
+      `   INNER JOIN auth A` +
+      `      ON U.AUTH_ID = A.AUTH_ID` +
       `   WHERE U.USER_ID = ${userId}`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);

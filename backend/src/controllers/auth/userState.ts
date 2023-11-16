@@ -98,6 +98,8 @@ export const getUserInfo = tyrCatchControllerHandler(
       //AUTH_ID: user.AUTH_ID,
       profileImgUrl: user.profileImgUrl,
       broadcasterType: user.broadcasterType,
+      isLoggedIn: req.session.isLoggedIn,
+      adminFlag: user.adminFlag,
     });
   }
 );
