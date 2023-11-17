@@ -53,6 +53,7 @@ export const getPostAllContent = tyrCatchControllerHandler(
       comboBracket,
       comboMenu,
       comboNoticeOption,
+      menuAuth: req.menuAuth,
     });
   }
 );
@@ -109,6 +110,7 @@ export const getPostContent = tyrCatchControllerHandler(
       comboBracket,
       comboMenu,
       comboNoticeOption,
+      menuAuth: req.menuAuth,
     });
   }
 );

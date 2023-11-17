@@ -31,8 +31,11 @@ function PostComment({
   commentData,
   setCommentData,
   setCommentCount,
+  menuAuth,
 }) {
-  const { adminFlag, userName } = useSelector((store) => store.user);
+  const { adminFlag, userName, isLoggedIn } = useSelector(
+    (store) => store.user
+  );
   const [openReplyComment, setOpenReplyComment] = useState(null);
   const [updateComment, setUpdateComment] = useState(null);
 
@@ -180,14 +183,16 @@ function PostComment({
 
                             <div>
                               <span>{item.createdAt}&nbsp;</span>
-                              <a
-                                onClick={(e) => {
-                                  setUpdateComment(null);
-                                  setOpenReplyComment(item.commentId);
-                                }}
-                              >
-                                답글쓰기
-                              </a>
+                              {menuAuth?.comment === "Y" && (
+                                <a
+                                  onClick={(e) => {
+                                    setUpdateComment(null);
+                                    setOpenReplyComment(item.commentId);
+                                  }}
+                                >
+                                  답글쓰기
+                                </a>
+                              )}
                             </div>
                           </div>
                         </>
@@ -195,21 +200,19 @@ function PostComment({
                     />
                   )}
                   {/* 댓글 수정 */}
-                  {updateComment == item.commentId && (
+                  {updateComment === item.commentId && (
                     <List.Item.Meta
                       description={
-                        <>
-                          <ReplyComment
-                            commentId={item.commentId}
-                            menuId={menuId}
-                            postId={postId}
-                            userName={createdUser}
-                            value={item.content}
-                            topCommentId={item.topCommentId}
-                            handleCommentCancel={handleCommentCancel}
-                            handleSearchComment={handleSearchComment}
-                          />
-                        </>
+                        <ReplyComment
+                          commentId={item.commentId}
+                          menuId={menuId}
+                          postId={postId}
+                          userName={createdUser}
+                          value={item.content}
+                          topCommentId={item.topCommentId}
+                          handleCommentCancel={handleCommentCancel}
+                          handleSearchComment={handleSearchComment}
+                        />
                       }
                     />
                   )}
@@ -231,12 +234,14 @@ function PostComment({
         />
       )}
       {/* 댓글 작성 */}
-      <ReplyComment
-        menuId={menuId}
-        postId={postId}
-        userName={createdUser}
-        handleSearchComment={handleSearchComment}
-      />
+      {menuAuth?.comment === "Y" && (
+        <ReplyComment
+          menuId={menuId}
+          postId={postId}
+          userName={createdUser}
+          handleSearchComment={handleSearchComment}
+        />
+      )}
     </Col>
   );
 }

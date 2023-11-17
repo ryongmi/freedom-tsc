@@ -6,13 +6,13 @@ import { Menu, DetailMenu } from "../interface/menu";
 export const getMenuAuth = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
-    const authId = req.session.user?.authId;
+    const authId = req.session.user?.authId ?? 99;
 
     const sql: string =
       ` SELECT` +
-      `     IF(POST_AUTH_ID > ${authId}, 'Y' ,'N') AS POST` +
-      `   , IF(COMMENT_AUTH_ID > ${authId}, 'Y' ,'N') AS COMMENT` +
-      `   , IF(READ_AUTH_ID > ${authId}, 'Y' ,'N') AS READ` +
+      `     IF(POST_AUTH_ID >= ${authId}, 'Y' ,'N') AS post` +
+      `   , IF(COMMENT_AUTH_ID >= ${authId}, 'Y' ,'N') AS comment` +
+      `   , IF(IFNULL(READ_AUTH_ID, 99) >= ${authId}, 'Y' ,'N') AS 'read'` +
       `   FROM menu` +
       `  WHERE MENU_ID = ${menuId}` +
       `    AND USE_FLAG = 'Y'` +

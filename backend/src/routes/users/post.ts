@@ -1,6 +1,7 @@
 import { Router, Request } from "express";
 import * as postController from "../../controllers/users/post";
 import * as MENU from "../../models/menu";
+import { menuAuthCheck } from "../../middleware/is-auth";
 
 const router = Router();
 
@@ -27,11 +28,17 @@ router.patch("/", postController.patchPost);
 router.get("/edit", postController.getPostEdit);
 router.post("/edit", postController.postCreatePost);
 
-router.get("/:menuId", param("menuId").isMenuID(), postController.getPost);
+router.get(
+  "/:menuId",
+  param("menuId").isMenuID(),
+  menuAuthCheck,
+  postController.getPost
+);
 
 router.get(
   "/:menuId/:postId",
   param("menuId").isMenuID(),
+  menuAuthCheck,
   postController.getPostContent
 );
 

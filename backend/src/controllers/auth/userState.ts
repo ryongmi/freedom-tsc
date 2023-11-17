@@ -95,7 +95,6 @@ export const getUserInfo = tyrCatchControllerHandler(
     res.send({
       displayName: user.displayName,
       userLoginId: user.userLoginId,
-      //AUTH_ID: user.AUTH_ID,
       profileImgUrl: user.profileImgUrl,
       broadcasterType: user.broadcasterType,
       isLoggedIn: req.session.isLoggedIn,

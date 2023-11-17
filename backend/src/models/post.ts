@@ -102,6 +102,7 @@ export const getPostAllContent = tyrCatchModelHandler(
     const postId = req.params.postId;
     // const adminUserId: number = req.session.user!.userId;
     const adminUserId: number = 13213;
+    // const adminUserId: number | null = null;
 
     let sql =
       ` SELECT` +

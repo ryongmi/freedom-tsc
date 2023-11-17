@@ -24,6 +24,7 @@ function PostContent() {
   const [changeMenu, setChangeMenu] = useState(null);
   const [changeBracket, setChangeBracket] = useState(null);
   const [commentCount, setCommentCount] = useState(null);
+  const [menuAuth, setMenuAuth] = useState({});
 
   // 게시글
   const [post, setPost] = useState({});
@@ -64,6 +65,7 @@ function PostContent() {
         comboBracket,
         comboMenu,
         comboNoticeOption,
+        menuAuth,
       } = await getPostContent(menuId, postId);
 
       setPost(post);
@@ -73,6 +75,7 @@ function PostContent() {
       setCommentCount(commentCount);
       setComboBracket(comboBracket);
       setComboMenu(comboMenu);
+      setMenuAuth(menuAuth);
 
       if (post?.menuId ?? null)
         setComboMenuAtBracket(
@@ -141,9 +144,10 @@ function PostContent() {
           commentData={commentData}
           setCommentData={setCommentData}
           setCommentCount={setCommentCount}
+          menuAuth={menuAuth}
         />
 
-        <PostFooter menuId={menuId} postType={"post"} />
+        <PostFooter menuId={menuId} postType={"post"} menuAuth={menuAuth} />
       </Row>
     </div>
   );
