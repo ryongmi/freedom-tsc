@@ -33,7 +33,6 @@ export async function logout() {
 }
 
 // 관리자 페이지 - 유저관련
-
 export async function getManageUser(
   currentPage,
   perPage,
@@ -47,7 +46,15 @@ export async function getManageUser(
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -67,8 +74,12 @@ export async function patchManageUser(item) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("삭제실패");
+    throw Error("조회실패!");
   }
 
   const data = await res.json();
@@ -87,7 +98,15 @@ export async function getManageWarnUser(
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -100,7 +119,15 @@ export async function getContentWarnUser(userId, currentPage, perPage) {
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -118,7 +145,15 @@ export async function getManageBanUser(
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -131,7 +166,15 @@ export async function getContentBanUser(userId, currentPage, perPage) {
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -151,8 +194,12 @@ export async function postWarnUser(item, postUrl, warnReason) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("저장실패");
+    throw Error("저장실패!");
   }
 
   const data = await res.json();
@@ -173,8 +220,12 @@ export async function patchUnWarnUser(item, userId) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("저장실패");
+    throw Error("삭제실패!");
   }
 
   const data = await res.json();
@@ -195,8 +246,12 @@ export async function postBanUser(item, postUrl, banReason) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("저장실패");
+    throw Error("저장실패!");
   }
 
   const data = await res.json();
@@ -217,8 +272,12 @@ export async function patchUnBanUser(item, userId) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("저장실패");
+    throw Error("삭제실패!");
   }
 
   const data = await res.json();

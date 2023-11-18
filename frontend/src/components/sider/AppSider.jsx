@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { Layout, Menu } from "antd";
 
-import { getMenuInfo } from "../../services/apiMenu";
+import { getAdminMenuInfo, getMenuInfo } from "../../services/apiMenu";
 
 import "../../styles/sider.css";
 
@@ -123,8 +123,8 @@ function AppSider({ colorBgContainer, showModal }) {
 
 export async function userLoader() {
   try {
-    const data = await getMenuInfo(false);
-    return data;
+    const data = await getMenuInfo();
+    return { ...data, adminFlag: false };
   } catch (error) {
     console.log("error: " + error);
   }
@@ -132,8 +132,8 @@ export async function userLoader() {
 
 export async function adminLoader() {
   try {
-    const data = await getMenuInfo(true);
-    return data;
+    const data = await getAdminMenuInfo();
+    return { ...data, adminFlag: true };
   } catch (error) {
     console.log("error: " + error);
   }

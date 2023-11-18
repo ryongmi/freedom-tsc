@@ -11,7 +11,15 @@ export async function getManageComCd(
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -31,8 +39,12 @@ export async function postManageComCd(item) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("저장실패");
+    throw Error("저장실패!");
   }
 
   const data = await res.json();
@@ -53,6 +65,10 @@ export async function patchManageComCd(item) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
     throw Error("삭제실패");
   }
@@ -75,7 +91,15 @@ export async function getDetailComCd(
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -95,6 +119,10 @@ export async function postDetailComCd(item, comId) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
     throw Error("저장실패");
   }
@@ -117,6 +145,10 @@ export async function patchDetailComCd(item, comId) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
     throw Error("삭제실패");
   }

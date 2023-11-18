@@ -9,7 +9,8 @@ export const sesstionCheck = async (
   next: NextFunction
 ) => {
   if (!req.session.isLoggedIn) {
-    return res.redirect("/");
+    // return res.redirect("/");
+    return res.status(401).send();
   }
 
   const user = await USER.getUser(req, req.session.user?.userId);
@@ -20,7 +21,7 @@ export const sesstionCheck = async (
         console.log("세션 삭제 에러");
         throw new Error("세션 삭제 에러");
       } else {
-        return res.redirect("/");
+        return res.status(401).send();
       }
     });
   }
@@ -59,7 +60,7 @@ export const adminCheck = async (
   next: NextFunction
 ) => {
   if (!req.session.isLoggedIn) {
-    return res.redirect("/");
+    return res.status(401).send();
   }
 
   const user = await USER.getUser(req, req.session.user?.userId);
@@ -70,14 +71,14 @@ export const adminCheck = async (
         console.log("세션 삭제 에러");
         throw new Error("세션 삭제 에러");
       } else {
-        return res.redirect("/");
+        return res.status(401).send();
       }
     });
   }
 
   if (user.adminFlag !== "Y") {
     // 해당 유저가 관리자가 아니라면 홈으로 이동
-    return res.redirect("/");
+    return res.status(401).send();
   }
   next();
 };

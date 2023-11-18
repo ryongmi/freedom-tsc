@@ -1,7 +1,7 @@
 import { Router, Request } from "express";
 import * as postController from "../../controllers/users/post";
 import * as MENU from "../../models/menu";
-import { menuAuthCheck } from "../../middleware/is-auth";
+import { sesstionCheck, menuAuthCheck } from "../../middleware/is-auth";
 
 const router = Router();
 
@@ -23,10 +23,10 @@ const { body, param } = new ExpressValidator({
   },
 });
 
-router.patch("/", postController.patchPost);
+router.patch("/", sesstionCheck, postController.patchPost);
 
 router.get("/edit", postController.getPostEdit);
-router.post("/edit", postController.postCreatePost);
+router.post("/edit", sesstionCheck, postController.postCreatePost);
 
 router.get(
   "/:menuId",
@@ -42,7 +42,7 @@ router.get(
   postController.getPostContent
 );
 
-router.patch("/changeNotice", postController.patchChangeNotice);
-router.patch("/movePost", postController.patchMovePost);
+router.patch("/changeNotice", sesstionCheck, postController.patchChangeNotice);
+router.patch("/movePost", sesstionCheck, postController.patchMovePost);
 
 export default router;

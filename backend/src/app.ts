@@ -60,7 +60,7 @@ app.get("*", function (req, res) {
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   //res.status(error.httpStatusCode).render(...); 에러가 발생했을때 httpStatusCode를 설정하면, 페이지 render()에서 사용할 수 있음
   console.log(error);
-  res.status(500).send({ error: error });
+  res.status(500).send({ error });
   // res.status(500).render("500", {
   //   title: "Error!",
   //   path: "/500",

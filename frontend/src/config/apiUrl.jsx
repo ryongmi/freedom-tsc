@@ -18,6 +18,7 @@ export const UN_BAN_USER = `${BASE_URL}/admin/user/unBanUser`;
 
 // 메뉴 관련
 export const MENU_INFO = `${BASE_URL}/useInfo/getMenu`;
+export const ADMIN_MENU_INFO = `${BASE_URL}/useInfo/getAdminMenu`;
 export const MANAGE_MENU = `${BASE_URL}/admin/menu/manageMenu`;
 export const DETAIL_MENU = `${BASE_URL}/admin/menu/detailMenu`;
 

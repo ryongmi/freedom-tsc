@@ -1,6 +1,7 @@
 import { Router, Request } from "express";
 import * as commentController from "../../controllers/users/comment";
 import * as MENU from "../../models/menu";
+import { sesstionCheck } from "../../middleware/is-auth";
 
 const router = Router();
 
@@ -23,7 +24,7 @@ const { body, param } = new ExpressValidator({
 });
 
 router.get("/:menuId/:postId", commentController.getComment);
-router.post("/createdComment", commentController.postComment);
-router.patch("/", commentController.patchComment);
+router.post("/createdComment", sesstionCheck, commentController.postComment);
+router.patch("/", sesstionCheck, commentController.patchComment);
 
 export default router;

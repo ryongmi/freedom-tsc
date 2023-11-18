@@ -34,23 +34,21 @@ function AppContentLayout() {
   } = theme.useToken();
 
   return (
-    <>
-      <Layout>
-        <AppSider colorBgContainer={colorBgContainer} showModal={showModal} />
-        <Layout className="content-container">
-          {contextMessage}
-          {contextModal}
-          <Content
-            className="scroll content"
-            style={{
-              background: colorBgContainer,
-            }}
-          >
-            <Outlet context={{ showMessage, showModal }} />
-          </Content>
-        </Layout>
+    <Layout>
+      <AppSider colorBgContainer={colorBgContainer} showModal={showModal} />
+      <Layout className="content-container">
+        {contextMessage}
+        {contextModal}
+        <Content
+          className="scroll content"
+          style={{
+            background: colorBgContainer,
+          }}
+        >
+          <Outlet context={{ showMessage, showModal }} />
+        </Content>
       </Layout>
-    </>
+    </Layout>
   );
 }
 

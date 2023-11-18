@@ -1,7 +1,23 @@
-import { MENU_INFO, MANAGE_MENU, DETAIL_MENU } from "../config/apiUrl";
+import {
+  MENU_INFO,
+  ADMIN_MENU_INFO,
+  MANAGE_MENU,
+  DETAIL_MENU,
+} from "../config/apiUrl";
 
-export async function getMenuInfo(adminFlag) {
-  const res = await fetch(`${MENU_INFO}/${adminFlag}`);
+export async function getMenuInfo() {
+  const res = await fetch(MENU_INFO);
+
+  // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
+  if (!res.ok) throw Error("메뉴 정보를 가져오기 실패!");
+
+  const data = await res.json();
+
+  return data;
+}
+
+export async function getAdminMenuInfo() {
+  const res = await fetch(ADMIN_MENU_INFO);
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) throw Error("메뉴 정보를 가져오기 실패!");
@@ -23,7 +39,15 @@ export async function getManageMenu(
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -43,8 +67,12 @@ export async function postManageMenu(item) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("저장실패");
+    throw Error("저장실패!");
   }
 
   const data = await res.json();
@@ -65,8 +93,12 @@ export async function patchManageMenu(item) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("삭제실패");
+    throw Error("삭제실패!");
   }
 
   const data = await res.json();
@@ -87,7 +119,15 @@ export async function getDetailMenu(
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  if (!res.ok) throw Error("조회실패!");
+  if (!res.ok) {
+    if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
+    if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
+    throw Error("조회실패!");
+  }
 
   const data = await res.json();
 
@@ -107,8 +147,12 @@ export async function postDetailMenu(item, topMenuId) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("저장실패");
+    throw Error("저장실패!");
   }
 
   const data = await res.json();
@@ -129,8 +173,12 @@ export async function patchDetailMenu(item) {
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
     if (res.status === 400) throw Error("데이터 입력 형식 에러");
+    if (res.status === 401) {
+      alert("해당 권한이 없습니다");
+      window.location.replace("/");
+    }
     if (res.status === 500) throw Error("서버에서 에러가 발생하였습니다");
-    throw Error("삭제실패");
+    throw Error("삭제실패!");
   }
 
   const data = await res.json();
