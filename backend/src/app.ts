@@ -46,9 +46,9 @@ app.use("/api", indexRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs)); // swagger - API DOCS
 
 // front 메인화면
-app.get("*", function (req, res) {
-  res.sendFile(FRONT_PATH + "/index.html");
-});
+// app.get("*", function (req, res) {
+//   res.sendFile(FRONT_PATH + "/index.html");
+// });
 
 // app.get("*", function (req: Request, res: Response) {
 //   res.sendFile(FRONT_PATH + req.originalUrl + ".html");

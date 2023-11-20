@@ -131,6 +131,7 @@ export const createdUser = tyrCatchModelHandler(
       ` , BROADCASTER_TYPE  = '${broadcasterType}'` +
       ` , PROFILE_IMAGE_URL = '${profileImageUrl}'` +
       ` , EMAIL             = '${email}'` +
+      ` , VISIT             =  IF(DATE(NOW()) = DATE(LAST_LOGIN_AT), VISIT, VISIT + 1)` +
       ` , LAST_LOGIN_AT     =  now()`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);

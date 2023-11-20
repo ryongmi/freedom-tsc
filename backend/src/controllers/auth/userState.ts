@@ -12,7 +12,7 @@ export const getLogin = tyrCatchControllerHandler(
     const code = req.query.code;
     const state = req.query.state;
     const grant_type = "authorization_code";
-    const redirect_uri = "http://localhost:8000";
+    const redirect_uri = process.env.REDIRECT_URI || "http://localhost:8000";
     const twitchState = process.env.TWITCH_STATE;
 
     if (state !== twitchState)
@@ -91,7 +91,9 @@ export const getUserInfo = tyrCatchControllerHandler(
     const user = await USER.getUser(req, req.session.user?.userId);
     if (!user || user.userStatus === "B") {
       // 에러 발생, 벤 유저가 로그인시 로그인불가 및 팝업창 띄우기
+      throw new Error("밴 유저는 로그인이 불가능합니다.");
     }
+
     res.send({
       displayName: user.displayName,
       userLoginId: user.userLoginId,

@@ -14,7 +14,7 @@ export const sesstionCheck = async (
   }
 
   const user = await USER.getUser(req, req.session.user?.userId);
-  if (user.userStatus === "B") {
+  if (!user || user.userStatus === "B") {
     // 에러 발생, 벤 유저가 로그인시 로그인불가 및 팝업창 띄우기
     req.session.destroy(function (err) {
       if (err) {
@@ -25,6 +25,15 @@ export const sesstionCheck = async (
       }
     });
   }
+
+  // 세션 유지시간 갱신
+  req.session.cookie.maxAge = 1000 * 60 * 5; // 1000 = 1초, 1000 * 60 = 1분
+
+  // req.session.save((err) => {
+  //   if (err) throw err;
+
+  //   next();
+  // });
   next();
 };
 
@@ -38,7 +47,7 @@ export const menuAuthCheck = async (
   next: NextFunction
 ) => {
   const auth = await MENU.getMenuAuth(req);
-  if (auth.read === "N") {
+  if (!auth || auth.read === "N") {
     // 읽기 권한이 없다면 홈으로
     // 추후 권한관련 페이지 만들어 그쪽으로 이동예정
     // return res.status(401).redirect("http://localhost:8000");
@@ -64,7 +73,7 @@ export const adminCheck = async (
   }
 
   const user = await USER.getUser(req, req.session.user?.userId);
-  if (user.userStatus === "B") {
+  if (!user || user.userStatus === "B") {
     // 에러 발생, 벤 유저가 로그인시 로그인불가 및 팝업창 띄우기
     req.session.destroy(function (err) {
       if (err) {

@@ -66,7 +66,7 @@ export const getComboAuth = tyrCatchModelHandler(
 
 export const getComboBracket = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const menuId = req.params.menuId || req.query.menuId;
+    // const menuId = req.params.menuId || req.query.menuId;
 
     const sql: string =
       `SELECT ` +
@@ -74,7 +74,8 @@ export const getComboBracket = tyrCatchModelHandler(
       `  , CONTENT    AS label` +
       `  , MENU_ID    AS menuId` +
       `  FROM bracket ` +
-      ` WHERE MENU_ID = ${menuId}` +
+      // ` WHERE MENU_ID = ${menuId}` +
+      ` WHERE 1=1` +
       `   AND USE_FLAG = 'Y'` +
       `   AND DELETED_AT IS NULL` +
       ` ORDER BY SORT`;

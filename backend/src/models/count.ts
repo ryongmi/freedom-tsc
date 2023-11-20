@@ -339,23 +339,78 @@ export const getAuthLevelCondition = tyrCatchModelHandler(
 // ************************** POST ************************** //
 export const getPostAll = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const authName: string = req.query.authName?.toString() ?? "";
-    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
+    const dateValue = req.query.dateValue?.toString() || "";
+    const dateOption = req.query.dateOption;
+    const postValue = req.query.postValue?.toString() || "";
+    const postOption = req.query.postOption;
 
-    let sql: string =
+    let sql =
       ` SELECT` +
-      `   COUNT(AUTH_ID) AS totalCount` +
-      `   FROM auth` +
-      `  WHERE ADMIN_FLAG = 'N'` +
-      `    AND DELETED_AT IS NULL`;
+      `     COUNT(R.POST_ID) AS totalCount` +
+      `   FROM (` +
+      ` SELECT` +
+      `     P.POST_ID` +
+      `   FROM post P` +
+      `   LEFT JOIN bracket B` +
+      `     ON P.MENU_ID    = B.MENU_ID` +
+      `    AND P.BRACKET_ID = B.BRACKET_ID` +
+      `   LEFT JOIN user U` +
+      `     ON U.USER_ID = P.CREATED_USER` +
+      `  INNER JOIN MENU M` +
+      `     ON P.MENU_ID = M.MENU_ID` +
+      `  WHERE P.DELETED_AT IS NULL`;
 
-    if (authName !== "") {
-      sql += ` AND AUTH_NAME LIKE '%${authName}%'`;
+    if (dateOption !== "ALL") {
+      if (dateOption === "기간지정") {
+        const rangeDate = dateValue.split(",");
+        sql += ` AND P.CREATED_AT BETWEEN '${rangeDate[0]}' AND '${rangeDate[1]} 23:59:59'`;
+      } else {
+        const nowDate = new Date();
+        const endYear = nowDate.getFullYear();
+        const endMonth = (nowDate.getMonth() + 1).toString().padStart(2, "0");
+        const endDay = nowDate.getDate().toString().padStart(2, "0");
+        let startYear, startMonth, startDay;
+
+        switch (dateOption) {
+          case "DAY":
+            nowDate.setDate(nowDate.getDate() - 1);
+            break;
+          case "WEEK":
+            nowDate.setDate(nowDate.getDate() - 7);
+            break;
+          case "MONTH":
+            nowDate.setMonth(nowDate.getMonth() - 1);
+            break;
+          case "HALF_YEAR":
+            nowDate.setMonth(nowDate.getMonth() - 6);
+            break;
+          case "YEAR":
+            nowDate.setFullYear(nowDate.getFullYear() - 1);
+            break;
+          default:
+            break;
+        }
+
+        startYear = nowDate.getFullYear();
+        startMonth = (nowDate.getMonth() + 1).toString().padStart(2, "0");
+        startDay = nowDate.getDate().toString().padStart(2, "0");
+
+        sql += ` AND P.CREATED_AT BETWEEN '${startYear}-${startMonth}-${startDay}' AND '${endYear}-${endMonth}-${endDay} 23:59:59'`;
+      }
     }
 
-    if (useFlag !== "ALL") {
-      sql += ` AND USE_FLAG = '${useFlag}'`;
+    if (postValue !== "") {
+      if (postOption === "TITLE") {
+        sql += ` AND P.TITLE LIKE '%${postValue}%'`;
+      } else if (postOption === "POST_WRITER") {
+        sql += ` AND U.DISPLAY_NAME LIKE '%${postValue}%'`;
+      }
     }
+
+    sql +=
+      `  GROUP BY P.POST_ID, P.MENU_ID, B.CONTENT, P.TITLE` +
+      `  ORDER BY P.POST_ID DESC` +
+      ` ) R`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
@@ -363,30 +418,94 @@ export const getPostAll = tyrCatchModelHandler(
   "COUNT - getPostAll"
 );
 
-export const getPost = tyrCatchModelHandler(
+export const getPosts = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
-    const authName: string = req.query.authName?.toString() ?? "";
-    const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
+    const menuId = req.params.menuId;
+    const bracketId = req.query.bracketId;
+    const dateValue = req.query.dateValue?.toString() || "";
+    const dateOption = req.query.dateOption;
+    const postValue = req.query.postValue?.toString() || "";
+    const postOption = req.query.postOption;
 
-    let sql: string =
+    let sql =
       ` SELECT` +
-      `   COUNT(AUTH_ID) AS totalCount` +
-      `   FROM auth` +
-      `  WHERE ADMIN_FLAG = 'N'` +
-      `    AND DELETED_AT IS NULL`;
+      `     COUNT(R.POST_ID) AS totalCount` +
+      `   FROM (` +
+      ` SELECT` +
+      `     P.POST_ID` +
+      `   FROM post P` +
+      `   LEFT JOIN bracket B` +
+      `     ON P.MENU_ID    = B.MENU_ID` +
+      `    AND P.BRACKET_ID = B.BRACKET_ID` +
+      `   LEFT JOIN comment C` +
+      `     ON P.MENU_ID = C.MENU_ID` +
+      `    AND P.POST_ID = C.POST_ID` +
+      `    AND C.DELETED_AT IS NULL` +
+      `   LEFT JOIN user U` +
+      `     ON U.USER_ID = P.CREATED_USER` +
+      `  WHERE P.MENU_ID = ${menuId}` +
+      `    AND P.DELETED_AT IS NULL`;
 
-    if (authName !== "") {
-      sql += ` AND AUTH_NAME LIKE '%${authName}%'`;
+    if (bracketId !== "null") {
+      sql += ` AND P.BRACKET_ID = ${bracketId}`;
     }
 
-    if (useFlag !== "ALL") {
-      sql += ` AND USE_FLAG = '${useFlag}'`;
+    if (dateOption !== "ALL") {
+      if (dateOption === "기간지정") {
+        const rangeDate = dateValue.split(",");
+        sql += ` AND P.CREATED_AT BETWEEN '${rangeDate[0]}' AND '${rangeDate[1]} 23:59:59'`;
+      } else {
+        const nowDate = new Date();
+        const endYear = nowDate.getFullYear();
+        const endMonth = (nowDate.getMonth() + 1).toString().padStart(2, "0");
+        const endDay = nowDate.getDate().toString().padStart(2, "0");
+        let startYear, startMonth, startDay;
+
+        switch (dateOption) {
+          case "DAY":
+            nowDate.setDate(nowDate.getDate() - 1);
+            break;
+          case "WEEK":
+            nowDate.setDate(nowDate.getDate() - 7);
+            break;
+          case "MONTH":
+            nowDate.setMonth(nowDate.getMonth() - 1);
+            break;
+          case "HALF_YEAR":
+            nowDate.setMonth(nowDate.getMonth() - 6);
+            break;
+          case "YEAR":
+            nowDate.setFullYear(nowDate.getFullYear() - 1);
+            break;
+          default:
+            break;
+        }
+
+        startYear = nowDate.getFullYear();
+        startMonth = (nowDate.getMonth() + 1).toString().padStart(2, "0");
+        startDay = nowDate.getDate().toString().padStart(2, "0");
+
+        sql += ` AND P.CREATED_AT BETWEEN '${startYear}-${startMonth}-${startDay}' AND '${endYear}-${endMonth}-${endDay} 23:59:59'`;
+      }
     }
+
+    if (postValue !== "") {
+      if (postOption === "TITLE") {
+        sql += ` AND P.TITLE LIKE '%${postValue}%'`;
+      } else if (postOption === "POST_WRITER") {
+        sql += ` AND U.DISPLAY_NAME LIKE '%${postValue}%'`;
+      }
+    }
+
+    sql +=
+      `  GROUP BY P.POST_ID, P.MENU_ID, B.CONTENT, P.TITLE` +
+      `  ORDER BY P.POST_ID DESC` +
+      ` ) R`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
   },
-  "COUNT - getPost"
+  "COUNT - getPosts"
 );
 
 // ************************** COMMENT ************************** //

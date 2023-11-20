@@ -66,9 +66,9 @@ export const getPost = tyrCatchControllerHandler(
     }
 
     const comboPerPage = await COMBO.getComboPerPage(req);
-    const post = await POST.getPost(req);
+    const post = await POST.getPosts(req);
     const menu = await MENU.getMenu(req, req.params.menuId);
-    const totalCount = await COUNT.getPost(req);
+    const totalCount = await COUNT.getPosts(req);
     const comboMenu = await COMBO.getComboMenu(req);
     const comboBracket = await COMBO.getComboBracket(req);
     const comboDateOption = await COMBO.getComboComCd(req, "DATE_OPTION");
@@ -83,6 +83,7 @@ export const getPost = tyrCatchControllerHandler(
       comboPerPage,
       comboDateOption,
       comboPostOption,
+      menuAuth: req.menuAuth,
     });
   }
 );

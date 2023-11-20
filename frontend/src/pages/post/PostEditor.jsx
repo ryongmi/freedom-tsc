@@ -13,7 +13,7 @@ function PostEditor() {
   const { showMessage, showModal } = useOutletContext();
   const navigate = useNavigate();
   const { state } = useLocation();
-  let menuId = state?.menuId ?? null;
+  const menuId = state?.menuId ?? null;
   const postId = state?.postId ?? null;
 
   const [noticeChecked, setNoticeChecked] = useState(false);

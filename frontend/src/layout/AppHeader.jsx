@@ -1,6 +1,6 @@
 import { Avatar, Button, Col, Row } from "antd";
 import { Header } from "antd/es/layout/layout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import UserMenu from "./UserMenu";
 import Login from "../components/auth/Login";
@@ -15,6 +15,7 @@ import { logout } from "../services/apiUser";
 
 function AppHeader({ collapsed, toggleCollapsed }) {
   const isLoggedIn = useSelector((store) => store.user.isLoggedIn);
+  const navigate = useNavigate();
   const [modal, contextModal] = Modal.useModal();
 
   function handleLogin(e) {
@@ -41,10 +42,7 @@ function AppHeader({ collapsed, toggleCollapsed }) {
         <Row align="middle" gutter={16}>
           <Col style={{ marginRight: "52px" }}>
             {/* <img src={logo} style={{ height: 19, width: 16 }} alt="logo" /> */}
-            <button
-              className="btn-user-icon"
-              onClick={(e) => e.preventDefault()}
-            >
+            <button className="btn-user-icon" onClick={(e) => navigate("/")}>
               <Avatar size="large" src={LOGOUT_IMG} />
             </button>
             <span>freedom</span>

@@ -37,6 +37,7 @@ function Post() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(null);
   const [menuName, setMenuName] = useState("");
+  const [menuAuth, setMenuAuth] = useState({});
 
   // 콤보박스 아이템
   const [comboDateOption, setComboDateOption] = useState([]);
@@ -134,6 +135,7 @@ function Post() {
         comboBracket,
         comboDateOption,
         comboPostOption,
+        menuAuth,
       } = await getPost(
         menuId,
         currentPage,
@@ -157,6 +159,7 @@ function Post() {
       setComboPostOption(comboPostOption);
       setComboBracketOption(comboBracket);
 
+      setMenuAuth(menuAuth);
       setChangeMenu(Number(menuId));
     } catch (error) {
       showMessage(error.message, "error");
@@ -197,7 +200,7 @@ function Post() {
 
   // 글쓰기 버튼
   function handlePostNew() {
-    navigate("/post/edit");
+    navigate("/post/edit", { state: menuId });
   }
 
   // Table CheckBox Click Event
@@ -308,7 +311,7 @@ function Post() {
         handlePagingChange={handlePagingChange}
         handlePostMove={adminFlag === "Y" ? showMovePostModal : null}
         handleDelete={adminFlag === "Y" ? handleDelete : null}
-        handlePostNew={handlePostNew}
+        handlePostNew={menuAuth?.post === "Y" ? handlePostNew : null}
       >
         {comboBracketOption.length !== 0 && (
           <Select
