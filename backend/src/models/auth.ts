@@ -5,9 +5,12 @@ import { Auth, AuthLevelCondition } from "../interface/auth";
 
 export const getAuth = tyrCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, authId: number) => {
-    const sql = `SELECT * FROM auth WHERE AUTH_ID = ${authId}`;
-    // `    AND USE_FLAG = 'Y'` +
-    // `    AND DELETED_AT IS NULL`;
+    const sql =
+      `SELECT ` +
+      `    * ` +
+      `  FROM auth` +
+      ` WHERE AUTH_ID = ${authId}` +
+      `   AND DELETED_AT IS NULL`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];

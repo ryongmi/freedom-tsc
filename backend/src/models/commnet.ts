@@ -3,6 +3,26 @@ import mysql, { RowDataPacket } from "mysql2/promise";
 import { tyrCatchModelHandler } from "../middleware/try-catch";
 import { Comment } from "../interface/comment";
 
+export const getComment = tyrCatchModelHandler(
+  async (req: Request, conn: mysql.PoolConnection, commentId: number) => {
+    const menuId = req.body.menuId;
+    const postId = req.body.postId;
+
+    const sql: string =
+      ` SELECT` +
+      `     * ` +
+      `   FROM comment` +
+      `  WHERE COMMENT_ID = ${commentId}` +
+      `    AND MENU_ID = ${menuId}` +
+      `    AND POST_ID = ${postId}` +
+      `    AND DELETED_AT IS NULL`;
+
+    const [rows] = await conn.query<RowDataPacket[]>(sql);
+    return rows[0];
+  },
+  "getPost"
+);
+
 export const getComments = tyrCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;

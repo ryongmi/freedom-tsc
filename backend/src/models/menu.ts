@@ -10,9 +10,9 @@ export const getMenuAuth = tyrCatchModelHandler(
 
     const sql: string =
       ` SELECT` +
-      `     IF(POST_AUTH_ID >= ${authId}, 'Y' ,'N') AS post` +
-      `   , IF(COMMENT_AUTH_ID >= ${authId}, 'Y' ,'N') AS comment` +
-      `   , IF(IFNULL(READ_AUTH_ID, 99) >= ${authId}, 'Y' ,'N') AS 'read'` +
+      `     IF(POST_AUTH_ID =< ${authId}, 'Y' ,'N') AS post` +
+      `   , IF(COMMENT_AUTH_ID =< ${authId}, 'Y' ,'N') AS comment` +
+      `   , IF(IFNULL(READ_AUTH_ID, 99) =< ${authId}, 'Y' ,'N') AS 'read'` +
       `   FROM menu` +
       `  WHERE MENU_ID = ${menuId}` +
       `    AND USE_FLAG = 'Y'` +

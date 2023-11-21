@@ -58,6 +58,12 @@ export const menuAuthCheck = async (
     post: auth.post,
     comment: auth.comment,
   };
+
+  if (req.session.isLoggedIn) {
+    // 세션 유지시간 갱신
+    req.session.cookie.maxAge = 1000 * 60 * 5; // 1000 = 1초, 1000 * 60 = 1분
+  }
+
   next();
 };
 
@@ -89,5 +95,9 @@ export const adminCheck = async (
     // 해당 유저가 관리자가 아니라면 홈으로 이동
     return res.status(401).send();
   }
+
+  // 세션 유지시간 갱신
+  req.session.cookie.maxAge = 1000 * 60 * 5; // 1000 = 1초, 1000 * 60 = 1분
+
   next();
 };

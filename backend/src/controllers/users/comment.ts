@@ -1,10 +1,7 @@
 import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
-import * as POST from "../../models/post";
 import * as COMMNET from "../../models/commnet";
-import * as MENU from "../../models/menu";
 import * as COUNT from "../../models/count";
-import * as COMBO from "../../models/combo";
 import { tyrCatchControllerHandler } from "../../middleware/try-catch";
 
 export const getComment = tyrCatchControllerHandler(

@@ -6,7 +6,7 @@ import { useState } from "react";
 
 const commentItems = [
   {
-    key: "0",
+    key: "1",
     danger: true,
     label: "삭제",
   },
