@@ -66,7 +66,7 @@ export const getLogin = tyrCatchControllerHandler(
               userId: user.userId,
               authId: user.authId,
             };
-            req.session.cookie.maxAge = 1000 * 60 * 5; // 1000 = 1초, 1000 * 60 = 1분
+            req.session.cookie.maxAge = 1000 * 60 * 60; // 1000 = 1초, 1000 * 60 = 1분
 
             // 세션을 저장하는 메서드
             // 일반적으로는 알아서 저장되기 때문에 필요없지만, 세션이 확실히 저장되고 나서 진행해야 할 경우 사용

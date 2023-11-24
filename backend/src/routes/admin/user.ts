@@ -48,22 +48,56 @@ const { body, param } = new ExpressValidator({
  *      parameters:
  *        - in: query
  *          name: page
- *          required: false
+ *          required: true
  *          description: 현재 페이지
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: 1
+ *              summary: 기본값
  *        - in: query
  *          name: perPage
  *          required: false
  *          description: 페이지 로우 수
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "null"
+ *              summary: 기본값
+ *        - in: query
+ *          name: userOption
+ *          required: false
+ *          description: 아이디, 별명 옵션 값
+ *          schema:
+ *            type: string
+ *        - in: query
+ *          name: userOptionValue
+ *          required: false
+ *          description: 아이디, 별명 검색 값
+ *          schema:
+ *            type: string
  *        - in: query
  *          name: userAuthId
- *          required: false
- *          description: 특정 유저 권한 조회
+ *          required: true
+ *          description: 권한
  *          schema:
- *            type: int
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "ALL"
+ *              summary: 기본값
+ *        - in: query
+ *          name: userStatus
+ *          required: true
+ *          description: 상태
+ *          schema:
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "ALL"
+ *              summary: 기본값
  *      responses:
  *        "200":
  *          description: 전체 유저 정보
@@ -77,57 +111,43 @@ const { body, param } = new ExpressValidator({
  *                      example:
  *                          [
  *                            {
- *                              "USER_ID": "test3",
- *                              "USER_LOGIN_ID": "test",
- *                              "USER_NAME": "테스트(test)",
- *                              "AUTH_ID": 9,
- *                              "TWITCH_TYPE": "일반 사용자",
- *                              "BROADCASTER_TYPE": "시청자",
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "LAST_LOGIN_AT": "2023년08월12일 13시08분33초",
- *                              "VISIT": 1285,
- *                              "POST": 150,
- *                              "COMMENT": 15,
- *                              "UPDATED_AT": "2023년08월12일 13시08분33초",
- *                              "UPDATED_USER": "테스트",
- *                              "USER_STATUS": "벤"
+ *                              "key": 143095116,
+ *                              "userId": 143095116,
+ *                              "userName": "테스트(test)",
+ *                              "authId": 1,
+ *                              "twitchType": "일반 사용자",
+ *                              "broadcasterType": "시청자",
+ *                              "createdAt": "2023.10.22 01.31.23",
+ *                              "lastLoginAt": "2023.11.22 01.31.23",
+ *                              "visit": 1285,
+ *                              "post": 150,
+ *                              "comment": 15,
+ *                              "updatedAt": null,
+ *                              "updatedUser": null,
+ *                              "userStatus": "정상",
+ *                              "status": "S"
  *                            },
  *                            {
- *                              "USER_ID": "test4",
- *                              "USER_LOGIN_ID": "test2",
- *                              "USER_NAME": "테스트2(test2)",
- *                              "AUTH_ID": 5,
- *                              "TWITCH_TYPE": "CEO",
- *                              "BROADCASTER_TYPE": "제휴스트리머",
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "LAST_LOGIN_AT": "2023년08월12일 13시08분33초",
- *                              "VISIT": 185,
- *                              "POST": 50,
- *                              "COMMENT": 0,
- *                              "UPDATED_AT": null,
- *                              "UPDATED_USER": null,
- *                              "USER_STATUS": "정상"
- *                             },
- *                             {
- *                               "USER_ID": "test5",
- *                               "USER_LOGIN_ID": "test3",
- *                               "USER_NAME": "테스트3(test3)",
- *                               "AUTH_ID": 5,
- *                               "TWITCH_TYPE": "CEO",
- *                               "BROADCASTER_TYPE": "파트너스트리머",
- *                               "CREATED_AT": "2023년07월14일 04시36분50초",
- *                               "LAST_LOGIN_AT": "2023년08월12일 13시08분33초",
- *                               "VISIT": 0,
- *                               "POST": 0,
- *                               "COMMENT": 0,
- *                               "UPDATED_AT": null,
- *                               "UPDATED_USER": null,
- *                               "USER_STATUS": "경고"
- *                              }
+ *                              "key": 13213,
+ *                              "userId": 13213,
+ *                              "userName": "테스트2(test2)",
+ *                              "authId": 1,
+ *                              "twitchType": "일반 사용자",
+ *                              "broadcasterType": "제휴",
+ *                              "createdAt": "2023.10.22 01.31.23",
+ *                              "lastLoginAt": "2023.11.22 01.31.23",
+ *                              "visit": 1285,
+ *                              "post": 150,
+ *                              "comment": 15,
+ *                              "updatedAt": "2023.10.31 07.02.01",
+ *                              "updatedUser": "테스트",
+ *                              "userStatus": "경고",
+ *                              "status": "S"
+ *                            }
  *                           ]
  *                    totalCount:
  *                      type: int
- *                      example: 5
+ *                      example: 2
  *                    comboAuth:
  *                      type: object
  *                      example:
@@ -135,21 +155,25 @@ const { body, param } = new ExpressValidator({
  *                            { "value": 1, "label": "운영자" },
  *                            { "value": 2, "label": "??" }
  *                          ]
- *                    comboAuthAll:
+ *                    comboUserStatus:
  *                      type: object
  *                      example:
  *                          [
- *                            { "value": null, "label": "전체멤버" },
- *                            { "value": 1,    "label": "운영자" },
- *                            { "value": 2,    "label": "??" }
+ *                            { "value": "S", "label": "정상" },
+ *                            { "value": "W", "label": "경고" },
+ *                            { "value": "B", "label": "밴" }
+ *                          ]
+ *                    comboUserOption:
+ *                      type: object
+ *                      example:
+ *                          [
+ *                            { "value": "ID",   "label": "아이디" },
+ *                            { "value": "NAME", "label": "별명" }
  *                          ]
  *                    comboPerPage:
  *                      type: object
  *                      example:
- *                          [
- *                            { "value": "10", "label": "10" },
- *                            { "value": "15", "label": "15" }
- *                          ]
+ *                          [ "10", "15", "30", "50", "100" ]
  */
 router.get("/manageUser", userController.getManageUser);
 
@@ -161,7 +185,7 @@ router.get("/manageUser", userController.getManageUser);
  *    description: "유저 권한 수정"
  *    tags: [유저]
  *    requestBody:
- *      description: 유저 권한 수정
+ *      description: 선택한 유저 권한 수정
  *      required: true
  *      content:
  *        application/json:
@@ -238,14 +262,34 @@ router.patch(
  *      parameters:
  *        - in: query
  *          name: page
- *          required: false
+ *          required: true
  *          description: 현재 페이지
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: 1
+ *              summary: 기본값
  *        - in: query
  *          name: perPage
  *          required: false
  *          description: 페이지 로우 수
+ *          schema:
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "null"
+ *              summary: 기본값
+ *        - in: query
+ *          name: userOption
+ *          required: false
+ *          description: 아이디, 별명 옵션 값
+ *          schema:
+ *            type: string
+ *        - in: query
+ *          name: userOptionValue
+ *          required: false
+ *          description: 아이디, 별명 검색 값
  *          schema:
  *            type: string
  *      responses:
@@ -261,73 +305,80 @@ router.patch(
  *                      example:
  *                          [
  *                            {
- *                              "USER_ID": "test3",
- *                              "USER_NAME": "테스트(test)",
- *                              "AUTH_NAME": "일반 멤버",
- *                              "TWITCH_TYPE": "일반 사용자",
- *                              "BROADCASTER_TYPE": "시청자",
- *                              "WARN_COUNT": "1(3)번",
- *                              "CREATED_AT": "2023년08월12일 13시08분33초",
- *                              "CREATED_USER": "테스트"
+ *                              "key": 13213,
+ *                              "userId": 13213,
+ *                              "userName": "테스트(test)",
+ *                              "authName": "일반 멤버",
+ *                              "twitchType": "일반 사용자",
+ *                              "broadcasterType": "시청자",
+ *                              "warnCount": "1(1)번",
+ *                              "createdAt": "2023.10.31 07.02.01",
+ *                              "createdUser": "운영자"
  *                            },
  *                            {
- *                              "USER_ID": "test4",
- *                              "USER_NAME": "테스트2(test2)",
- *                              "AUTH_NAME": "일반 멤버",
- *                              "TWITCH_TYPE": "CEO",
- *                              "BROADCASTER_TYPE": "제휴스트리머",
- *                              "WARN_COUNT": "1(1)번",
- *                              "CREATED_AT": "2023년08월12일 13시08분33초",
- *                              "CREATED_USER": "테스트"
- *                             }
+ *                              "key": 13313,
+ *                              "userId": 13313,
+ *                              "userName": "테스트2(test2)",
+ *                              "authName": "일반 멤버",
+ *                              "twitchType": "일반 사용자",
+ *                              "broadcasterType": "시청자",
+ *                              "warnCount": "1(3)번",
+ *                              "createdAt": "2023.11.31 07.02.01",
+ *                              "createdUser": "운영자"
+ *                            }
  *                           ]
  *                    totalCount:
  *                      type: int
- *                      example: 5
- *                    comboAuth:
+ *                      example: 2
+ *                    comboUserOption:
  *                      type: object
  *                      example:
  *                          [
- *                            { "value": 1, "label": "운영자" },
- *                            { "value": 2, "label": "??" }
+ *                            { "value": "ID",   "label": "아이디" },
+ *                            { "value": "NAME", "label": "별명" }
  *                          ]
  *                    comboPerPage:
  *                      type: object
  *                      example:
- *                          [
- *                            { "value": "10", "label": "10" },
- *                            { "value": "15", "label": "15" }
- *                          ]
+ *                          [ "10", "15", "30", "50", "100" ]
  */
 router.get("/manageWarnUser", userController.getManageWarnUser);
 
 /**
  * @swagger
  * paths:
- *  /api/admin/user/manageWarnUser/{user_id}:
+ *  /api/admin/user/manageWarnUser/{userid}:
  *    get:
  *      summary: "경고 유저 사유 조회"
  *      description: "요청 경로에 값을 담아 서버에 보낸다."
  *      tags: [유저]
  *      parameters:
  *        - in: path
- *          name: user_id
+ *          name: userid
  *          required: true
  *          description: 유저 아이디
  *          schema:
  *            type: string
  *        - in: query
  *          name: page
- *          required: false
+ *          required: true
  *          description: 현재 페이지
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: 1
+ *              summary: 기본값
  *        - in: query
  *          name: perPage
  *          required: false
  *          description: 페이지 로우 수
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "null"
+ *              summary: 기본값
  *      responses:
  *        "200":
  *          description: 특정 유저 경고 사유 조회
@@ -341,27 +392,29 @@ router.get("/manageWarnUser", userController.getManageWarnUser);
  *                      example:
  *                          [
  *                            {
- *                              "WARN_ID": 2,
- *                              "USER_ID": "test333",
- *                              "USER_NAME": "테스트(test)",
- *                              "POST_URL": "-",
- *                              "WARN_REASON": "그냥",
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "CREATED_USER": "테스트2",
- *                              "UN_WARN_AT": null,
- *                              "UN_WARN_USER": null
+ *                              "key": 2,
+ *                              "warnId": 2,
+ *                              "userId": "test333",
+ *                              "userName": "테스트(test)",
+ *                              "postUrl": "",
+ *                              "warnReason": "경고사유",
+ *                              "createdAt": "2023.10.31 07.02.01",
+ *                              "createdUser": "운영자",
+ *                              "unWarnAt": null,
+ *                              "unWarnUser": null
  *                            },
  *                            {
- *                              "WARN_ID": 5,
- *                              "USER_ID": "test333",
- *                              "USER_NAME": "테스트(test)",
- *                              "POST_URL": "-",
- *                              "WARN_REASON": "그냥",
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "CREATED_USER": "테스트2",
- *                              "UN_WARN_AT": "2023년08월14일 09시55분40초",
- *                              "UN_WARN_USER": "테스트3"
- *                             }
+ *                              "key": 4,
+ *                              "warnId": 4,
+ *                              "userId": "test444",
+ *                              "userName": "테스트4(test4)",
+ *                              "postUrl": "",
+ *                              "warnReason": "경고사유",
+ *                              "createdAt": "2023.11.31 07.02.01",
+ *                              "createdUser": "운영자",
+ *                              "unWarnAt": "2023.12.31 07.02.01",
+ *                              "unWarnUser": "운영자"
+ *                            }
  *                           ]
  *                    totalCount:
  *                      type: int
@@ -369,10 +422,7 @@ router.get("/manageWarnUser", userController.getManageWarnUser);
  *                    comboPerPage:
  *                      type: object
  *                      example:
- *                          [
- *                            { "value": "10", "label": "10" },
- *                            { "value": "15", "label": "15" }
- *                          ]
+ *                          [ "10", "15", "30", "50", "100" ]
  */
 router.get(
   "/manageWarnUser/:userId",
@@ -385,10 +435,10 @@ router.get(
  * /api/admin/user/warnUser:
  *   post:
  *    summary: "유저 경고"
- *    description: "유저 경고주기"
+ *    description: "선택한 유저 경고주기"
  *    tags: [유저]
  *    requestBody:
- *      description: 유저 경고주기
+ *      description: 선택한 유저 경고주기
  *      required: true
  *      content:
  *        application/json:
@@ -397,20 +447,24 @@ router.get(
  *            properties:
  *              user:
  *                type: object
- *                description: "유저 경고 관련 데이터"
+ *                description: "경고할 유저 ID"
  *                example:
  *                    [
  *                       {
- *                          "userId": "test3",
- *                          "postUrl": "http://~~",
- *                          "warnReason": "test3"
+ *                          "userId": 1231232
  *                       },
  *                       {
- *                          "userId": "test4",
- *                          "postUrl": null,
- *                          "warnReason": "사유 테스트"
+ *                          "userId": 413412321
  *                       }
  *                    ]
+ *              postUrl:
+ *                type: string
+ *                description: "경고 원인 게시글 URL"
+ *                example: "http://~~"
+ *              warnReason:
+ *                type: object
+ *                description: "경고 사유"
+ *                example: "사유 테스트"
  *    responses:
  *      "200":
  *        description: 정상 수행 - 경고한 유저수만큼 메시지 보냄
@@ -422,7 +476,7 @@ router.get(
  *                message:
  *                  type: string
  *                  example:
- *                    "3건 정상적으로 저장되었습니다."
+ *                    "2건 정상적으로 경고처리 되었습니다."
  *      "400":
  *        description: 유효성 검사 실패
  *        content:
@@ -455,7 +509,11 @@ router.post(
       .isURL()
       .optional({ nullable: true, checkFalsy: true })
       .trim(),
-    body("warnReason", "사유가 비정상적입니다.").isString().notEmpty().trim(),
+    body("warnReason", "사유가 비정상적입니다.")
+      .isString()
+      .notEmpty()
+      .isLength({ min: 1, max: 100 })
+      .trim(),
   ],
   userController.postWarnUser
 );
@@ -465,10 +523,10 @@ router.post(
  * /api/admin/user/unWarnUser:
  *   patch:
  *    summary: "유저 경고해제"
- *    description: "유저 기존 경고해제"
+ *    description: "선택한 유저 기존 경고해제"
  *    tags: [유저]
  *    requestBody:
- *      description: 유저 기존 경고해제
+ *      description: 선택한 유저 기존 경고해제
  *      required: true
  *      content:
  *        application/json:
@@ -487,9 +545,13 @@ router.post(
  *                          "warnId": 5
  *                       }
  *                    ]
+ *              userId:
+ *                type: int
+ *                description: "경고해제할 유저 ID"
+ *                example: 1231412
  *    responses:
  *      "200":
- *        description: 정상 수행 - 경고해제한 유저수만큼 메시지 보냄
+ *        description: 정상 수행 - 경고해제한 건수만큼 메시지 보냄
  *        content:
  *          application/json:
  *            schema:
@@ -498,7 +560,7 @@ router.post(
  *                message:
  *                  type: string
  *                  example:
- *                    "3건 정상적으로 저장되었습니다."
+ *                    "3건 정상적으로 경고해제 되었습니다."
  *      "400":
  *        description: 유효성 검사 실패
  *        content:
@@ -543,14 +605,34 @@ router.patch(
  *      parameters:
  *        - in: query
  *          name: page
- *          required: false
+ *          required: true
  *          description: 현재 페이지
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: 1
+ *              summary: 기본값
  *        - in: query
  *          name: perPage
  *          required: false
  *          description: 페이지 로우 수
+ *          schema:
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "null"
+ *              summary: 기본값
+ *        - in: query
+ *          name: userOption
+ *          required: false
+ *          description: 아이디, 별명 옵션 값
+ *          schema:
+ *            type: string
+ *        - in: query
+ *          name: userOptionValue
+ *          required: false
+ *          description: 아이디, 별명 검색 값
  *          schema:
  *            type: string
  *      responses:
@@ -566,35 +648,41 @@ router.patch(
  *                      example:
  *                          [
  *                            {
- *                              "USER_ID": "test3",
- *                              "USER_NAME": "테스트(test)",
- *                              "AUTH_NAME": "일반 멤버",
- *                              "TWITCH_TYPE": "일반 사용자",
- *                              "BROADCASTER_TYPE": "시청자",
- *                              "BAN_COUNT": "1(3)번",
- *                              "CREATED_AT": "2023년08월12일 13시08분33초",
- *                              "CREATED_USER": "테스트"
+ *                              "key": 123452,
+ *                              "userId": 123452,
+ *                              "userName": "테스트(test)",
+ *                              "authName": "일반 멤버",
+ *                              "twitchType": "일반 사용자",
+ *                              "broadcasterType": "시청자",
+ *                              "banCount": "1(3)번",
+ *                              "createdAt": "2023.10.31 07.02.01",
+ *                              "createdUser": "운영자"
  *                            },
  *                            {
- *                              "USER_ID": "test4",
- *                              "USER_NAME": "테스트2(test2)",
- *                              "AUTH_NAME": "일반 멤버",
- *                              "TWITCH_TYPE": "CEO",
- *                              "BROADCASTER_TYPE": "제휴스트리머",
- *                              "BAN_COUNT": "1(1)번",
- *                              "CREATED_AT": "2023년08월12일 13시08분33초",
- *                              "CREATED_USER": "테스트"
- *                             }
+ *                              "key": 312321,
+ *                              "userId": 312321,
+ *                              "userName": "테스트4(test4)",
+ *                              "authName": "일반 멤버",
+ *                              "twitchType": "일반 사용자",
+ *                              "broadcasterType": "시청자",
+ *                              "banCount": "4(3)번",
+ *                              "createdAt": "2023.11.31 07.02.01",
+ *                              "createdUser": "운영자"
+ *                            }
  *                           ]
  *                    totalCount:
  *                      type: int
- *                      example: 5
+ *                      example: 2
  *                    comboPerPage:
  *                      type: object
  *                      example:
+ *                          [ "10", "15", "30", "50", "100" ]
+ *                    comboUserOption:
+ *                      type: object
+ *                      example:
  *                          [
- *                            { "value": "10", "label": "10" },
- *                            { "value": "15", "label": "15" }
+ *                            { "value": "ID",   "label": "아이디" },
+ *                            { "value": "NAME", "label": "별명" }
  *                          ]
  */
 router.get("/manageBanUser", userController.getManageBanUser);
@@ -602,30 +690,38 @@ router.get("/manageBanUser", userController.getManageBanUser);
 /**
  * @swagger
  * paths:
- *  /api/admin/user/manageBanUser/{user_id}:
+ *  /api/admin/user/manageBanUser/{userid}:
  *    get:
  *      summary: "벤 유저 사유 조회"
  *      description: "요청 경로에 값을 담아 서버에 보낸다."
  *      tags: [유저]
  *      parameters:
  *        - in: path
- *          name: user_id
+ *          name: userid
  *          required: true
  *          description: 유저 아이디
  *          schema:
  *            type: string
  *        - in: query
  *          name: page
- *          required: false
+ *          required: true
  *          description: 현재 페이지
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: 1
+ *              summary: 기본값
  *        - in: query
  *          name: perPage
  *          required: false
  *          description: 페이지 로우 수
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "null"
+ *              summary: 기본값
  *      responses:
  *        "200":
  *          description: 특정 유저 벤 사유 조회
@@ -639,27 +735,29 @@ router.get("/manageBanUser", userController.getManageBanUser);
  *                      example:
  *                          [
  *                            {
- *                              "BAN_ID": 2,
- *                              "USER_ID": "test333",
- *                              "USER_NAME": "테스트(test)",
- *                              "POST_URL": "-",
- *                              "BAN_REASON": "그냥",
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "CREATED_USER": "테스트2",
- *                              "UN_BAN_AT": null,
- *                              "UN_BAN_USER": null
+ *                              "key": 2,
+ *                              "banId": 2,
+ *                              "userId": "test333",
+ *                              "userName": "테스트(test)",
+ *                              "postUrl": "",
+ *                              "banReason": "벤사유",
+ *                              "createdAt": "2023.10.22 01.31.23",
+ *                              "createdUser": "운영자",
+ *                              "unBanAt": null,
+ *                              "unBanUser": null
  *                            },
  *                            {
- *                              "BAN_ID": 5,
- *                              "USER_ID": "test333",
- *                              "USER_NAME": "테스트(test)",
- *                              "POST_URL": "-",
- *                              "BAN_REASON": "그냥",
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "CREATED_USER": "테스트2",
- *                              "UN_BAN_AT": "2023년08월14일 09시55분40초",
- *                              "UN_BAN_USER": "테스트3"
- *                             }
+ *                              "key": 4,
+ *                              "banId": 4,
+ *                              "userId": "test444",
+ *                              "userName": "테스트4(test4)",
+ *                              "postUrl": "",
+ *                              "banReason": "벤사유",
+ *                              "createdAt": "2023.11.23 01.31.23",
+ *                              "createdUser": "운영자",
+ *                              "unBanAt": "2023.12.22 01.31.23",
+ *                              "unBanUser": "운영자"
+ *                            },
  *                           ]
  *                    totalCount:
  *                      type: int
@@ -667,10 +765,7 @@ router.get("/manageBanUser", userController.getManageBanUser);
  *                    comboPerPage:
  *                      type: object
  *                      example:
- *                          [
- *                            { "value": "10", "label": "10" },
- *                            { "value": "15", "label": "15" }
- *                          ]
+ *                          [ "10", "15", "30", "50", "100" ]
  */
 router.get(
   "/manageBanUser/:userId",
@@ -695,20 +790,24 @@ router.get(
  *            properties:
  *              user:
  *                type: object
- *                description: "경고 ID"
+ *                description: "밴할 유저 ID"
  *                example:
  *                    [
  *                       {
- *                          "userId": "test333",
- *                          "postUrl": "http://~~",
- *                          "banReason": null,
+ *                          "userId": 12312443
  *                       },
  *                       {
- *                          "userId": "test444",
- *                          "postUrl": null,
- *                          "banReason": "벤 사유",
+ *                          "userId": 12312312
  *                       }
  *                    ]
+ *              postUrl:
+ *                type: string
+ *                description: "밴 원인 게시글 URL"
+ *                example: "http://~~"
+ *              banReason:
+ *                type: object
+ *                description: "벤 사유"
+ *                example: "사유 테스트"
  *    responses:
  *      "200":
  *        description: 정상 수행 - 벤한 유저수만큼 메시지 보냄
@@ -720,7 +819,7 @@ router.get(
  *                message:
  *                  type: string
  *                  example:
- *                    "3건 정상적으로 저장되었습니다."
+ *                    "2건 정상적으로 밴 되었습니다."
  *      "400":
  *        description: 유효성 검사 실패
  *        content:
@@ -753,7 +852,11 @@ router.post(
       .isURL()
       .optional({ nullable: true, checkFalsy: true })
       .trim(),
-    body("banReason", "사유가 비정상적입니다.").isString().notEmpty().trim(),
+    body("banReason", "사유가 비정상적입니다.")
+      .isString()
+      .notEmpty()
+      .isLength({ min: 1, max: 100 })
+      .trim(),
   ],
   userController.postBanUser
 );
@@ -773,9 +876,9 @@ router.post(
  *          schema:
  *            type: object
  *            properties:
- *              user:
+ *              ban:
  *                type: object
- *                description: "벤 ID"
+ *                description: "밴 ID"
  *                example:
  *                    [
  *                       {
@@ -785,6 +888,10 @@ router.post(
  *                          "banId": 5
  *                       }
  *                    ]
+ *              userId:
+ *                type: int
+ *                description: "밴해제할 유저 ID"
+ *                example: 123123
  *    responses:
  *      "200":
  *        description: 정상 수행 - 벤해제한 건수만큼 메시지 보냄
@@ -796,7 +903,7 @@ router.post(
  *                message:
  *                  type: string
  *                  example:
- *                    "1건 정상적으로 저장되었습니다."
+ *                    "2건 정상적으로 밴해제 되었습니다."
  *      "400":
  *        description: 유효성 검사 실패
  *        content:

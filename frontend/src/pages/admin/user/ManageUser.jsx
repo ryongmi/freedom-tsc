@@ -29,7 +29,7 @@ function ManageUser() {
   const [comboUserStatus, setComboUserStatus] = useState([]);
 
   // 검색조건
-  const [searchUserOption, setSearchUserOption] = useState("ID");
+  const [searchUserOption, setSearchUserOption] = useState("");
   const [searchUserOptionValue, setSearchUserOptionValue] = useState("");
   const [searchUserAuthId, setSearchUserAuthId] = useState("ALL");
   const [searchUserStatus, setSearchUserStatus] = useState("ALL");

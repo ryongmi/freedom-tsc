@@ -69,16 +69,50 @@ const { body, param } = new ExpressValidator({
  *      parameters:
  *        - in: query
  *          name: page
- *          required: false
+ *          required: true
  *          description: 현재 페이지
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: 1
+ *              summary: 기본값
  *        - in: query
  *          name: perPage
  *          required: false
  *          description: 페이지 로우 수
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "null"
+ *              summary: 기본값
+ *        - in: query
+ *          name: menuName
+ *          required: false
+ *          description: 메뉴명
+ *          schema:
+ *            type: string
+ *        - in: query
+ *          name: adminFalg
+ *          required: true
+ *          description: 페이지타입
+ *          schema:
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "ALL"
+ *              summary: 기본값
+ *        - in: query
+ *          name: useFlag
+ *          required: true
+ *          description: 사용유무
+ *          schema:
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "ALL"
+ *              summary: 기본값
  *      responses:
  *        "200":
  *          description: 부모 메뉴 정보
@@ -92,25 +126,31 @@ const { body, param } = new ExpressValidator({
  *                      example:
  *                          [
  *                            {
- *                              "MENU_ID": 2,
- *                              "MENU_NAME": "test333",
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "CREATED_USER": "테스트2",
- *                              "UPDATED_AT": null,
- *                              "UPDATED_USER": null,
- *                              "USE_FLAG": "Y",
- *                              "SORT": 2
+ *                              "key": 2,
+ *                              "menuId": 2,
+ *                              "menuName": "test333",
+ *                              "createdAt": "2023.11.02 13.19.05",
+ *                              "createdUser": "테스트2",
+ *                              "updatedAt": null,
+ *                              "updatedUser": null,
+ *                              "adminFlag": "Y",
+ *                              "useFlag": "Y",
+ *                              "sort": 2,
+ *                              "status": "S"
  *                            },
  *                            {
- *                              "MENU_ID": 5,
- *                              "MENU_NAME": "test333",
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "CREATED_USER": "테스트2",
- *                              "UPDATED_AT": "2023년08월14일 09시55분40초",
- *                              "UPDATED_USER": "테스트3",
- *                              "USE_FLAG": "N",
- *                              "SORT": 5
- *                             }
+ *                              "key": 5,
+ *                              "menuId": 5,
+ *                              "menuName": "test333",
+ *                              "createdAt": "2023.11.05 13.19.05",
+ *                              "createdUser": "테스트",
+ *                              "updatedAt": null,
+ *                              "updatedUser": null,
+ *                              "adminFlag": "N",
+ *                              "useFlag": "Y",
+ *                              "sort": 3,
+ *                              "status": "S"
+ *                            }
  *                           ]
  *                    totalCount:
  *                      type: int
@@ -118,9 +158,13 @@ const { body, param } = new ExpressValidator({
  *                    comboPerPage:
  *                      type: object
  *                      example:
+ *                          [ "10", "15", "30", "50", "100" ]
+ *                    comboAdminFlag:
+ *                      type: object
+ *                      example:
  *                          [
- *                            { "value": "10", "label": "10" },
- *                            { "value": "15", "label": "15" }
+ *                            { "value": "Y", "label": "관리자 페이지" },
+ *                            { "value": "N", "label": "사용자 페이지" }
  *                          ]
  *                    comboUseFlag:
  *                      type: object
@@ -149,16 +193,50 @@ router.get("/manageMenu", menuController.getManageMenu);
  *            type: string
  *        - in: query
  *          name: page
- *          required: false
+ *          required: true
  *          description: 현재 페이지
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: 1
+ *              summary: 기본값
  *        - in: query
  *          name: perPage
  *          required: false
  *          description: 페이지 로우 수
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "null"
+ *              summary: 기본값
+ *        - in: query
+ *          name: menuName
+ *          required: false
+ *          description: 메뉴명
+ *          schema:
+ *            type: string
+ *        - in: query
+ *          name: type
+ *          required: true
+ *          description: 유형
+ *          schema:
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "ALL"
+ *              summary: 기본값
+ *        - in: query
+ *          name: useFlag
+ *          required: true
+ *          description: 사용유무
+ *          schema:
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "ALL"
+ *              summary: 기본값
  *      responses:
  *        "200":
  *          description: 특정 부모의 자식 메뉴 조회
@@ -172,33 +250,39 @@ router.get("/manageMenu", menuController.getManageMenu);
  *                      example:
  *                          [
  *                            {
- *                              "MENU_ID": 2,
- *                              "MENU_NAME": "test333",
- *                              "POST_AUTH_ID": 3,
- *                              "COMMENT_AUTH_ID": 5,
- *                              "READ_AUTH_ID": 2,
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "CREATED_USER": "테스트2",
- *                              "UPDATED_AT": null,
- *                              "UPDATED_USER": null,
- *                              "TYPE": "POST",
- *                              "USE_FLAG": "Y",
- *                              "SORT": 2
+ *                              "key": 2,
+ *                              "menuId": 2,
+ *                              "menuName": "test333",
+ *                              "postAuthId": 3,
+ *                              "commentAuthId": 5,
+ *                              "readAuthId": 2,
+ *                              "createdAt": "2023.11.02 13.28.47",
+ *                              "createdUser": "테스트2",
+ *                              "updatedAt": null,
+ *                              "updatedUser": null,
+ *                              "url": null,
+ *                              "useFlag": "Y",
+ *                              "type": "POST",
+ *                              "sort": 2,
+ *                              "status": "S",
  *                            },
  *                            {
- *                              "MENU_ID": 5,
- *                              "MENU_NAME": "test343",
- *                              "POST_AUTH_ID": 2,
- *                              "COMMENT_AUTH_ID": 5,
- *                              "READ_AUTH_ID": 7,
- *                              "CREATED_AT": "2023년07월14일 04시36분50초",
- *                              "CREATED_USER": "테스트2",
- *                              "UPDATED_AT": "2023년08월14일 09시55분40초",
- *                              "UPDATED_USER": "테스트3",
- *                              "TYPE": "PHOTO",
- *                              "USE_FLAG": "N",
- *                              "SORT": 5
- *                             }
+ *                              "key": 2,
+ *                              "menuId": 2,
+ *                              "menuName": "test333",
+ *                              "postAuthId": 3,
+ *                              "commentAuthId": 5,
+ *                              "readAuthId": 2,
+ *                              "createdAt": "2023.11.02 13.28.47",
+ *                              "createdUser": "테스트",
+ *                              "updatedAt": null,
+ *                              "updatedUser": null,
+ *                              "url": "/admin/manageMenu",
+ *                              "useFlag": "Y",
+ *                              "type": null,
+ *                              "sort": 2,
+ *                              "status": "S",
+ *                            }
  *                           ]
  *                    totalCount:
  *                      type: int
@@ -206,10 +290,7 @@ router.get("/manageMenu", menuController.getManageMenu);
  *                    comboPerPage:
  *                      type: object
  *                      example:
- *                          [
- *                            { "value": "10", "label": "10" },
- *                            { "value": "15", "label": "15" }
- *                          ]
+ *                          [ "10", "15", "30", "50", "100" ]
  *                    comboAuth:
  *                      type: object
  *                      example:
@@ -231,6 +312,9 @@ router.get("/manageMenu", menuController.getManageMenu);
  *                            { "value": "POST", "label": "게시글" },
  *                            { "value": "POHTO", "label": "사진" }
  *                          ]
+ *                    adminFlag:
+ *                      type: string
+ *                      example: "N"
  */
 router.get(
   "/detailMenu/:topMenuId",
@@ -261,12 +345,14 @@ router.get(
  *                       {
  *                          "menuId": null,
  *                          "menuName": "테스트22",
+ *                          "adminFlag": "Y",
  *                          "useFlag": "Y",
  *                          "sort": 5
  *                       },
  *                       {
  *                          "menuId": 4,
  *                          "menuName": "테스트",
+ *                          "adminFlag": "N",
  *                          "useFlag": "N",
  *                          "sort": 3
  *                       }
@@ -312,7 +398,8 @@ router.post(
     body("menu").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
     body("menu.*.menuId", "코드 ID가 비정상적입니다.")
       .isNumeric()
-      .optional({ nullable: true }),
+      .optional({ nullable: true })
+      .isMenuID(),
     body("menu.*.menuName", "메뉴이름이 비정상적입니다.")
       .isString()
       .notEmpty()
@@ -330,8 +417,8 @@ router.post(
       .trim(),
     body("menu.*.sort", "정렬순서가 비정상적입니다.")
       .isNumeric()
-      .notEmpty()
-      .trim(),
+      .isLength({ min: 1, max: 999 })
+      .notEmpty(),
   ],
   menuController.postManageMenu
 );
@@ -359,10 +446,10 @@ router.post(
  *                       {
  *                          "menuId": null,
  *                          "menuName": "테스트22",
- *                          "topMenuId": 5,
  *                          "postAuthId": 2,
  *                          "commentAuthId": 6,
  *                          "readAuthId": 5,
+ *                          "url": null,
  *                          "useFlag": "Y",
  *                          "sort": 5,
  *                          "type": "POST"
@@ -370,15 +457,19 @@ router.post(
  *                       {
  *                          "menuId": 3,
  *                          "menuName": "테스트22",
- *                          "topMenuId": 5,
  *                          "postAuthId": 2,
  *                          "commentAuthId": 6,
  *                          "readAuthId": 5,
+ *                          "url": "/admin/test",
  *                          "useFlag": "N",
  *                          "sort": 7,
  *                          "type": null
  *                       }
  *                    ]
+ *              topMenuId:
+ *                type: string
+ *                description: "상위 메뉴 ID"
+ *                example: "6"
  *    responses:
  *      "200":
  *        description: 정상 수행 - 저장한 메뉴 수만큼 메시지 보냄
@@ -436,6 +527,9 @@ router.post(
     body("menu.*.readAuthId", "읽기 권한이 비정상적입니다.")
       .isNumeric()
       .isAuthID(),
+    body("menu.*.url", "URL가 비정상적입니다.")
+      .isString()
+      .optional({ nullable: true, checkFalsy: true }),
     body("menu.*.type", "타입이 비정상적입니다.")
       .isString()
       .optional({ nullable: true, checkFalsy: true })
@@ -445,7 +539,10 @@ router.post(
       .notEmpty()
       .isUseFlag()
       .trim(),
-    body("menu.*.sort", "정렬순서가 비정상적입니다.").isNumeric().notEmpty(),
+    body("menu.*.sort", "정렬순서가 비정상적입니다.")
+      .isNumeric()
+      .notEmpty()
+      .isLength({ min: 1, max: 999 }),
     body("topMenuId", "상위 메뉴 ID가 비정상적입니다.").isNumeric().isMenuID(),
   ],
   menuController.postDetailMenu
@@ -489,7 +586,7 @@ router.post(
  *                message:
  *                  type: string
  *                  example:
- *                    "3건 정상적으로 저장되었습니다."
+ *                    "3건 정상적으로 삭제되었습니다."
  *      "400":
  *        description: 유효성 검사 실패
  *        content:
@@ -560,7 +657,7 @@ router.patch(
  *                message:
  *                  type: string
  *                  example:
- *                    "3건 정상적으로 저장되었습니다."
+ *                    "3건 정상적으로 삭제되었습니다."
  *      "400":
  *        description: 유효성 검사 실패
  *        content:
@@ -610,19 +707,43 @@ router.patch(
  *            type: string
  *        - in: query
  *          name: page
- *          required: false
+ *          required: true
  *          description: 현재 페이지
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: 1
+ *              summary: 기본값
  *        - in: query
  *          name: perPage
  *          required: false
  *          description: 페이지 로우 수
  *          schema:
  *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "null"
+ *              summary: 기본값
+ *        - in: query
+ *          name: bracketName
+ *          required: false
+ *          description: 말머리명
+ *          schema:
+ *            type: string
+ *        - in: query
+ *          name: useFlag
+ *          required: true
+ *          description: 사용유무
+ *          schema:
+ *            type: string
+ *          examples:
+ *            Sample:
+ *              value: "ALL"
+ *              summary: 기본값
  *      responses:
  *        "200":
- *          description: 특정 부모의 자식 메뉴 조회
+ *          description: 특정 메뉴의 말머리 조회
  *          content:
  *            application/json:
  *              schema:
@@ -633,16 +754,48 @@ router.patch(
  *                      example:
  *                          [
  *                            {
- *                              "BRACKET_ID": 2,
- *                              "CONTENT": "test333",
- *                              "SORT": 3
+ *                              "key": 2,
+ *                              "bracketId": 2,
+ *                              "content": "클립",
+ *                              "createdAt": "2023.11.05 18.56.33",
+ *                              "createdUser": "테스트232",
+ *                              "updatedAt": null,
+ *                              "updatedUser": null,
+ *                              "useFlag": "Y",
+ *                              "sort": 1,
+ *                              "menuId": 13,
+ *                              "topMenuId": 14,
+ *                              "status": "S"
  *                            },
  *                            {
- *                              "BRACKET_ID": 5,
- *                              "CONTENT": "test343",
- *                              "SORT": 2
- *                             }
+ *                              "key": 4,
+ *                              "bracketId": 4,
+ *                              "content": "클립2",
+ *                              "createdAt": "2023.11.15 18.56.33",
+ *                              "createdUser": "테스트2",
+ *                              "updatedAt": null,
+ *                              "updatedUser": null,
+ *                              "useFlag": "N",
+ *                              "sort": 2,
+ *                              "menuId": 13,
+ *                              "topMenuId": 14,
+ *                              "status": "S"
+ *                            }
  *                           ]
+ *                    totalCount:
+ *                      type: int
+ *                      example: 2
+ *                    comboPerPage:
+ *                      type: object
+ *                      example:
+ *                          [ "10", "15", "30", "50", "100" ]
+ *                    comboUseFlag:
+ *                      type: object
+ *                      example:
+ *                          [
+ *                            { "value": "Y", "label": "사용" },
+ *                            { "value": "N", "label": "미사용" }
+ *                          ]
  */
 router.get(
   "/manageBracket/:menuId",
@@ -655,10 +808,10 @@ router.get(
  * /api/admin/menu/manageBracket:
  *   post:
  *    summary: "말머리 저장"
- *    description: "말머리 저장"
+ *    description: "말머리 저장 및 수정"
  *    tags: [메뉴]
  *    requestBody:
- *      description: 말머리 저장
+ *      description: 말머리 저장 및 수정
  *      required: true
  *      content:
  *        application/json:
@@ -674,15 +827,17 @@ router.get(
  *                          "bracketId": null,
  *                          "content": "테스트22",
  *                          "sort": 3,
+ *                          "useFlag": "Y",
  *                          "menuId": 3,
  *                          "topMenuId": 3
  *                       },
  *                       {
  *                          "bracketId": 3,
  *                          "content": "테스트32",
- *                          "sort": 3,
- *                          "menuId": 5,
- *                          "topMenuId": 5
+ *                          "sort": 4,
+ *                          "useFlag": "N",
+ *                          "menuId": 3,
+ *                          "topMenuId": 3
  *                       }
  *                    ]
  *    responses:
@@ -696,7 +851,7 @@ router.get(
  *                message:
  *                  type: string
  *                  example:
- *                    "정상적으로 저장되었습니다."
+ *                    "2건 정상적으로 저장되었습니다."
  *      "400":
  *        description: 유효성 검사 실패
  *        content:
@@ -726,7 +881,8 @@ router.post(
     body("bracket").isArray({ min: 1 }).withMessage("데이터가 없습니다."),
     body("bracket.*.bracketId", "말머리 ID가 비정상적입니다.")
       .isNumeric()
-      .optional({ nullable: true }),
+      .optional({ nullable: true })
+      .isBracketID(),
     body("bracket.*.menuId", "메뉴 ID가 비정상적입니다.")
       .isNumeric()
       .isMenuID(),
@@ -736,14 +892,17 @@ router.post(
     body("menu.*.content", "말머리명이 비정상적입니다.")
       .isString()
       .notEmpty()
-      .isLength({ min: 1, max: 30 })
+      .isLength({ min: 1, max: 50 })
       .trim(),
     body("menu.*.useFlag", "사용유무가 비정상적입니다.")
       .isString()
       .notEmpty()
       .isUseFlag()
       .trim(),
-    body("menu.*.sort", "정렬순서가 비정상적입니다.").isNumeric().notEmpty(),
+    body("menu.*.sort", "정렬순서가 비정상적입니다.")
+      .isNumeric()
+      .notEmpty()
+      .isLength({ min: 1, max: 999 }),
   ],
   menuController.postManageBracket
 );
@@ -751,7 +910,7 @@ router.post(
 /**
  * @swagger
  * /api/admin/menu/manageBracket:
- *   delete:
+ *   patch:
  *    summary: "말머리 삭제"
  *    description: "말머리 삭제"
  *    tags: [메뉴]
@@ -765,7 +924,7 @@ router.post(
  *            properties:
  *              bracket:
  *                type: object
- *                description: "삭제할 말머리 데이터"
+ *                description: "삭제할 말머리 ID"
  *                example:
  *                    [
  *                       {
@@ -775,11 +934,6 @@ router.post(
  *                          "bracketId": 3,
  *                       }
  *                    ]
- *              menuId:
- *                type: string
- *                description: "해당 말머리가 사용되는 메뉴ID"
- *                example:
- *                    "5"
  *    responses:
  *      "200":
  *        description: 정상 수행
@@ -791,7 +945,7 @@ router.post(
  *                message:
  *                  type: string
  *                  example:
- *                    "정상적으로 저장되었습니다."
+ *                    "3건 정상적으로 삭제되었습니다."
  *      "400":
  *        description: 유효성 검사 실패
  *        content:

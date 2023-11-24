@@ -23,7 +23,7 @@ function ManageWarnUser() {
   const [comboUserOption, setComboUserOption] = useState([]);
 
   // 검색조건
-  const [searchUserOption, setSearchUserOption] = useState("ID");
+  const [searchUserOption, setSearchUserOption] = useState("");
   const [searchUserOptionValue, setSearchUserOptionValue] = useState("");
 
   // Drawer
