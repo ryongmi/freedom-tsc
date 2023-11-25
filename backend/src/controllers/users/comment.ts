@@ -2,9 +2,9 @@ import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 import * as COMMNET from "../../models/commnet";
 import * as COUNT from "../../models/count";
-import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+import { tryCatchControllerHandler } from "../../middleware/try-catch";
 
-export const getComment = tyrCatchControllerHandler(
+export const getComment = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -21,7 +21,7 @@ export const getComment = tyrCatchControllerHandler(
   }
 );
 
-export const postComment = tyrCatchControllerHandler(
+export const postComment = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -34,7 +34,7 @@ export const postComment = tyrCatchControllerHandler(
   }
 );
 
-export const patchComment = tyrCatchControllerHandler(
+export const patchComment = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

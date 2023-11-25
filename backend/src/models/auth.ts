@@ -1,9 +1,9 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
-import { tyrCatchModelHandler } from "../middleware/try-catch";
+import { tryCatchModelHandler } from "../middleware/try-catch";
 import { Auth, AuthLevelCondition } from "../interface/auth";
 
-export const getAuth = tyrCatchModelHandler(
+export const getAuth = tryCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, authId: number) => {
     const sql =
       `SELECT ` +
@@ -18,7 +18,7 @@ export const getAuth = tyrCatchModelHandler(
   "getAuth"
 );
 
-export const getAuths = tyrCatchModelHandler(
+export const getAuths = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const currentPage: number = Number(req.query.page);
     const perPage: number = Number(req.query.perPage);
@@ -60,11 +60,10 @@ export const getAuths = tyrCatchModelHandler(
   "getAuths"
 );
 
-export const updatedAuth = tyrCatchModelHandler(
+export const updatedAuth = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryAuth: Array<Auth> = req.body.auth;
-    // const adminUserId = req.session.user!.userId;
-    const adminUserId = 13432423;
+    const adminUserId = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -119,11 +118,10 @@ export const updatedAuth = tyrCatchModelHandler(
   "updatedAuth"
 );
 
-export const deletedAuth = tyrCatchModelHandler(
+export const deletedAuth = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryAuth: Array<{ authId: number }> = req.body.auth;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 423412;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -152,7 +150,7 @@ export const deletedAuth = tyrCatchModelHandler(
   "deletedAuth"
 );
 
-export const getAuthLevelCondition = tyrCatchModelHandler(
+export const getAuthLevelCondition = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const currentPage: number = Number(req.query.page);
     const perPage: number = Number(req.query.perPage);
@@ -192,11 +190,10 @@ export const getAuthLevelCondition = tyrCatchModelHandler(
   "getAuthLevelCondition"
 );
 
-export const updatedAuthLevelCondition = tyrCatchModelHandler(
+export const updatedAuthLevelCondition = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryAuth: Array<AuthLevelCondition> = req.body.auth;
-    // const adminUserId = req.session.user!.userId;
-    const adminUserId = 132132;
+    const adminUserId = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();

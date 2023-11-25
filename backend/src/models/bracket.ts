@@ -1,9 +1,9 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
-import { tyrCatchModelHandler } from "../middleware/try-catch";
+import { tryCatchModelHandler } from "../middleware/try-catch";
 import { Bracket } from "../interface/bracket";
 
-export const getBracket = tyrCatchModelHandler(
+export const getBracket = tryCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, bracketId: number) => {
     const sql: string =
       ` SELECT` +
@@ -18,7 +18,7 @@ export const getBracket = tyrCatchModelHandler(
   "getBracket"
 );
 
-export const getBrackets = tyrCatchModelHandler(
+export const getBrackets = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId: number = Number(req.params.menuId);
     const currentPage: number = Number(req.query.page);
@@ -59,11 +59,10 @@ export const getBrackets = tyrCatchModelHandler(
   "getBrackets"
 );
 
-export const createdBracket = tyrCatchModelHandler(
+export const createdBracket = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryBracket: Array<Bracket> = req.body.bracket;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 13123;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -120,7 +119,7 @@ export const createdBracket = tyrCatchModelHandler(
   "createdBracket"
 );
 
-export const deletedBracket = tyrCatchModelHandler(
+export const deletedBracket = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryBracket: Array<Bracket> = req.body.bracket;
     const adminUserId: number = req.session.user!.userId;

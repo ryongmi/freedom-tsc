@@ -1,11 +1,11 @@
 import request from "request";
 import { Request, Response, NextFunction } from "express";
 
-import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+import { tryCatchControllerHandler } from "../../middleware/try-catch";
 
 import * as USER from "../../models/user";
 
-export const getLogin = tyrCatchControllerHandler(
+export const getLogin = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const client_id = process.env.CLIENT_ID;
     const client_secret = process.env.CLIENT_SECRET;
@@ -84,7 +84,7 @@ export const getLogin = tyrCatchControllerHandler(
   }
 );
 
-export const getUserInfo = tyrCatchControllerHandler(
+export const getUserInfo = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.session.isLoggedIn) return res.send({});
 
@@ -105,7 +105,7 @@ export const getUserInfo = tyrCatchControllerHandler(
   }
 );
 
-export const deleteLogout = tyrCatchControllerHandler(
+export const deleteLogout = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     req.session.destroy(function (err) {
       if (err) {

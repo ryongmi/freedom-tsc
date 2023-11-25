@@ -1,11 +1,11 @@
 import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
-import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+import { tryCatchControllerHandler } from "../../middleware/try-catch";
 import * as AUTH from "../../models/auth";
 import * as COMBO from "../../models/combo";
 import * as COUNT from "../../models/count";
 
-export const getManageAuth = tyrCatchControllerHandler(
+export const getManageAuth = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const comboPerPage = await COMBO.getComboPerPage(req);
     const auth = await AUTH.getAuths(req);
@@ -23,7 +23,7 @@ export const getManageAuth = tyrCatchControllerHandler(
   }
 );
 
-export const postManageAuth = tyrCatchControllerHandler(
+export const postManageAuth = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -38,7 +38,7 @@ export const postManageAuth = tyrCatchControllerHandler(
   }
 );
 
-export const patchManageAuth = tyrCatchControllerHandler(
+export const patchManageAuth = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -52,7 +52,7 @@ export const patchManageAuth = tyrCatchControllerHandler(
   }
 );
 
-export const getManageAuthLevelCondition = tyrCatchControllerHandler(
+export const getManageAuthLevelCondition = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const comboPerPage = await COMBO.getComboPerPage(req);
     const auth = await AUTH.getAuthLevelCondition(req);
@@ -66,7 +66,7 @@ export const getManageAuthLevelCondition = tyrCatchControllerHandler(
   }
 );
 
-export const postManageAuthLevelCondition = tyrCatchControllerHandler(
+export const postManageAuthLevelCondition = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

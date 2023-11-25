@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from "express";
 import * as COM_CD from "../../models/com-cd";
 import * as COUNT from "../../models/count";
 import * as COMBO from "../../models/combo";
-import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+import { tryCatchControllerHandler } from "../../middleware/try-catch";
 
-export const getManageComCd = tyrCatchControllerHandler(
+export const getManageComCd = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const comboPerPage = await COMBO.getComboPerPage(req);
     const comCd = await COM_CD.getMainComCd(req);
@@ -21,7 +21,7 @@ export const getManageComCd = tyrCatchControllerHandler(
   }
 );
 
-export const getDetailComCd = tyrCatchControllerHandler(
+export const getDetailComCd = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -44,7 +44,7 @@ export const getDetailComCd = tyrCatchControllerHandler(
   }
 );
 
-export const postManageComCd = tyrCatchControllerHandler(
+export const postManageComCd = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -58,7 +58,7 @@ export const postManageComCd = tyrCatchControllerHandler(
   }
 );
 
-export const postDetailComCd = tyrCatchControllerHandler(
+export const postDetailComCd = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -72,7 +72,7 @@ export const postDetailComCd = tyrCatchControllerHandler(
   }
 );
 
-export const deleteManageComCd = tyrCatchControllerHandler(
+export const deleteManageComCd = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -86,7 +86,7 @@ export const deleteManageComCd = tyrCatchControllerHandler(
   }
 );
 
-export const deleteDetailComCd = tyrCatchControllerHandler(
+export const deleteDetailComCd = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

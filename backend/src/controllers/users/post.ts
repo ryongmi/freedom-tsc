@@ -5,9 +5,9 @@ import * as COMMNET from "../../models/commnet";
 import * as MENU from "../../models/menu";
 import * as COUNT from "../../models/count";
 import * as COMBO from "../../models/combo";
-import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+import { tryCatchControllerHandler } from "../../middleware/try-catch";
 
-export const getPostAll = tyrCatchControllerHandler(
+export const getPostAll = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -30,7 +30,7 @@ export const getPostAll = tyrCatchControllerHandler(
   }
 );
 
-export const getPostAllContent = tyrCatchControllerHandler(
+export const getPostAllContent = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -58,7 +58,7 @@ export const getPostAllContent = tyrCatchControllerHandler(
   }
 );
 
-export const getPost = tyrCatchControllerHandler(
+export const getPost = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -88,7 +88,7 @@ export const getPost = tyrCatchControllerHandler(
   }
 );
 
-export const getPostContent = tyrCatchControllerHandler(
+export const getPostContent = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -116,7 +116,7 @@ export const getPostContent = tyrCatchControllerHandler(
   }
 );
 
-export const getPostEdit = tyrCatchControllerHandler(
+export const getPostEdit = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -137,7 +137,7 @@ export const getPostEdit = tyrCatchControllerHandler(
   }
 );
 
-export const postCreatePost = tyrCatchControllerHandler(
+export const postCreatePost = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -150,7 +150,7 @@ export const postCreatePost = tyrCatchControllerHandler(
   }
 );
 
-export const patchPost = tyrCatchControllerHandler(
+export const patchPost = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -165,7 +165,7 @@ export const patchPost = tyrCatchControllerHandler(
   }
 );
 
-export const patchChangeNotice = tyrCatchControllerHandler(
+export const patchChangeNotice = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -178,7 +178,7 @@ export const patchChangeNotice = tyrCatchControllerHandler(
   }
 );
 
-export const patchMovePost = tyrCatchControllerHandler(
+export const patchMovePost = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

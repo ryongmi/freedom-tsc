@@ -1,9 +1,9 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
-import { tyrCatchModelHandler } from "../middleware/try-catch";
+import { tryCatchModelHandler } from "../middleware/try-catch";
 import { Menu, DetailMenu } from "../interface/menu";
 
-export const getMenuAuth = tyrCatchModelHandler(
+export const getMenuAuth = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const authId = req.session.user?.authId ?? 99;
@@ -24,7 +24,7 @@ export const getMenuAuth = tyrCatchModelHandler(
   "getMenuAuth"
 );
 
-export const getMenu = tyrCatchModelHandler(
+export const getMenu = tryCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, menuId: number) => {
     const sql: string =
       ` SELECT` +
@@ -41,7 +41,7 @@ export const getMenu = tyrCatchModelHandler(
   "getMenu"
 );
 
-export const getUserMenus = tyrCatchModelHandler(
+export const getUserMenus = tryCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
     const sql: string =
       `WITH RECURSIVE CTE AS (` +
@@ -92,10 +92,10 @@ export const getUserMenus = tyrCatchModelHandler(
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows;
   },
-  "getMenus"
+  "getUserMenus"
 );
 
-export const getAdminMenus = tyrCatchModelHandler(
+export const getAdminMenus = tryCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
     const sql: string =
       `WITH RECURSIVE CTE AS (` +
@@ -137,7 +137,7 @@ export const getAdminMenus = tyrCatchModelHandler(
   "getAdminMenus"
 );
 
-export const getTopMenu = tyrCatchModelHandler(
+export const getTopMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const currentPage: number = Number(req.query.page);
     const perPage: number = Number(req.query.perPage);
@@ -180,7 +180,7 @@ export const getTopMenu = tyrCatchModelHandler(
   "getTopMenu"
 );
 
-export const getDetailMenu = tyrCatchModelHandler(
+export const getDetailMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const topMenuId: number = Number(req.params.topMenuId);
     const currentPage: number = Number(req.query.page);
@@ -228,11 +228,10 @@ export const getDetailMenu = tyrCatchModelHandler(
   "getDetailMenu"
 );
 
-export const createdMenu = tyrCatchModelHandler(
+export const createdMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<Menu> = req.body.menu;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 51513153;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -287,12 +286,11 @@ export const createdMenu = tyrCatchModelHandler(
   "createdMenu"
 );
 
-export const createdDetailMenu = tyrCatchModelHandler(
+export const createdDetailMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<DetailMenu> = req.body.menu;
     const topMenuId = Number(req.body.topMenuId);
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 1231321312;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -366,11 +364,10 @@ export const createdDetailMenu = tyrCatchModelHandler(
   "createdDetailMenu"
 );
 
-export const deletedMenu = tyrCatchModelHandler(
+export const deletedMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<{ menuId: number }> = req.body.menu;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 131312;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -401,11 +398,10 @@ export const deletedMenu = tyrCatchModelHandler(
   "deletedMenu"
 );
 
-export const deletedDetailMenu = tyrCatchModelHandler(
+export const deletedDetailMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryMenu: Array<{ menuId: number }> = req.body.menu;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 51512344;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();

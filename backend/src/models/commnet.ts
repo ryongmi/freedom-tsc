@@ -1,9 +1,9 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
-import { tyrCatchModelHandler } from "../middleware/try-catch";
+import { tryCatchModelHandler } from "../middleware/try-catch";
 import { Comment } from "../interface/comment";
 
-export const getComment = tyrCatchModelHandler(
+export const getComment = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection, commentId: number) => {
     const menuId = req.body.menuId;
     const postId = req.body.postId;
@@ -20,14 +20,13 @@ export const getComment = tyrCatchModelHandler(
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0];
   },
-  "getPost"
+  "getComment"
 );
 
-export const getComments = tyrCatchModelHandler(
+export const getComments = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const postId = req.params.postId;
-    // const adminUserId: number = req.session.user!.userId;
 
     const sql =
       `WITH RECURSIVE CTE AS (` +
@@ -101,11 +100,10 @@ export const getComments = tyrCatchModelHandler(
   "getComments"
 );
 
-export const createdComment = tyrCatchModelHandler(
+export const createdComment = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const comment: Comment = req.body.comment;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 13213;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       const commentId = comment.commentId;
@@ -147,11 +145,10 @@ export const createdComment = tyrCatchModelHandler(
   "createdComment"
 );
 
-export const deletedComment = tyrCatchModelHandler(
+export const deletedComment = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const commentId: number = req.body.comment;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 131312;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       const sql = `UPDATE comment SET DELETED_AT = now(), DELETED_USER = ${adminUserId} WHERE COMMENT_ID = ${commentId}`;

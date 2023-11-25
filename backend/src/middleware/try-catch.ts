@@ -3,7 +3,7 @@ import * as db from "../util/database";
 import * as log from "../util/log";
 import IError from "../interface/error";
 
-export const tyrCatchModelHandler = (handler: Function, apiName: string) => {
+export const tryCatchModelHandler = (handler: Function, apiName: string) => {
   return async (
     req: Request,
     param1?: string | number,
@@ -22,7 +22,7 @@ export const tyrCatchModelHandler = (handler: Function, apiName: string) => {
   };
 };
 
-export const tyrCatchControllerHandler = (handler: Function) => {
+export const tryCatchControllerHandler = (handler: Function) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await handler(req, res, next);

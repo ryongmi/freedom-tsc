@@ -1,9 +1,9 @@
 import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 import * as MENU from "../../models/menu";
-import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+import { tryCatchControllerHandler } from "../../middleware/try-catch";
 
-export const getMenus = tyrCatchControllerHandler(
+export const getMenus = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -17,7 +17,7 @@ export const getMenus = tyrCatchControllerHandler(
     });
   }
 );
-export const getAdminMenus = tyrCatchControllerHandler(
+export const getAdminMenus = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

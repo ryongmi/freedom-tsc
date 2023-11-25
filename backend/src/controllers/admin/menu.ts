@@ -4,9 +4,9 @@ import * as MENU from "../../models/menu";
 import * as BRACKET from "../../models/bracket";
 import * as COUNT from "../../models/count";
 import * as COMBO from "../../models/combo";
-import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+import { tryCatchControllerHandler } from "../../middleware/try-catch";
 
-export const getManageMenu = tyrCatchControllerHandler(
+export const getManageMenu = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -28,7 +28,7 @@ export const getManageMenu = tyrCatchControllerHandler(
   }
 );
 
-export const getDetailMenu = tyrCatchControllerHandler(
+export const getDetailMenu = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -53,7 +53,7 @@ export const getDetailMenu = tyrCatchControllerHandler(
   }
 );
 
-export const postManageMenu = tyrCatchControllerHandler(
+export const postManageMenu = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -67,7 +67,7 @@ export const postManageMenu = tyrCatchControllerHandler(
   }
 );
 
-export const postDetailMenu = tyrCatchControllerHandler(
+export const postDetailMenu = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -81,7 +81,7 @@ export const postDetailMenu = tyrCatchControllerHandler(
   }
 );
 
-export const patchManageMenu = tyrCatchControllerHandler(
+export const patchManageMenu = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -95,7 +95,7 @@ export const patchManageMenu = tyrCatchControllerHandler(
   }
 );
 
-export const patchDetailMenu = tyrCatchControllerHandler(
+export const patchDetailMenu = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -109,7 +109,7 @@ export const patchDetailMenu = tyrCatchControllerHandler(
   }
 );
 
-export const getManageBracket = tyrCatchControllerHandler(
+export const getManageBracket = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -129,7 +129,7 @@ export const getManageBracket = tyrCatchControllerHandler(
   }
 );
 
-export const postManageBracket = tyrCatchControllerHandler(
+export const postManageBracket = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -143,7 +143,7 @@ export const postManageBracket = tyrCatchControllerHandler(
   }
 );
 
-export const patchManageBracket = tyrCatchControllerHandler(
+export const patchManageBracket = tryCatchControllerHandler(
   async (req: Request, res: Response, _: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

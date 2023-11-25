@@ -1,8 +1,8 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
-import { tyrCatchModelHandler } from "../middleware/try-catch";
+import { tryCatchModelHandler } from "../middleware/try-catch";
 
-export const getComboComCd = tyrCatchModelHandler(
+export const getComboComCd = tryCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection, comId: number) => {
     const sql =
       ` SELECT` +
@@ -21,7 +21,7 @@ export const getComboComCd = tyrCatchModelHandler(
   "getComboComCd"
 );
 
-export const getComboPerPage = tyrCatchModelHandler(
+export const getComboPerPage = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const sql =
       ` SELECT` +
@@ -47,7 +47,7 @@ export const getComboPerPage = tyrCatchModelHandler(
   "getComboPerPage"
 );
 
-export const getComboAuth = tyrCatchModelHandler(
+export const getComboAuth = tryCatchModelHandler(
   async (_: Request, conn: mysql.PoolConnection) => {
     const sql: string =
       `SELECT ` +
@@ -64,7 +64,7 @@ export const getComboAuth = tyrCatchModelHandler(
   "getComboAuth"
 );
 
-export const getComboBracket = tyrCatchModelHandler(
+export const getComboBracket = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     // const menuId = req.params.menuId || req.query.menuId;
 
@@ -88,10 +88,10 @@ export const getComboBracket = tyrCatchModelHandler(
   "getComboBracket"
 );
 
-export const getComboMenu = tyrCatchModelHandler(
+export const getComboMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     // const menuId = Number(req.params.menuId);
-    const authId = req.session.user?.authId || 1;
+    const authId = req.session.user?.authId || 99;
 
     const sql: string =
       `WITH RECURSIVE CTE AS (` +

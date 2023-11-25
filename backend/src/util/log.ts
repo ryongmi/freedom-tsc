@@ -15,7 +15,7 @@ export const setErrorLog = async (
     sql: err.sql?.replace(/'/g, "`"),
     isLoggedIn: req.session.isLoggedIn ? "Login" : "Logout",
     userId: req.session.user ? req.session.user.userId : null,
-    auth: req.session.user ? req.session.user.userId : null,
+    auth: req.session.user ? req.session.user.authId : null,
   };
 
   const sql = `INSERT INTO error_log

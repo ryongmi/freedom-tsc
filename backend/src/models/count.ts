@@ -1,15 +1,15 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
-import { tyrCatchModelHandler } from "../middleware/try-catch";
+import { tryCatchModelHandler } from "../middleware/try-catch";
 
 // ************************** USER ************************** //
-export const getUser = tyrCatchModelHandler(
-  async (_: Request, conn: mysql.PoolConnection, userId: string) => {
+export const getUser = tryCatchModelHandler(
+  async (_: Request, conn: mysql.PoolConnection, userId: number) => {
     const sql =
       ` SELECT` +
       `     COUNT(USER_ID) AS totalCount` +
       `   FROM user U` +
-      `  WHERE U.USER_ID = '${userId}'`;
+      `  WHERE U.USER_ID = ${userId}`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);
     return rows[0].totalCount;
@@ -17,7 +17,7 @@ export const getUser = tyrCatchModelHandler(
   "COUNT - getUser"
 );
 
-export const getUsers = tyrCatchModelHandler(
+export const getUsers = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const userOption: string = req.query.userOption?.toString() ?? "";
     const userOptionValue: string = req.query.userOptionValue?.toString() ?? "";
@@ -51,7 +51,7 @@ export const getUsers = tyrCatchModelHandler(
   "COUNT - getUsers"
 );
 
-export const getWarnUsers = tyrCatchModelHandler(
+export const getWarnUsers = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const userOption: string = req.query.userOption?.toString() ?? "";
     const userOptionValue: string = req.query.userOptionValue?.toString() ?? "";
@@ -78,7 +78,7 @@ export const getWarnUsers = tyrCatchModelHandler(
   "COUNT - getWarnUsers"
 );
 
-export const getWarnContents = tyrCatchModelHandler(
+export const getWarnContents = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const userId: number = Number(req.params.userId);
 
@@ -94,7 +94,7 @@ export const getWarnContents = tyrCatchModelHandler(
   "COUNT - getWarnContents"
 );
 
-export const getBanUsers = tyrCatchModelHandler(
+export const getBanUsers = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const userOption: string = req.query.userOption?.toString() ?? "";
     const userOptionValue: string = req.query.userOptionValue?.toString() ?? "";
@@ -120,7 +120,7 @@ export const getBanUsers = tyrCatchModelHandler(
   "COUNT - getBanUsers"
 );
 
-export const getBanContents = tyrCatchModelHandler(
+export const getBanContents = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const userId: number = Number(req.params.userId);
 
@@ -137,7 +137,7 @@ export const getBanContents = tyrCatchModelHandler(
 );
 
 // ************************** MENU ************************** //
-export const getTopMenu = tyrCatchModelHandler(
+export const getTopMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuName: string = req.query.menuName?.toString() ?? "";
     const adminFalg: string = req.query.adminFalg?.toString() ?? "ALL";
@@ -167,7 +167,7 @@ export const getTopMenu = tyrCatchModelHandler(
   "COUNT - getTopMenu"
 );
 
-export const getDetailMenu = tyrCatchModelHandler(
+export const getDetailMenu = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const topMenuId: number = Number(req.params.topMenuId);
     const menuName: string = req.query.menuName?.toString() ?? "";
@@ -198,7 +198,7 @@ export const getDetailMenu = tyrCatchModelHandler(
   "COUNT - getDetailMenu"
 );
 
-export const getBrackets = tyrCatchModelHandler(
+export const getBrackets = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId: number = Number(req.params.menuId);
     const bracketName: string = req.query.bracketName?.toString() ?? "";
@@ -225,7 +225,7 @@ export const getBrackets = tyrCatchModelHandler(
 );
 
 // ************************** COM-CD ************************** //
-export const getMainComCd = tyrCatchModelHandler(
+export const getMainComCd = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const comcdOption: string = req.query.comcdOption?.toString() ?? "";
     const comcdOptionValue: string =
@@ -251,7 +251,7 @@ export const getMainComCd = tyrCatchModelHandler(
   "COUNT - getMainComCd"
 );
 
-export const getDetailComCd = tyrCatchModelHandler(
+export const getDetailComCd = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const comId: string = req.params.comId;
     const comcdOption: string = req.query.comcdOption?.toString() ?? "";
@@ -285,7 +285,7 @@ export const getDetailComCd = tyrCatchModelHandler(
 );
 
 // ************************** AUTH ************************** //
-export const getAuths = tyrCatchModelHandler(
+export const getAuths = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const authName: string = req.query.authName?.toString() ?? "";
     const useFlag: string = req.query.useFlag?.toString() ?? "ALL";
@@ -311,7 +311,7 @@ export const getAuths = tyrCatchModelHandler(
   "COUNT - getAuths"
 );
 
-export const getAuthLevelCondition = tyrCatchModelHandler(
+export const getAuthLevelCondition = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const authName: string = req.query.authName?.toString() ?? "";
 
@@ -337,7 +337,7 @@ export const getAuthLevelCondition = tyrCatchModelHandler(
 );
 
 // ************************** POST ************************** //
-export const getPostAll = tyrCatchModelHandler(
+export const getPostAll = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const dateValue = req.query.dateValue?.toString() || "";
     const dateOption = req.query.dateOption;
@@ -418,7 +418,7 @@ export const getPostAll = tyrCatchModelHandler(
   "COUNT - getPostAll"
 );
 
-export const getPosts = tyrCatchModelHandler(
+export const getPosts = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const bracketId = req.query.bracketId;
@@ -509,7 +509,7 @@ export const getPosts = tyrCatchModelHandler(
 );
 
 // ************************** COMMENT ************************** //
-export const getComments = tyrCatchModelHandler(
+export const getComments = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const postId = req.params.postId;

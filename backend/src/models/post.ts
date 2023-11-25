@@ -1,9 +1,9 @@
 import { Request } from "express";
 import mysql, { RowDataPacket } from "mysql2/promise";
-import { tyrCatchModelHandler } from "../middleware/try-catch";
+import { tryCatchModelHandler } from "../middleware/try-catch";
 import { Post, PostContent, PostMove } from "../interface/post";
 
-export const getPost = tyrCatchModelHandler(
+export const getPost = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection, postId: number) => {
     const menuId = req.params.menuId;
 
@@ -24,7 +24,7 @@ export const getPost = tyrCatchModelHandler(
   "getPost"
 );
 
-export const getPostAll = tyrCatchModelHandler(
+export const getPostAll = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const dateValue = req.query.dateValue?.toString() || "";
     const dateOption = req.query.dateOption;
@@ -118,12 +118,10 @@ export const getPostAll = tyrCatchModelHandler(
   "getPostAll"
 );
 
-export const getPostAllContent = tyrCatchModelHandler(
+export const getPostAllContent = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const postId = req.params.postId;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 13213;
-    // const adminUserId: number | null = null;
+    const adminUserId: number = req.session.user!.userId;
 
     let sql =
       ` SELECT` +
@@ -188,7 +186,7 @@ export const getPostAllContent = tyrCatchModelHandler(
   "getPostAllContent"
 );
 
-export const getPosts = tyrCatchModelHandler(
+export const getPosts = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const bracketId = req.query.bracketId;
@@ -286,12 +284,11 @@ export const getPosts = tyrCatchModelHandler(
   "getPosts"
 );
 
-export const getPostContent = tyrCatchModelHandler(
+export const getPostContent = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const postId = req.params.postId;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 13213;
+    const adminUserId: number = req.session.user!.userId;
 
     let sql =
       ` SELECT` +
@@ -356,7 +353,7 @@ export const getPostContent = tyrCatchModelHandler(
   "getPostContent"
 );
 
-export const getPostEdit = tyrCatchModelHandler(
+export const getPostEdit = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.query.menuId;
     const postId = req.query.postId;
@@ -380,11 +377,10 @@ export const getPostEdit = tyrCatchModelHandler(
   "getPostEdit"
 );
 
-export const createdPost = tyrCatchModelHandler(
+export const createdPost = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const post: PostContent = req.body.post;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 13213;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       const postId = post.postId;
@@ -433,13 +429,12 @@ export const createdPost = tyrCatchModelHandler(
   "createdPost"
 );
 
-export const updateNotice = tyrCatchModelHandler(
+export const updateNotice = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId: number = req.body.menuId;
     const postId: number = req.body.postId;
     const notice: string | null = req.body.notice;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 131312;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       const sql =
@@ -459,11 +454,10 @@ export const updateNotice = tyrCatchModelHandler(
   "updateNotice"
 );
 
-export const updateMenuId = tyrCatchModelHandler(
+export const updateMenuId = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryPost: Array<PostMove> = req.body.post;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 131312;
+    const adminUserId: number = req.session.user!.userId;
 
     let sql;
     try {
@@ -510,11 +504,10 @@ export const updateMenuId = tyrCatchModelHandler(
   "updateMenuId"
 );
 
-export const deletedPost = tyrCatchModelHandler(
+export const deletedPost = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const aryPost: Array<Post> = req.body.post;
-    // const adminUserId: number = req.session.user!.userId;
-    const adminUserId: number = 131312;
+    const adminUserId: number = req.session.user!.userId;
 
     try {
       await conn.beginTransaction();
@@ -541,7 +534,7 @@ export const deletedPost = tyrCatchModelHandler(
   "deletedPost"
 );
 
-export const updatePostView = tyrCatchModelHandler(
+export const updatePostView = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const postId = req.params.postId;

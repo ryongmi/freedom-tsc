@@ -6,6 +6,7 @@ dotenv.config({ path: path.join(__dirname, "./config", "/.env") });
 import imgUpload from "./util/imgUpload";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import FRONT_PATH from "./config/constance";
 import session from "./util/session";
 import { swaggerUi, specs } from "./config/swagger";
@@ -26,6 +27,9 @@ const app = express();
 
 // CORS에러 설정
 app.use(cors());
+// helmet - 보안을 위해 사용
+// 다양한 보안문제가 되는 부분들을 방지해주는 NPM
+app.use(helmet());
 // 세션 설정
 app.use(session);
 
@@ -58,7 +62,6 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs)); // swagger - API 
 // error 인수를 포함한 4개의 인수를 가짐
 // next()를 호출할때, 매개변수를 포함한다면, 다른 미들웨어를 무시하고 이 미들웨어를 실행함
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-  //res.status(error.httpStatusCode).render(...); 에러가 발생했을때 httpStatusCode를 설정하면, 페이지 render()에서 사용할 수 있음
   console.log(error);
   res.status(500).send({ error });
   // res.status(500).render("500", {

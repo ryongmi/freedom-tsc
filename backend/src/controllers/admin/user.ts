@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from "express";
 import * as USER from "../../models/user";
 import * as COUNT from "../../models/count";
 import * as COMBO from "../../models/combo";
-import { tyrCatchControllerHandler } from "../../middleware/try-catch";
+import { tryCatchControllerHandler } from "../../middleware/try-catch";
 
-export const getManageUser = tyrCatchControllerHandler(
+export const getManageUser = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const comboPerPage = await COMBO.getComboPerPage(req);
     const user = await USER.getUsers(req);
@@ -25,7 +25,7 @@ export const getManageUser = tyrCatchControllerHandler(
   }
 );
 
-export const patchManageUser = tyrCatchControllerHandler(
+export const patchManageUser = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -39,7 +39,7 @@ export const patchManageUser = tyrCatchControllerHandler(
   }
 );
 
-export const getManageWarnUser = tyrCatchControllerHandler(
+export const getManageWarnUser = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const comboPerPage = await COMBO.getComboPerPage(req);
     const user = await USER.getWarnUsers(req);
@@ -55,7 +55,7 @@ export const getManageWarnUser = tyrCatchControllerHandler(
   }
 );
 
-export const getManageWarnContent = tyrCatchControllerHandler(
+export const getManageWarnContent = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -74,7 +74,7 @@ export const getManageWarnContent = tyrCatchControllerHandler(
   }
 );
 
-export const postWarnUser = tyrCatchControllerHandler(
+export const postWarnUser = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -88,7 +88,7 @@ export const postWarnUser = tyrCatchControllerHandler(
   }
 );
 
-export const patchUnWarnUser = tyrCatchControllerHandler(
+export const patchUnWarnUser = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -102,7 +102,7 @@ export const patchUnWarnUser = tyrCatchControllerHandler(
   }
 );
 
-export const getManageBanUser = tyrCatchControllerHandler(
+export const getManageBanUser = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const comboPerPage = await COMBO.getComboPerPage(req);
     const user = await USER.getBanUsers(req);
@@ -118,7 +118,7 @@ export const getManageBanUser = tyrCatchControllerHandler(
   }
 );
 
-export const getManageBanContent = tyrCatchControllerHandler(
+export const getManageBanContent = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -137,7 +137,7 @@ export const getManageBanContent = tyrCatchControllerHandler(
   }
 );
 
-export const postBanUser = tyrCatchControllerHandler(
+export const postBanUser = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -151,7 +151,7 @@ export const postBanUser = tyrCatchControllerHandler(
   }
 );
 
-export const patchUnBanUser = tyrCatchControllerHandler(
+export const patchUnBanUser = tryCatchControllerHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
