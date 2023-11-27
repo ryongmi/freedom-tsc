@@ -13,7 +13,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:8000", // 요청 URL
+        url: process.env.REDIRECT_URI, // 요청 URL
       },
     ],
   },

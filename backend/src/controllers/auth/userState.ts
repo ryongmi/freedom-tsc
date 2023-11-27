@@ -12,8 +12,7 @@ export const getLogin = tryCatchControllerHandler(
     const code = req.query.code;
     const state = req.query.state;
     const grant_type = "authorization_code";
-    console.log("URL: " + process.env.REDIRECT_URI);
-    const redirect_uri = process.env.REDIRECT_URI ?? "http://localhost:8000";
+    const redirect_uri = process.env.REDIRECT_URI;
     const twitchState = process.env.TWITCH_STATE;
 
     if (state !== twitchState)
@@ -35,7 +34,6 @@ export const getLogin = tryCatchControllerHandler(
           // 에러 발생..
           throw err;
         }
-        console.log("post");
         const tokenData = JSON.parse(body);
         const access_token = tokenData.access_token;
 
@@ -51,12 +49,11 @@ export const getLogin = tryCatchControllerHandler(
             if (error) {
               throw error;
             }
-            console.log("get: " + body);
+
             const twichUser = JSON.parse(body).data[0];
-            console.log("user: " + twichUser);
+
             await USER.createdUser(req, twichUser);
             const user = await USER.getUser(req, twichUser.id);
-            console.log("user sel");
             if (!user || user.userStatus === "B") {
               // 에러 발생, 벤 유저가 로그인시 로그인불가 및 팝업창 띄우기
               throw new Error("밴 유저는 로그인이 불가능합니다.");
@@ -69,12 +66,11 @@ export const getLogin = tryCatchControllerHandler(
               authId: user.authId,
             };
             req.session.cookie.maxAge = 1000 * 60 * 60; // 1000 = 1초, 1000 * 60 = 1분
-            console.log("session save");
             // 세션을 저장하는 메서드
             // 일반적으로는 알아서 저장되기 때문에 필요없지만, 세션이 확실히 저장되고 나서 진행해야 할 경우 사용
             req.session.save((err) => {
-              console.log(err);
-              console.log(req.session.user);
+              console.log("error: " + err);
+              console.log("loginUser: " + req.session.user);
               if (err) throw err;
 
               res.redirect(redirect_uri);
