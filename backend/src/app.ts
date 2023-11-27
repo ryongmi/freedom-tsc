@@ -29,7 +29,18 @@ const app = express();
 app.use(cors());
 // helmet - 보안을 위해 사용
 // 다양한 보안문제가 되는 부분들을 방지해주는 NPM
-app.use(helmet());
+app.use(
+  helmet({
+    // 트위치 이미지와 유튜브 영상을 사용하기 위해 해당 URL 제한 해제
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "img-src": ["'self'", "static-cdn.jtvnw.net"],
+        "frame-src": ["'self'", "www.youtube.com"],
+      },
+    },
+  })
+);
 // 세션 설정
 app.use(session);
 
@@ -50,9 +61,10 @@ app.use("/api", indexRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs)); // swagger - API DOCS
 
 // front 메인화면
-// app.get("*", function (req, res) {
-//   res.sendFile(FRONT_PATH + "/index.html");
-// });
+// 이걸 안해주면 새로고침시 404 에러 발생
+app.get("*", function (req: Request, res: Response) {
+  res.sendFile(path.join(FRONT_PATH, "index.html"));
+});
 
 // app.get("*", function (req: Request, res: Response) {
 //   res.sendFile(FRONT_PATH + req.originalUrl + ".html");

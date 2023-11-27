@@ -121,7 +121,7 @@ export const getPostAll = tryCatchModelHandler(
 export const getPostAllContent = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const postId = req.params.postId;
-    const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number | null = req.session.user?.userId ?? null;
 
     let sql =
       ` SELECT` +
@@ -288,7 +288,7 @@ export const getPostContent = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection) => {
     const menuId = req.params.menuId;
     const postId = req.params.postId;
-    const adminUserId: number = req.session.user!.userId;
+    const adminUserId: number | null = req.session.user?.userId ?? null;
 
     let sql =
       ` SELECT` +
