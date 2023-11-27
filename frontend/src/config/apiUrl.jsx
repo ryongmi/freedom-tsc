@@ -4,7 +4,7 @@ const BASE_URL = "https://freedom-blsk.onrender.com/api";
 
 // 트위치 관련
 const twitchState = "c3ab8aa609ea11e793ae92361f002671";
-export const TWITCH_LOGIN_API = `http://id.twitch.tv/oauth2/authorize?response_type=code&client_id=tymp4f3nwou50k5wgrameksysbthdk&redirect_uri=http://localhost:8000/api/userState/login&scope=user:read:email&state=${twitchState}`;
+export const TWITCH_LOGIN_API = `http://id.twitch.tv/oauth2/authorize?response_type=code&client_id=tymp4f3nwou50k5wgrameksysbthdk&redirect_uri=${BASE_URL}/userState/login&scope=user:read:email&state=${twitchState}`;
 
 // 유저 및 로그인 관련
 export const USER_INFO = `${BASE_URL}/userState/userInfo`;
