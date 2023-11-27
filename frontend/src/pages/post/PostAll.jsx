@@ -13,7 +13,7 @@ import "../../styles/post.css";
 const { RangePicker } = DatePicker;
 
 function PostAll() {
-  const { adminFlag } = useSelector((store) => store.user);
+  const { adminFlag, isLoggedIn } = useSelector((store) => store.user);
   const { menuId } = useParams();
   const navigate = useNavigate();
   const { showMessage, showModal } = useOutletContext();
@@ -224,7 +224,7 @@ function PostAll() {
       menuName="전체글보기"
       handlePagingChange={handlePagingChange}
       handleDelete={adminFlag === "Y" ? handleDelete : null}
-      handlePostNew={handlePostNew}
+      handlePostNew={isLoggedIn ? handlePostNew : null}
     >
       <Select
         value={searchDateOption}
