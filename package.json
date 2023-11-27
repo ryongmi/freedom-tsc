@@ -1,0 +1,12 @@
+{
+  "name": "freedom",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cd backend && npm start",
+    "build": "npm run client-build && npm run server-build",
+    "client-build": "cd frontend && npm ci --dev && npm run build && cd ../",
+    "server-build": "cd backend && npm ci --dev && npm run build && cd ../"
+  }
+}
