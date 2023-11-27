@@ -128,8 +128,9 @@ function ManageUser() {
 
       // 사용할 콤보박스 아이템
       setComboUserOption(comboUserOption);
+      setSearchUserOption(comboUserOption[0].value ?? "");
+      setSearchUserOptionValue(comboUserStatus);
       setComboAuth(comboAuth);
-      setComboUserStatus(comboUserStatus);
 
       //초기화
       setSelectedRowKeys([]);

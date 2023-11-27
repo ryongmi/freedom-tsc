@@ -74,6 +74,7 @@ function ManageBanUser() {
 
       // 사용할 콤보박스 아이템
       setComboUserOption(comboUserOption);
+      setSearchUserOption(comboUserOption[0].value ?? "");
 
       //초기화
       setSelectedRowKeys([]);
