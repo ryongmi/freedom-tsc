@@ -51,7 +51,7 @@ export const getLogin = tryCatchControllerHandler(
             if (error) {
               throw error;
             }
-            console.log("get");
+            console.log("get: " + body);
             const twichUser = JSON.parse(body).data[0];
             console.log("user: " + twichUser);
             await USER.createdUser(req, twichUser);

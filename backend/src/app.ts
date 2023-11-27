@@ -1,5 +1,4 @@
 //require("dotenv").config({ path: "../config/.env" });
-console.log("연결됨");
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.join(__dirname, "./config", "/.env") });
