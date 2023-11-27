@@ -1,5 +1,6 @@
 // 홈페이지 URL
-const BASE_URL = "http://localhost:8000/api";
+// const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = "https://freedom-blsk.onrender.com/api";
 
 // 트위치 관련
 const twitchState = "c3ab8aa609ea11e793ae92361f002671";
