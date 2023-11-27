@@ -1,4 +1,5 @@
 //require("dotenv").config({ path: "../config/.env" });
+console.log("연결됨");
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.join(__dirname, "./config", "/.env") });
@@ -24,7 +25,6 @@ const app = express();
 //     next(error);
 //   }
 // });
-
 // CORS에러 설정
 app.use(cors());
 // helmet - 보안을 위해 사용
