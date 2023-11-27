@@ -7,9 +7,9 @@ import imgUpload from "./util/imgUpload";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
-import FRONT_PATH from "./config/constance";
+import FRONT_PATH from "./util/constance";
 import session from "./util/session";
-import { swaggerUi, specs } from "./config/swagger";
+import { swaggerUi, specs } from "./util/swagger";
 import indexRoutes from "./routes/index";
 
 const app = express();
