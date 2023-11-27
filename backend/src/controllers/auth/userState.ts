@@ -12,7 +12,7 @@ export const getLogin = tryCatchControllerHandler(
     const code = req.query.code;
     const state = req.query.state;
     const grant_type = "authorization_code";
-    const redirect_uri = process.env.REDIRECT_URI;
+    const redirect_uri = process.env.REDIRECT_URI ?? "http://localhost:8000";
     const twitchState = process.env.TWITCH_STATE;
 
     if (state !== twitchState)
