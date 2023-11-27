@@ -1,17 +1,16 @@
-import { Avatar, Button, Col, Row } from "antd";
+import { Button, Col, Row } from "antd";
 import { Header } from "antd/es/layout/layout";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import UserMenu from "./UserMenu";
 import Login from "../components/auth/Login";
 import Logout from "../components/auth/Logout";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
-import { LOGOUT_IMG } from "../config/imgUrl";
 import { Modal } from "antd";
 import { TWITCH_LOGIN_API } from "../config/apiUrl";
-
-import "../styles/header.css";
 import { logout } from "../services/apiUser";
+// import { LOGOUT_IMG } from "../config/imgUrl";
+import "../styles/header.css";
 
 function AppHeader({ collapsed, toggleCollapsed }) {
   const isLoggedIn = useSelector((store) => store.user.isLoggedIn);
@@ -42,10 +41,18 @@ function AppHeader({ collapsed, toggleCollapsed }) {
         <Row align="middle" gutter={16}>
           <Col style={{ marginRight: "52px" }}>
             {/* <img src={logo} style={{ height: 19, width: 16 }} alt="logo" /> */}
-            <button className="btn-user-icon" onClick={(e) => navigate("/")}>
+            {/* <button className="btn-user-icon" onClick={(e) => navigate("/")}>
               <Avatar size="large" src={LOGOUT_IMG} />
-            </button>
-            <span>freedom</span>
+            </button> */}
+            <a
+              className="logo-text"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/");
+              }}
+            >
+              Freedom
+            </a>
           </Col>
           <Col flex={2}>
             <Button onClick={toggleCollapsed} ghost>

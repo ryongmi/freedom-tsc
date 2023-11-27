@@ -1,5 +1,5 @@
 function DashBoard() {
-  return <div>DashBoard</div>;
+  return <div>준비중</div>;
 }
 
 export default DashBoard;

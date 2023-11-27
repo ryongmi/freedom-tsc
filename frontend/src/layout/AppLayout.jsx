@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
-import { Footer } from "antd/es/layout/layout";
 
 import AppHeader from "./AppHeader";
 
