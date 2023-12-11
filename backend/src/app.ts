@@ -1,4 +1,3 @@
-//require("dotenv").config({ path: "../config/.env" });
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.join(__dirname, "./config", "/.env") });
@@ -14,18 +13,16 @@ import indexRoutes from "./routes/index";
 
 const app = express();
 
-// app.use((req: Request, res: Response, next: NextFunction) => {
-//   const result = dotenv.config({
-//     path: path.join(__dirname, "./config", "/.env"),
-//   }); // .env 파일의 경로를 dotenv.config에 넘겨주고 성공여부를 저장함
-//   if (result.parsed == undefined) {
-//     // .env 파일 parsing 성공 여부 확인
-//     const error = new Error("Cannot loaded environment variables file."); // parsing 실패 시 Throwing
-//     next(error);
-//   }
-// });
 // CORS에러 설정
-app.use(cors());
+// app.use(cors());
+// front와 backend간에 포트가 달라 세션쿠키가 공유되지 않아, front fetch에 include 추가함
+const corsOptions = {
+  origin: process.env.REDIRECT_URI as string, //"http://localhost:3050",
+  credentials: true,
+};
+
+app.use(cors(corsOptions)); // 옵션을 추가한 CORS 미들웨어 추가
+
 // helmet - 보안을 위해 사용
 // 다양한 보안문제가 되는 부분들을 방지해주는 NPM
 app.use(
@@ -40,17 +37,18 @@ app.use(
     },
   })
 );
+
 // 세션 설정
 app.use(session);
-
-// Express 4.16.0버전 부터 body-parser의 일부 기능이 익스프레스에 내장 body-parser 연결
-app.use(express.json()); // application/json
-app.use(express.urlencoded({ extended: false })); // x-www-form-urlencoded <form>
 
 // 정적으로 파일의 경로를 지정
 // 정적의미 : 다른 미들웨어를 거쳐서 처리되지 않고, 바로 파일 시스템에 포워딩됨
 app.use(express.static(FRONT_PATH));
 app.use("/images", express.static(path.join(__dirname, "..", "images")));
+
+// Express 4.16.0버전 부터 body-parser의 일부 기능이 익스프레스에 내장 body-parser 연결
+app.use(express.json()); // application/json
+app.use(express.urlencoded({ extended: false })); // x-www-form-urlencoded <form>
 
 // 이미지 업로드
 app.post("/api/upload", imgUpload.single("file"), (req, res) => {

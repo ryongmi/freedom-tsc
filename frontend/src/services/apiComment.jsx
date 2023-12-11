@@ -1,7 +1,9 @@
 import { COMMENT, CREATED_COMMENT } from "../config/apiUrl";
 
 export async function getComment(menuId, postId) {
-  const res = await fetch(`${COMMENT}/${menuId}/${postId}`);
+  const res = await fetch(`${COMMENT}/${menuId}/${postId}`, {
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
+  });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
@@ -27,6 +29,7 @@ export async function postComment(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ comment: item }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -53,6 +56,7 @@ export async function patchComment(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ comment: item }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set

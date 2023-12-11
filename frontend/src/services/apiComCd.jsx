@@ -7,7 +7,10 @@ export async function getManageComCd(
   comcdOptionValue
 ) {
   const res = await fetch(
-    `${MANAGE_COMCD}?page=${currentPage}&perPage=${perPage}&comcdOption=${comcdOption}&comcdOptionValue=${comcdOptionValue}`
+    `${MANAGE_COMCD}?page=${currentPage}&perPage=${perPage}&comcdOption=${comcdOption}&comcdOptionValue=${comcdOptionValue}`,
+    {
+      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
+    }
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -34,6 +37,7 @@ export async function postManageComCd(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ comCd: item }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -60,6 +64,7 @@ export async function patchManageComCd(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ comCd: item }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -87,7 +92,10 @@ export async function getDetailComCd(
   useFlag
 ) {
   const res = await fetch(
-    `${MANAGE_COMCD}/${comId}?page=${currentPage}&perPage=${perPage}&comcdOption=${comcdOption}&comcdOptionValue=${comcdOptionValue}&useFlag=${useFlag}`
+    `${MANAGE_COMCD}/${comId}?page=${currentPage}&perPage=${perPage}&comcdOption=${comcdOption}&comcdOptionValue=${comcdOptionValue}&useFlag=${useFlag}`,
+    {
+      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
+    }
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -114,6 +122,7 @@ export async function postDetailComCd(item, comId) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ comCd: item, comId }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -140,6 +149,7 @@ export async function patchDetailComCd(item, comId) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ comCd: item, comId }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set

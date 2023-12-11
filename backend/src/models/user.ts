@@ -118,7 +118,7 @@ export const createdUser = tryCatchModelHandler(
       `(` +
       `    ${userId}` +
       ` , '${userLoginId}'` +
-      ` , (SELECT MAX(AUTH_ID) FROM AUTH WHERE ADMIN_FLAG = 'N' AND USE_FLAG = 'Y' AND DELETED_AT IS NULL)` +
+      ` , (SELECT MAX(AUTH_ID) FROM auth WHERE ADMIN_FLAG = 'N' AND USE_FLAG = 'Y' AND DELETED_AT IS NULL)` +
       ` , '${displayName}'` +
       ` , '${twitchType}'` +
       ` , '${broadcasterType}'` +

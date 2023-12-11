@@ -356,7 +356,7 @@ export const getPostAll = tryCatchModelHandler(
       `    AND P.BRACKET_ID = B.BRACKET_ID` +
       `   LEFT JOIN user U` +
       `     ON U.USER_ID = P.CREATED_USER` +
-      `  INNER JOIN MENU M` +
+      `  INNER JOIN menu M` +
       `     ON P.MENU_ID = M.MENU_ID` +
       `  WHERE P.DELETED_AT IS NULL`;
 

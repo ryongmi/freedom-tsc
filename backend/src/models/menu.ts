@@ -8,6 +8,9 @@ export const getMenuAuth = tryCatchModelHandler(
     const menuId = req.params.menuId;
     const authId = req.session.user?.authId ?? 99;
 
+    console.log("auth: " + req.session.user);
+    console.log(req.session.user?.authId ?? "없음");
+
     const sql: string =
       ` SELECT` +
       `     IF(POST_AUTH_ID >= ${authId}, 'Y' ,'N') AS post` +

@@ -5,16 +5,16 @@ import { Comment } from "../interface/comment";
 
 export const getComment = tryCatchModelHandler(
   async (req: Request, conn: mysql.PoolConnection, commentId: number) => {
-    const menuId = req.body.menuId;
-    const postId = req.body.postId;
+    // const menuId = req.body.menuId;
+    // const postId = req.body.postId;
 
     const sql: string =
       ` SELECT` +
       `     * ` +
       `   FROM comment` +
       `  WHERE COMMENT_ID = ${commentId}` +
-      `    AND MENU_ID = ${menuId}` +
-      `    AND POST_ID = ${postId}` +
+      // `    AND MENU_ID = ${menuId}` +
+      // `    AND POST_ID = ${postId}` +
       `    AND DELETED_AT IS NULL`;
 
     const [rows] = await conn.query<RowDataPacket[]>(sql);

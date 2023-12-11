@@ -14,8 +14,12 @@ export async function getPostAll(
   postValue,
   postOption
 ) {
+  console.log(POST_ALL);
   const res = await fetch(
-    `${POST_ALL}?page=${currentPage}&perPage=${perPage}&dateValue=${dateValue}&dateOption=${dateOption}&postValue=${postValue}&postOption=${postOption}`
+    `${POST_ALL}?page=${currentPage}&perPage=${perPage}&dateValue=${dateValue}&dateOption=${dateOption}&postValue=${postValue}&postOption=${postOption}`,
+    {
+      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
+    }
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -31,7 +35,10 @@ export async function getPostAll(
 }
 
 export async function getPostAllContent(menuId, postId) {
-  const res = await fetch(`${POST_ALL}/${menuId}/${postId}`);
+  console.log(POST_ALL);
+  const res = await fetch(`${POST_ALL}/${menuId}/${postId}`, {
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
+  });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
@@ -59,8 +66,12 @@ export async function getPost(
   postValue,
   postOption
 ) {
+  console.log(POST);
   const res = await fetch(
-    `${POST}/${menuId}?page=${currentPage}&perPage=${perPage}&bracketId=${bracketValue}&dateValue=${dateValue}&dateOption=${dateOption}&postValue=${postValue}&postOption=${postOption}`
+    `${POST}/${menuId}?page=${currentPage}&perPage=${perPage}&bracketId=${bracketValue}&dateValue=${dateValue}&dateOption=${dateOption}&postValue=${postValue}&postOption=${postOption}`,
+    {
+      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
+    }
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -80,7 +91,10 @@ export async function getPost(
 }
 
 export async function getPostContent(menuId, postId) {
-  const res = await fetch(`${POST}/${menuId}/${postId}`);
+  console.log(POST);
+  const res = await fetch(`${POST}/${menuId}/${postId}`, {
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
+  });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
@@ -99,7 +113,9 @@ export async function getPostContent(menuId, postId) {
 }
 
 export async function getPostEdit(menuId, postId) {
-  const res = await fetch(`${POST_EDIT}?menuId=${menuId}&postId=${postId}`);
+  const res = await fetch(`${POST_EDIT}?menuId=${menuId}&postId=${postId}`, {
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
+  });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) {
@@ -125,6 +141,7 @@ export async function postCreatePost(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ post: item }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -151,6 +168,7 @@ export async function patchPost(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ post: item }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -177,6 +195,7 @@ export async function patchChangeNotice(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(item),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -203,6 +222,7 @@ export async function patchMovePost(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ post: item }),
+    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
