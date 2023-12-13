@@ -14,7 +14,6 @@ export async function getPostAll(
   postValue,
   postOption
 ) {
-  console.log(POST_ALL);
   const res = await fetch(
     `${POST_ALL}?page=${currentPage}&perPage=${perPage}&dateValue=${dateValue}&dateOption=${dateOption}&postValue=${postValue}&postOption=${postOption}`
   );
