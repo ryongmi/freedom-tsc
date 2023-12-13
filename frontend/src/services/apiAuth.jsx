@@ -2,10 +2,7 @@ import { MANAGE_AUTH, MANAGE_AUTH_LEVEL } from "../config/apiUrl";
 
 export async function getManageAuth(currentPage, perPage, authName, useFlag) {
   const res = await fetch(
-    `${MANAGE_AUTH}?page=${currentPage}&perPage=${perPage}&authName=${authName}&useFlag=${useFlag}`,
-    {
-      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
-    }
+    `${MANAGE_AUTH}?page=${currentPage}&perPage=${perPage}&authName=${authName}&useFlag=${useFlag}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -32,7 +29,6 @@ export async function postManageAuth(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ auth: item }),
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -59,7 +55,6 @@ export async function patchManageAuth(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ auth: item }),
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -84,10 +79,7 @@ export async function getManageAuthLevelCondition(
   authName
 ) {
   const res = await fetch(
-    `${MANAGE_AUTH_LEVEL}?page=${currentPage}&perPage=${perPage}&authName=${authName}`,
-    {
-      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
-    }
+    `${MANAGE_AUTH_LEVEL}?page=${currentPage}&perPage=${perPage}&authName=${authName}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -114,7 +106,6 @@ export async function postManageAuthLevelCondition(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ auth: item }),
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set

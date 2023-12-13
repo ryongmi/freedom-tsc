@@ -18,6 +18,12 @@ export const getLogin = tryCatchControllerHandler(
     if (state !== twitchState)
       throw new Error("트위치 API를 받아오는 도중 에러가 발생하였습니다.");
 
+    console.log("client_id: " + client_id);
+    console.log("client_secret: " + client_secret);
+    console.log("code: " + code);
+    console.log("grant_type: " + grant_type);
+    console.log("redirect_uri: " + redirect_uri);
+
     request.post(
       {
         url: "https://id.twitch.tv/oauth2/token",
@@ -34,8 +40,13 @@ export const getLogin = tryCatchControllerHandler(
           // 에러 발생..
           throw err;
         }
+
+        console.log("_httpResponse: " + JSON.stringify(_httpResponse, null, 2));
+        console.log("body: " + body);
         const tokenData = JSON.parse(body);
+        console.log("tokenData: " + JSON.stringify(tokenData, null, 2));
         const access_token = tokenData.access_token;
+        console.log("access_token: " + access_token);
 
         request.get(
           {
@@ -47,10 +58,14 @@ export const getLogin = tryCatchControllerHandler(
           },
           async function (error, _response, body) {
             if (error) {
+              console.log("error: " + error);
               throw error;
             }
-
-            const twichUser = JSON.parse(body).data[0];
+            console.log("error: " + error);
+            console.log("_response: " + _response);
+            console.log("body: " + body);
+            const twichUser =
+              JSON.parse(body)?.data[0] ?? res.redirect(redirect_uri);
 
             await USER.createdUser(req, twichUser);
             const user = await USER.getUser(req, twichUser.id);

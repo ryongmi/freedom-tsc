@@ -106,7 +106,11 @@ function PostEditor() {
     }
   }
 
-  const imgLink = "http://localhost:8000/images";
+  const url =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3050"
+      : "https://korgeobug.com";
+  const imgLink = `${url}/images`;
 
   function customUploadAdapter(loader) {
     return {
@@ -117,7 +121,7 @@ function PostEditor() {
             data.append("name", file.name);
             data.append("file", file);
 
-            fetch("http://localhost:8000/api/upload", {
+            fetch(`${url}/api/upload`, {
               method: "POST",
               body: data,
             })
@@ -227,7 +231,6 @@ function PostEditor() {
             // }}
             onChange={(event, editor) => {
               const data = editor.getData();
-              console.log(data);
               setContent(data);
               // console.log({ event, editor, data });
             }}

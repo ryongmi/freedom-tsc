@@ -248,7 +248,11 @@ function PostTitle({
         >
           <Space direction="vertical">
             {comboNotice.map((notice) => {
-              return <Radio value={notice.value}>{notice.label}</Radio>;
+              return (
+                <Radio key={notice.value} value={notice.value}>
+                  {notice.label}
+                </Radio>
+              );
             })}
           </Space>
         </Radio.Group>

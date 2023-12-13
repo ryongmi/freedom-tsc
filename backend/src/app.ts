@@ -14,14 +14,14 @@ import indexRoutes from "./routes/index";
 const app = express();
 
 // CORS에러 설정
-// app.use(cors());
+app.use(cors());
 // front와 backend간에 포트가 달라 세션쿠키가 공유되지 않아, front fetch에 include 추가함
-const corsOptions = {
-  origin: process.env.REDIRECT_URI as string, //"http://localhost:3050",
-  credentials: true,
-};
+// const corsOptions = {
+//   origin: process.env.REDIRECT_URI as string, //"http://localhost:3050",
+//   credentials: true,
+// };
 
-app.use(cors(corsOptions)); // 옵션을 추가한 CORS 미들웨어 추가
+// app.use(cors(corsOptions)); // 옵션을 추가한 CORS 미들웨어 추가
 
 // helmet - 보안을 위해 사용
 // 다양한 보안문제가 되는 부분들을 방지해주는 NPM

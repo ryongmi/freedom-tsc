@@ -11,9 +11,7 @@ import {
 } from "../config/apiUrl";
 
 export async function getUserInfo() {
-  const res = await fetch(USER_INFO, {
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
-  });
+  const res = await fetch(USER_INFO);
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) throw Error("유저정보를 가져오지 못했습니다.");
@@ -26,7 +24,6 @@ export async function getUserInfo() {
 export async function logout() {
   const res = await fetch(LOGOUT, {
     method: "DELETE",
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -45,10 +42,7 @@ export async function getManageUser(
   userStatus
 ) {
   const res = await fetch(
-    `${MANAGE_USER}?page=${currentPage}&perPage=${perPage}&userOption=${userOption}&userOptionValue=${userOptionValue}&userAuthId=${userAuthId}&userStatus=${userStatus}`,
-    {
-      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
-    }
+    `${MANAGE_USER}?page=${currentPage}&perPage=${perPage}&userOption=${userOption}&userOptionValue=${userOptionValue}&userAuthId=${userAuthId}&userStatus=${userStatus}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -75,7 +69,6 @@ export async function patchManageUser(item) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ user: item }),
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -101,10 +94,7 @@ export async function getManageWarnUser(
   userOptionValue
 ) {
   const res = await fetch(
-    `${MANAGE_WARN_USER}?page=${currentPage}&perPage=${perPage}&userOption=${userOption}&userOptionValue=${userOptionValue}`,
-    {
-      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
-    }
+    `${MANAGE_WARN_USER}?page=${currentPage}&perPage=${perPage}&userOption=${userOption}&userOptionValue=${userOptionValue}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -125,10 +115,7 @@ export async function getManageWarnUser(
 
 export async function getContentWarnUser(userId, currentPage, perPage) {
   const res = await fetch(
-    `${MANAGE_WARN_USER}/${userId}?page=${currentPage}&perPage=${perPage}`,
-    {
-      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
-    }
+    `${MANAGE_WARN_USER}/${userId}?page=${currentPage}&perPage=${perPage}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -154,10 +141,7 @@ export async function getManageBanUser(
   userOptionValue
 ) {
   const res = await fetch(
-    `${MANAGE_BAN_USER}?page=${currentPage}&perPage=${perPage}&userOption=${userOption}&userOptionValue=${userOptionValue}`,
-    {
-      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
-    }
+    `${MANAGE_BAN_USER}?page=${currentPage}&perPage=${perPage}&userOption=${userOption}&userOptionValue=${userOptionValue}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -178,10 +162,7 @@ export async function getManageBanUser(
 
 export async function getContentBanUser(userId, currentPage, perPage) {
   const res = await fetch(
-    `${MANAGE_BAN_USER}/${userId}?page=${currentPage}&perPage=${perPage}`,
-    {
-      credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
-    }
+    `${MANAGE_BAN_USER}/${userId}?page=${currentPage}&perPage=${perPage}`
   );
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -208,7 +189,6 @@ export async function postWarnUser(item, postUrl, warnReason) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ user: item, postUrl, warnReason }),
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -235,7 +215,6 @@ export async function patchUnWarnUser(item, userId) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ warn: item, userId }),
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -262,7 +241,6 @@ export async function postBanUser(item, postUrl, banReason) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ user: item, postUrl, banReason }),
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -289,7 +267,6 @@ export async function patchUnBanUser(item, userId) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ ban: item, userId }),
-    credentials: "include", // 클라이언트와 서버가 통신할때 쿠키 값을 공유하겠다는 설정
   });
 
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set

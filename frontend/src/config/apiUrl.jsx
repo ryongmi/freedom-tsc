@@ -2,7 +2,7 @@
 const BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3050/api"
-    : "http://korgeobug.com/api";
+    : "https://korgeobug.com/api";
 // : "http://43.203.13.19:8000/api";
 
 // 트위치 관련
