@@ -59,9 +59,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs)); // swagger - API 
 
 // front 메인화면
 // 이걸 안해주면 새로고침시 404 에러 발생
-app.get("*", function (req: Request, res: Response) {
-  res.sendFile(path.join(FRONT_PATH, "index.html"));
-});
+// app.get("*", function (req: Request, res: Response) {
+//   res.sendFile(path.join(FRONT_PATH, "index.html"));
+// });
 
 // app.get("*", function (req: Request, res: Response) {
 //   res.sendFile(FRONT_PATH + req.originalUrl + ".html");
